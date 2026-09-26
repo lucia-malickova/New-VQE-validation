@@ -1,0 +1,4 @@
+system,target_dimension,max_HF_tangent_dimension,projected_bare_pool_size,projected_bare_HF_tangent_rank,invariant_bare_pool_size,invariant_bare_HF_tangent_rank,generalized_physical_pool_size,generalized_physical_nonzero_on_HF,generalized_physical_HF_tangent_rank
+"Cu CAS(15e,9o)",240,239,323,239,49,49,1080,99,99
+"NO CAS(7e,6o)",210,209,231,171,6,6,165,56,56
+"OH CAS(7e,5o)",40,39,49,39,9,9,80,25,25

@@ -4,3 +4,4 @@ qiskit==2.2.3
 qiskit-aer==0.17.2
 qiskit-nature==0.7.2
 matplotlib>=3.8,<4
+pandas>=2.2,<3

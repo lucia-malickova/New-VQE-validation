@@ -1,0 +1,9 @@
+method,qubits,operator_applications,energy_error_mEh,S2,fidelity,status
+Projected-subspace ADAPT (canonical),18,121,1.5719060475021251,0.75,,reduced-space result
+"Same angles, bare generators",18,121,464.72967545741994,2.3835368555324052,0.07343041338199759,fails representation equivalence
+Invariant bare subset + repeats,18,100,167.33987584666465,0.75,,representation-faithful but insufficient
+Restricted physical S+D,18,35,153.62888891468174,0.75,0.2866212882475117,spin-pure; insufficient
+Restricted physical S+D+T,18,147,141.39234863660022,0.75,0.26716374858708536,spin-pure; insufficient
+Restricted S+D+T + repeats,18,250,13.166088935577136,0.75,0.8783140551152994,spin-pure; improved but above target
+Generalized physical + repeats,18,50,1.4926737476343988,0.75,0.9826136513673207,passes 1.6 mEh fermionic target
+Generalized physical + repeats,24,61,1.181293019271834,0.75,0.9906809143799061,passes 1.6 mEh fermionic target

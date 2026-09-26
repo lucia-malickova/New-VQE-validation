@@ -1,69 +1,135 @@
-# Spin-Faithful ADAPT-VQE for an Open-Shell Copper Center
+# Representation-Equivalence Audits for Open-Shell ADAPT-VQE
 
-Code, checkpoints, and validation data for the manuscript **From Projected Subspaces to Physical Circuits: Spin-Faithful ADAPT-VQE for an Open-Shell Copper Center** by Lucia Malíčková and Petr Klenovský.
+This repository contains the code and validation data for the draft manuscript
 
-## What this repository tests
+**From Projected Subspaces to Physical Circuits: Representation-Equivalence Audits for Open-Shell ADAPT-VQE**
 
-For an open-shell VQE calculation, four layers must be distinguished:
+by Lucia Malíčková and Petr Klenovský.
 
-1. the target spin sector of the electronic Hamiltonian;
-2. the state optimized by the variational algorithm;
-3. the physical fermionic unitary sequence;
-4. the synthesized qubit circuit and its measurement cost.
+## Scientific scope
 
-The repository contains an explicit counterexample showing that an accurate state obtained after exact projection into a doublet subspace need not be represented by the corresponding bare fermionic sequence.
+The repository is deliberately organized around an end-to-end validation question:
 
-## Final validated benchmarks
+> Does the state optimized in the emulator correspond to the physical fermionic
+> sequence, the synthesized qubit circuit, and the measurement claim that is
+> ultimately reported?
 
-| Model | Qubits | Target-doublet energy (Eh) | Compact physical ansatz |
+The answer is not automatic for open-shell VQE.
+
+The benchmark uses an idealized type-1 (blue-copper) Cu(II) center and two
+classically exact active-space Hamiltonians:
+
+| Model | Qubits | Target doublet energy (Eh) | Compact physical ansatz |
 |---|---:|---:|---:|
 | CAS(15e,9o) | 18 | -2518.989067369946 | 50 operator applications |
 | CAS(21e,12o) | 24 | -2518.989131438323 | 61 operator applications |
 
-Both active-space Hamiltonians contain a lower quartet. The doublet is the **target state** because the benchmark is intended to represent oxidized Cu(II); the quartet is therefore called non-target, not mathematically unphysical. The calculated ordering is not claimed to be a converged spin-state prediction for a real blue-copper protein.
+Both active-space Hamiltonians also contain a lower quartet. The doublet is the
+**target state** because the model is intended to represent oxidized Cu(II);
+the quartet is therefore called *non-target*, not mathematically unphysical.
+The calculated spin ordering is **not** claimed to be a converged prediction
+for the real protein.
 
-Main numerical findings:
+## Main validated findings
 
-- projected-doublet ADAPT: 1.572 mEh with 123 operators;
-- the same angles with bare generators: fidelity 0.07416 to the projected state, <S^2>=2.381596, error 464.711 mEh;
-- restricted physical S+D: 153.629 mEh;
-- restricted physical S+D+T: 141.392 mEh;
-- restricted physical S+D+T with repeats: 13.166 mEh;
-- generalized physical spin-preserving ADAPT, 18q: 1.492674 mEh, fidelity 0.982614, <S^2>=0.75;
-- generalized physical spin-preserving ADAPT, 24q: 1.181293 mEh, fidelity 0.990681, <S^2>=0.75.
+1. **Projected-subspace accuracy is not the same as physical-circuit accuracy.**
+   A freshly regenerated canonical exact-doublet projected ADAPT sequence reaches
+   1.5719 mEh in 121 operators, but the same amplitudes applied to the bare
+   fermionic sequence give only 0.07343 fidelity with the projected state,
+   <S^2>=2.383537, and 464.730 mEh error. The submission-v5 manuscript also
+   reports an independent NO benchmark and model stress tests; the associated
+   revision-specific peer-review archive accompanies the manuscript.
 
-Circuit synthesis is validated separately. The 24q Suzuki-2 r=1 circuit passes the strict circuit-equivalence gate with 0.0906 mEh synthesis error and 0.999694 fidelity, but still requires 22,574 CX gates at abstract-gate-set depth 26,409. The 18q Suzuki-2 r=4 circuit reaches 0.999484 fidelity and 0.135 mEh synthesis error at 61,482 CX and depth 71,636; its total error is 1.628 mEh.
+2. **Physical spin preservation alone is not sufficient.**
+   Restricted occupied-to-virtual spin-adapted pools remain far from the target:
+   153.629 mEh (S+D) and 141.392 mEh (S+D+T). Allowing repeats improves the
+   restricted S+D+T sequence to 13.166 mEh, but still does not reach the
+   1.6 mEh model-space benchmark.
 
-The commonly used 1.6 mEh value is treated only as a **model-space algorithmic benchmark**. It is not a claim of 1 kcal/mol predictive accuracy for a real protein, laccase, or the STO-3G model.
+3. **Generalized physical spin-preserving ADAPT succeeds in the emulator.**
+   The final fermionic ansätze reach:
+   - 18 qubits: 1.492674 mEh, fidelity 0.982614, <S^2>=0.75;
+   - 24 qubits: 1.181293 mEh, fidelity 0.990681, <S^2>=0.75.
 
-## Layout
+4. **Circuit synthesis adds another approximation.**
+   - 18q, Suzuki-2 r=4: synthesis error 0.135 mEh, fidelity 0.999484,
+     61,482 CX, depth 71,636; total doublet error 1.628 mEh.
+     This narrowly misses the 1.6 mEh model-space benchmark and also fails the
+     stricter 0.1 mEh synthesis-error gate.
+   - 24q, Suzuki-2 r=1: synthesis error 0.0906 mEh, fidelity 0.999694,
+     22,574 CX, depth 26,409; total doublet error 1.272 mEh.
+
+5. **Measurement cost is severe even before device noise.**
+   For the chosen greedy QWC grouping and variance-optimal allocation,
+   a 1.6 mEh statistical uncertainty requires approximately
+   1.43e8 shots (18q) and 5.46e8 shots (24q).
+
+These numbers are validation results for the specified active-space
+Hamiltonians. The commonly used 1.6 mEh value is treated here only as a
+**model-space algorithmic benchmark**, not as a claim of 1 kcal/mol accuracy
+for the real blue-copper protein or laccase.
+
+## Repository layout
 
 ```text
-src/                       physical-spin implementation and validators
-src/search/                adaptive search, reoptimization, and pruning scripts
+src/                       final physical-spin implementation and validators
 data/18q/                  CAS(15e,9o) Hamiltonian and best-50 checkpoint
 data/24q/                  CAS(21e,12o) Hamiltonian and best-61 checkpoint
-results/final/             validated exact and Qiskit/Aer outputs
-results/ablation/          restricted-pool/repeat ablations
-results/excluded/          failed validation extensions kept for transparency
-paper/                     manuscript, bibliography, source data, figure builder
-docs/                      audit and validation notes
+results/final/              validated exact and Qiskit/Aer outputs
+results/ablation/           restricted-pool/repeat ablation data
+results/excluded/           failed validation extensions kept for transparency
+paper/                      manuscript, bibliography, source data, figure builder
+docs/                       audit and reproducibility notes
 legacy/initial_repository_snapshot/
                            complete snapshot of the superseded initial repository
 ```
 
-The `legacy/` tree is retained for provenance and contains the previous projected-ADAPT workflow and exploratory PES material. It should not be used to reproduce the new manuscript.
+The `legacy/` tree is retained only for provenance. It contains the previous
+projected-ADAPT workflow and exploratory PES material and should not be used to
+reproduce the new manuscript.
 
-## Reproduction
+## Quick start
 
-See [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
+See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for exact commands.
 
-The colleague-tested stack is pinned in `requirements.txt`. No physical-QPU final-energy result is claimed; stored circuit results are Qiskit/Aer statevector validation and abstract-basis transpilation results.
+The final colleague-tested environment was:
 
-The final 18q FCIDUMP SHA256 is:
+```text
+numpy==2.0.2
+scipy==1.13.1
+qiskit==2.2.3
+qiskit-aer==0.17.2
+qiskit-nature==0.7.2
+```
+
+No physical-QPU energy result is claimed in this repository. Qiskit/Aer
+statevector circuit validation is separated explicitly from device-specific
+hardware execution.
+
+## Submission revision v5
+
+`paper/manuscript.tex`, `paper/supporting_information.tex`, `paper/references.bib`,
+and the CSV figure source data correspond to the current submission-v5 manuscript.
+Generated PDF figures are reproduced locally with `python paper/make_figures.py`.
+
+## Manuscript figures
+
+The manuscript and SI figures can be regenerated from the CSV source data in `paper/`
+with:
+
+```bash
+python paper/make_figures.py
+```
+
+## Data integrity
+
+The final 18q FCIDUMP SHA256 used by the validation campaign is:
 
 ```text
 4fe2f74860c4a7b1af7e677f62f4d59a1571c2758ff427ba8627607dcd8c8536
 ```
 
-The preliminary Cu-S geometry scan failed its own validation gates and is explicitly excluded from geometry-dependent scientific claims.
+The repository intentionally records failed or excluded branches instead of
+silently converting them into positive results. In particular, the preliminary
+Cu-S geometry scan failed its own CASSCF-convergence/orbital-continuity gates
+and is not used for a geometry-dependent scientific claim.

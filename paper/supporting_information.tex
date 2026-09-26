@@ -1,0 +1,800 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{ragged2e}
+\justifying
+\hypersetup{colorlinks=true,citecolor=blue,urlcolor=blue,linkcolor=blue}
+
+\title{Supporting Information for:\\
+From Projected Subspaces to Physical Circuits:\\
+Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
+\author{Lucia Mal\'{\i}\v{c}kov\'a and Petr Klenovsk\'y}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Benchmark Hamiltonians}
+
+\subsection{Type-1 Cu active spaces}
+
+The primary benchmark is an idealized oxidized first-coordination-shell type-1 Cu(II) model with two nitrogen donors, a cysteine-model sulfur donor, and a longer axial sulfur donor.
+The molecular orbitals were obtained from a restricted open-shell Hartree--Fock calculation in the STO-3G basis.
+The primary active space, CAS(15e,9o), was constructed with PySCF \cite{sun2018pyscf} and the atomic-valence active-space (AVAS) procedure \cite{sayfutyarova2017avas}, targeting the Cu $3d$ and cysteine-S $3p$ manifolds.
+CAS(21e,12o) from the same model is used as an expanded algorithmic benchmark.
+
+The active-space Hamiltonian is written
+\begin{equation}
+\hat H
+=
+E_{\rm core}
++\sum_{pq} h_{pq} a_p^\dagger a_q
++\frac{1}{2}\sum_{pqrs}(pq|rs)
+a_p^\dagger a_r^\dagger a_s a_q .
+\label{eq:H}
+\end{equation}
+The exact Cu target-spin energies used throughout are
+\begin{align}
+E_D^{18}&=-2518.989067369946~E_h,\\
+E_Q^{18}&=-2518.995009103114~E_h,\\
+E_D^{24}&=-2518.989131438323~E_h,\\
+E_Q^{24}&=-2518.995161621996~E_h.
+\end{align}
+The lower quartet is a property of these deliberately small approximate active-space Hamiltonians and is not interpreted as a prediction for the experimental oxidized T1 site.
+
+\subsection{Independent NO radical benchmark}
+
+As an independent molecular test, an NO radical at $R_{\rm NO}=1.1508$~\AA{} was treated at the ROHF/STO-3G level.
+Freezing the lowest four canonical spatial orbitals gives CAS(7e,6o), i.e.\ 12 spin orbitals.
+The fixed-$M_S=1/2$ determinant space has dimension 300 and the exact doublet subspace dimension is 210.
+The lowest exact doublet energy is
+\begin{equation}
+E_D^{\rm NO}=-127.632713244383~E_h,
+\end{equation}
+whereas the lowest quartet is higher by 250.051 m$E_h$.
+The lowest doublet is a numerically twofold-degenerate manifold; the next doublet lies 296.438 m$E_h$ higher.
+Accordingly, ground-manifold weights rather than fidelity to one arbitrary eigenvector are used when appropriate.
+
+\subsection{Auxiliary OH radical stress test}
+
+An OH radical with O at $(0,0,0)$~\AA{} and H at $(0,0,0.970)$~\AA{} was treated at ROHF/STO-3G, freezing the lowest spatial orbital to obtain CAS(7e,5o), i.e.\ 10 qubits.
+The fixed-$M_S=1/2$ space has dimension 50 and the exact doublet subspace dimension is 40.
+The lowest doublet is again numerically twofold degenerate; the next doublet lies 223.614 m$E_h$ higher.
+This system is used only as an auxiliary stress test because the generalized physical ADAPT search discussed below does not reach the 1.6 m$E_h$ benchmark.
+
+\subsection{Homogeneous Hubbard-chain stress tests}
+
+To remove molecule-specific ingredients, we also use a homogeneous open Hubbard chain
+\begin{equation}
+\hat H
+=
+-t\sum_{\langle ij\rangle,\sigma}
+\left(
+a_{i\sigma}^\dagger a_{j\sigma}
++a_{j\sigma}^\dagger a_{i\sigma}
+\right)
++
+U\sum_i n_{i\uparrow}n_{i\downarrow}.
+\end{equation}
+The reported stress tests use four sites, five electrons, $M_S=1/2$, $t=1$, and
+$U/t=1,2,4,8$.
+They are algebraic validation models, not chemical benchmarks.
+
+\section{Exact spin resolution}
+
+Particle number and $M_S$ do not determine total spin.
+We construct
+\begin{equation}
+\hat S_+=\sum_p a_{p\alpha}^\dagger a_{p\beta}.
+\end{equation}
+Within the fixed-$M_S=1/2$ determinant space, the pure-doublet highest-weight subspace is
+\begin{equation}
+\mathcal H_D
+=
+\ker\!\left(\hat S_+\big|_{\mathcal H_{M_S=1/2}}\right).
+\end{equation}
+An orthonormal basis $U$ for this null space defines
+\begin{equation}
+P=UU^\dagger,\qquad Q=I-P,
+\end{equation}
+and the exact target-space Hamiltonian
+\begin{equation}
+H_D=U^\dagger H_{M_S}U .
+\end{equation}
+For a normalized state in the $M_S=1/2$ sector,
+\begin{equation}
+\langle S^2\rangle
+=
+\|\hat S_+|\psi\rangle\|^2+M_S(M_S+1).
+\end{equation}
+
+\section{Numerical conventions, tolerances, and optimization settings}
+
+The exact highest-weight basis is constructed with \texttt{scipy.linalg.null\_space} using relative cutoff $10^{-12}$; the stored implementation rejects an $S_+$ null-space defect above $10^{-9}$.
+Bare determinant-excitation generators are required to satisfy an anti-Hermiticity defect below $10^{-10}$.
+For the generalized physical Cu pools, coefficient null spaces use relative cutoff $10^{-11}$; candidates with Frobenius norm or target-space action below $10^{-12}$ are discarded, and the accepted target-space leakage ratio and normalized $S^2$ commutator defect must each be below $2\times10^{-9}$.
+The latter defect is defined as
+\begin{equation}
+\eta_{S^2}(B)=\frac{\|[\hat S^2,B]\|_F}{\|B\|_F}.
+\end{equation}
+The reported final pools are many orders of magnitude below these acceptance thresholds.
+For the representation audits, a bare generator is classified as numerically non-invariant when $\ell_F>10^{-10}$.
+
+The regenerated canonical Cu projected-ADAPT negative control uses the Hartree--Fock-origin rank-1/rank-2/rank-3 pool without repeated selection.
+At each iteration the unused operator with the largest absolute energy derivative is chosen; ties follow the deterministic first-index behavior of \texttt{numpy.argmax}.
+All selected amplitudes are globally reoptimized after every addition with L-BFGS-B using \texttt{gtol}$=10^{-8}$, \texttt{ftol}$=10^{-12}$, at most 1000 iterations, and at most 50 line-search steps.
+The run terminates when the projected target-doublet error first reaches 1.6 m$E_h$, which occurs at 121 applications.
+
+For the Cu generalized physical ADAPT searches, repeated selection is allowed.
+The search implementation reoptimizes the most recent 12 amplitudes after every addition with L-BFGS-B (maximum 80 iterations, \texttt{ftol}$=10^{-12}$, \texttt{gtol}$=10^{-8}$, maximum 30 line-search steps) and performs a global reoptimization every 20 additions (maximum 160 iterations, \texttt{ftol}$=10^{-13}$, \texttt{gtol}$=10^{-8}$, maximum 40 line-search steps), followed by a final global optimization with at least 300 iterations allowed.
+Magnitude pruning retains the requested number of applications with the largest $|\theta_k|$ and then globally reoptimizes with L-BFGS-B using \texttt{ftol}$=10^{-14}$, \texttt{gtol}$=10^{-9}$, at most 80 iterations, 50 line-search steps, and memory parameter \texttt{maxcor}$=30$.
+These settings describe the stored Cu search and pruning utilities; the reported sequence lengths are therefore search-history dependent rather than proofs of minimality.
+
+All Hartree--Fock tangent ranks reported below are computed by numerical matrix rank with absolute tolerance $10^{-10}$.
+Because the FCIDUMP integrals and determinant-space excitation matrices used in these audits are real, the relevant normalized target-state manifold is treated as real: for target dimension $d_D$, the maximum nontrivial tangent rank at one normalized state is therefore $d_D-1$.
+
+\section{Representation-equivalence criterion}
+
+Let $A^\dagger=-A$.
+The following conditions are equivalent:
+\begin{align}
+QAP&=0,\\
+[A,P]&=0,\\
+e^{\theta A}{\rm Ran}(P)&\subseteq{\rm Ran}(P)
+\quad\text{for all real }\theta,\\
+P e^{\theta A}P&=e^{\theta PAP}P
+\quad\text{for all real }\theta.
+\end{align}
+If $QAP=0$, anti-Hermiticity also gives
+$PAQ=-(QAP)^\dagger=0$, so $A=PAP+QAQ$ is block diagonal.
+Conversely, equality of the second derivatives of the last relation at $\theta=0$ gives
+\begin{equation}
+PA^2P-(PAP)^2
+=
+PAQAP
+=
+-(QAP)^\dagger(QAP),
+\end{equation}
+which vanishes only if $QAP=0$.
+
+The short-amplitude expansions are
+\begin{align}
+Qe^{\theta A}P
+&=
+\theta QAP+\mathcal O(\theta^2),\\
+Pe^{\theta A}P-e^{\theta PAP}P
+&=
+-\frac{\theta^2}{2}(QAP)^\dagger(QAP)
++\mathcal O(\theta^3).
+\end{align}
+
+\subsection{Finite-amplitude operator-norm bounds}
+
+Define
+\begin{equation}
+A_0=PAP+QAQ,\qquad V=PAQ+QAP.
+\end{equation}
+For anti-Hermitian $A$,
+\begin{equation}
+\|V\|_2=\|QAP\|_2\equiv\lambda.
+\end{equation}
+The interaction-picture Dyson series gives
+\begin{align}
+\|Qe^{\theta A}P\|_2
+&\le\sinh(|\theta|\lambda),\\
+\|Pe^{\theta A}P-e^{\theta PAP}P\|_2
+&\le\cosh(|\theta|\lambda)-1.
+\end{align}
+
+For a sequence
+\begin{equation}
+U_{\rm phys}=e^{\theta_MA_M}\cdots e^{\theta_1A_1},
+\end{equation}
+with block-diagonal surrogate
+\begin{equation}
+U_0=e^{\theta_MA_{0,M}}\cdots e^{\theta_1A_{0,1}},
+\end{equation}
+a Duhamel bound and telescoping sum give
+\begin{equation}
+\|U_{\rm phys}-U_0\|_2
+\le
+L
+\equiv
+\sum_{k=1}^{M}|\theta_k|\,\|QA_kP\|_2 .
+\label{eq:L}
+\end{equation}
+Thus $L\ll1$ is sufficient for representation fidelity.
+Large $L$ is not a proof of failure because the bound is generally loose.
+
+\subsection{State-specific telescoping certificate}
+
+The operator-norm budget ignores which target-space states are actually visited.
+A tighter input-state certificate can be obtained without changing the projected trajectory.
+Let
+\begin{equation}
+V_k=e^{\theta_kA_k},
+\qquad
+W_k=e^{\theta_kA_{0,k}},
+\end{equation}
+and let
+\begin{equation}
+|\phi_{k-1}\rangle
+=
+W_{k-1}\cdots W_1|\psi_0\rangle
+\end{equation}
+be the lifted projected prefix.
+Define the exact local discrepancy
+\begin{equation}
+\delta_k
+=
+\|(V_k-W_k)|\phi_{k-1}\rangle\|
+\end{equation}
+and
+\begin{equation}
+D_{\rm seq}=\sum_k\delta_k.
+\label{eq:Dseq}
+\end{equation}
+Using
+\begin{equation}
+V_M\cdots V_1-W_M\cdots W_1
+=
+\sum_{k=1}^{M}
+V_M\cdots V_{k+1}(V_k-W_k)W_{k-1}\cdots W_1
+\end{equation}
+and the unitarity of every $V_j$ and $W_j$ gives the rigorous input-state bound
+\begin{equation}
+\|\Psi_{\rm phys}-\Psi_{\rm proj}\|
+\le D_{\rm seq}.
+\end{equation}
+For normalized states and $D_{\rm seq}\le\sqrt2$,
+\begin{equation}
+F(\Psi_{\rm phys},\Psi_{\rm proj})
+\ge
+\left(1-\frac{D_{\rm seq}^2}{2}\right)^2.
+\label{eq:Fcert}
+\end{equation}
+Because $|\Psi_{\rm proj}\rangle\in{\rm Ran}(P)$,
+\begin{equation}
+p_P(\Psi_{\rm phys})
+=
+1-\|Q\Psi_{\rm phys}\|^2
+\ge
+\max(0,1-D_{\rm seq}^2).
+\label{eq:Pcert}
+\end{equation}
+This certificate is state-specific rather than uniform over the complete target subspace.
+
+For the molecular negative controls:
+\begin{table}[htbp]
+\centering
+\small
+\caption{State-specific sequence certificate. A zero lower bound denotes a mathematically valid but non-informative certificate.}
+\begin{tabular}{lrrrr}
+\toprule
+System & $D_{\rm seq}$ & Actual state distance & Certified $F_{\min}$ & Actual $F$\\
+\midrule
+Cu CAS(15e,9o) & 4.6026 & 1.2075 & 0 & 0.07343\\
+NO CAS(7e,6o) & 0.3988 & 0.1678 & 0.8473 & 0.97205\\
+OH CAS(7e,5o) & 0.06666 & 0.02776 & 0.99556 & 0.999229\\
+\bottomrule
+\end{tabular}
+\end{table}
+For NO, Eq.~\ref{eq:Pcert} also certifies target-doublet weight above 0.8410, compared with the observed 0.97211.
+For OH the certified lower bound is 0.99556, compared with the observed 0.999229.
+For the severe Cu sequence the state-specific sum is substantially smaller than the uniform operator-norm budget $L=12.686$, but it is still too large to provide a nontrivial fidelity certificate.
+
+\section{Controlled single-generator numerical check}
+
+For a deterministic bare Cu excitation (remove spin orbital 0, add spin orbital 8),
+\begin{equation}
+\ell_F=
+\frac{\|QAU\|_F}{\|AU\|_F}
+=
+0.5123475383,
+\end{equation}
+and
+\begin{equation}
+\|QAP|\Phi_{\rm HF}\rangle\|
+=
+0.5773502692.
+\end{equation}
+Exact determinant-space evolutions over $10^{-4}\le\theta\le0.3$ give small-$\theta$ fitted powers
+1.0000 for leakage amplitude,
+2.0000 for leakage probability, and
+2.0000 for the compressed-evolution mismatch norm.
+The normalized post-projection infidelity scales approximately as $\theta^{4.03}$ over the numerically resolved part of the same interval.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\linewidth]{figS3_representation_scaling.pdf}
+\caption{Single-generator representation-equivalence test in the Cu active space.}
+\end{figure}
+
+As a preserving control, the first generator of the final physical 18q sequence has $\ell_F=3.57\times10^{-16}$ and remains equivalent to double precision for test amplitudes through $\theta=1$.
+
+\section{Canonical Cu projected-ADAPT negative control}
+
+The main negative control was regenerated from the current canonical CAS(15e,9o) FCIDUMP, not inherited from the superseded historical checkpoint.
+The deterministic projected ADAPT run contains 121 operators and reaches
+\begin{equation}
+E_{\rm proj}=-2518.987495463899~E_h,
+\end{equation}
+or 1.571906 m$E_h$ above the exact target doublet.
+Applying the same selected labels and amplitudes to the bare physical generators gives
+\begin{align}
+E_{\rm bare}&=-2518.524337694489~E_h,\\
+\Delta E_{\rm bare}&=464.729675~{\rm m}E_h,\\
+\langle S^2\rangle_{\rm bare}&=2.383536856,\\
+F_{\rm proj,bare}&=0.0734304134,\\
+p_D^{\rm bare}&=0.455487715 .
+\end{align}
+In this active space only doublet and quartet spin sectors are available in fixed $M_S=1/2$, so
+\begin{equation}
+p_Q^{\rm bare}=0.544512285 .
+\end{equation}
+
+The normalized post-projected doublet component has
+\begin{align}
+\Delta E_D^{\rm post}&=465.164029~{\rm m}E_h,\\
+F(\Psi_{\rm proj},\Psi_{\rm bare,D})&=0.161212720.
+\end{align}
+The complementary normalized quartet component lies 470.308070 m$E_h$ above the exact quartet minimum.
+Thus the failure is not adequately described as contamination of an otherwise correct target state.
+
+The 121 selected generators contain 114 non-invariant factors.
+The maximum and median normalized Frobenius leakages are 0.557086 and 0.512348, respectively.
+The sequence budgets are
+\begin{equation}
+L=12.68645,\qquad D_{\rm seq}=4.60259.
+\end{equation}
+The minimum prefix fidelity is 0.03405 and the minimum target-doublet weight is 0.35760.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.84\linewidth]{figS4_projected_prefix_state_diagnostics.pdf}
+\caption{Prefix-level state diagnostics for the canonical Cu projected-ADAPT negative control.}
+\end{figure}
+
+\section{Pool-wide invariance and first-order accessibility}
+
+For each bare Hartree--Fock-origin S/D/T excitation, invariance is tested by $\ell_F=0$ to numerical tolerance.
+For the Cu CAS(15e,9o) pool, 274 of 323 bare excitations are non-invariant:
+22/22 singles, 126/133 doubles, and 126/168 triples.
+Only 49 survive simple invariance filtering.
+
+A useful local expressivity diagnostic is the numerical rank of the vectors obtained by acting on the Hartree--Fock reference and restricting to the exact target space.
+The rank tolerance is $10^{-10}$.
+Because these Hamiltonians, basis vectors, and anti-Hermitian determinant-excitation matrices are real, this audit concerns the real normalized-state manifold; its maximum nontrivial tangent dimension is therefore $d_D-1$ rather than the complex-projective dimension $2d_D-2$.
+This is a local first-order diagnostic only and is not a global controllability theorem.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Hartree--Fock target-space tangent accessibility. The maximum nontrivial tangent dimension is $d_D-1$.}
+\begin{tabular}{lrrrr}
+\toprule
+System & $d_D-1$ & Projected bare S/D/T & Invariant bare & Generalized physical\\
+\midrule
+Cu CAS(15e,9o) & 239 & 239 & 49 & 99\\
+NO CAS(7e,6o) & 209 & 171 & 6 & 56\\
+OH CAS(7e,5o) & 39 & 39 & 9 & 25\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For Cu, simple invariant filtering therefore reduces the first-order accessible target-space rank from the full 239 directions to 49.
+The generalized physical rank-1/rank-2 pool restores 99 independent Hartree--Fock tangent directions.
+This does not by itself prove global expressivity, but it quantitatively explains why projection can appear highly expressive while simply deleting every leaking bare generator can be too restrictive.
+
+Direct adaptive calculations confirm the point.
+Using all 49 invariant Cu bare generators once gives 210.619 m$E_h$ error.
+Allowing repeated selection through 100 applications improves only to 167.340 m$E_h$.
+
+\section{Independent NO benchmark}
+
+The NO bare projected S/D/T pool contains 231 generators.
+A direct audit finds 225 non-invariant:
+17/17 singles, 81/87 doubles, and 127/127 triples.
+Projected ADAPT reaches 1.428610 m$E_h$ error in 16 applications.
+Eleven of those 16 selected factors are non-invariant.
+For the same amplitudes in the bare sequence,
+\begin{align}
+\Delta E_{\rm bare}&=24.536971~{\rm m}E_h,\\
+F_{\rm proj,bare}&=0.972050492,\\
+p_D^{\rm bare}&=0.972105986,\\
+\langle S^2\rangle_{\rm bare}&=0.833691971.
+\end{align}
+Here
+\begin{equation}
+L=0.575942,\qquad D_{\rm seq}=0.398787.
+\end{equation}
+Unlike the Cu case, post-projection nearly repairs the state:
+\begin{align}
+\Delta E_D^{\rm post}&=1.477956~{\rm m}E_h,\\
+F(\Psi_{\rm proj},\Psi_{\rm bare,D})&=0.999942914.
+\end{align}
+
+The lowest exact doublet is twofold degenerate.
+The optimized projected state has 0.997999 weight in this manifold, the bare state 0.970221, and the post-projected bare state 0.998061.
+
+Only six of the 231 bare pool elements are invariant.
+Using all six once gives 52.154 m$E_h$ error.
+Allowing repeats through 60 applications leaves the same energy to the reported precision, showing that simple invariant filtering is again too restrictive.
+
+A generalized physical rank-1/rank-2 pool contains 165 spin-preserving generators.
+A 19-application sequence with 13 unique generators reaches
+\begin{align}
+\Delta E&=1.579026~{\rm m}E_h,\\
+\langle S^2\rangle&=0.75,\\
+p_D&=1,\\
+w_{\rm lowest\ doublet\ manifold}&=0.998967.
+\end{align}
+The maximum selected representation leakage is below $4.4\times10^{-16}$.
+
+The corresponding 12-qubit Suzuki-2 $r=1$ Qiskit circuit has 7,328 CX gates, depth 9,869, synthesis-energy error 0.002927 m$E_h$, and circuit-to-fermionic fidelity 0.999993871.
+It therefore passes the same strict circuit-equivalence criteria used for the Cu circuits.
+
+\section{Auxiliary OH stress test}
+
+For OH CAS(7e,5o), projected ADAPT reaches 1.05508 m$E_h$ in only five factors.
+Three are non-invariant, yet the sequence budget is small:
+\begin{equation}
+L=0.0670781,\qquad D_{\rm seq}=0.0666610.
+\end{equation}
+The bare same-angle sequence remains close to the projected result:
+\begin{align}
+\Delta E_{\rm bare}&=1.93276~{\rm m}E_h,\\
+F_{\rm proj,bare}&=0.999229332,\\
+p_D^{\rm bare}&=0.999229500.
+\end{align}
+Post-projection yields 1.04156 m$E_h$ error and fidelity 0.999999832 with the projected state.
+This provides a useful counterexample to any interpretation that a nonzero invariance defect must always produce a catastrophic error.
+
+The generalized physical pool contains 80 generators and has machine-precision representation leakage.
+However, the present first-gradient ADAPT search stalls after repeated reuse of only six unique generators.
+After 100 applications,
+\begin{align}
+\Delta E&=2.58052~{\rm m}E_h,\\
+p_D&=1,\\
+w_{\rm lowest\ doublet\ manifold}&=0.997527,\\
+r&=0.05546~E_h,
+\end{align}
+while the maximum available first derivative is only $3.9\times10^{-7}$.
+The available archived OH closure summary did not preserve the numerical rank tolerance and implementation details required for a reproducible Lie-algebra claim, so no controllability conclusion is drawn here.
+The robust conclusion is narrower: a representation-faithful physical pool can still be difficult for this first-gradient adaptive search.
+For this reason OH is not counted as a successful physical-ADAPT benchmark in the main text.
+
+\section{Hubbard-model representation stress tests}
+
+The same projected-versus-bare audit was applied to the homogeneous four-site, five-electron open Hubbard chain.
+The projected calculation reaches the exact target doublet to numerical precision for every tested $U/t$.
+The physical same-angle sequence does not.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Hubbard-chain stress tests. Energies are in units of $t$.}
+\begin{tabular}{rrrrrr}
+\toprule
+$U/t$ & Ops & Bare error & $F_{\rm proj,bare}$ & $p_D$ & $L$\\
+\midrule
+1 & 19 & 0.2661 & 0.9244 & 0.9574 & 4.858\\
+2 & 19 & 0.5462 & 0.8673 & 0.9656 & 9.149\\
+4 & 20 & 1.3914 & 0.6333 & 0.8815 & 9.738\\
+8 & 20 & 2.8709 & 0.4763 & 0.9359 & 13.091\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\linewidth]{figS5_hubbard_representation_audit.pdf}
+\caption{Representation-equivalence failure in the homogeneous Hubbard-chain stress tests.}
+\end{figure}
+
+These small models are not offered as evidence for chemical relevance.
+Their purpose is to show that the representation issue does not rely on the detailed Cu or molecular Hamiltonian.
+
+\section{Physical spin-preserving operator pools}
+
+A determinant excitation is represented by
+\begin{equation}
+A=T-T^\dagger.
+\end{equation}
+Generalized rank-1 and rank-2 $M_S$-preserving excitation patterns are grouped by their spatial remove/add structure.
+Within each group, linear combinations
+\begin{equation}
+B=\sum_j c_jA_j
+\end{equation}
+are obtained from the null space of the coupling from the target spin space to its complement.
+Candidates are retained only when both their target-space leakage and normalized $S^2$ commutator defect lie below numerical tolerance.
+
+For Cu 18q, the complete generalized pool contains 1,080 generators (36 rank-1 and 1,044 rank-2).
+The maximum full-pool leakage and normalized $S^2$ commutator defect are at the $10^{-15}$ level.
+For Cu 24q, the corresponding pool contains 3,762 generators (66 rank-1 and 3,696 rank-2).
+For NO the generalized physical pool contains 165 generators, and for OH 80.
+
+\subsection{Full-sequence positive-control audit}
+
+The final physical Cu sequences were reconstructed independently in the full fixed-$M_S$ space and in the exact-doublet basis.
+For 18q:
+\begin{align}
+\max_k\ell_F(B_k)&=4.13\times10^{-16},\\
+\sum_k|\theta_k|\|QB_kU\|_F&=3.91\times10^{-14},\\
+\min_{\rm prefixes}F_{\rm full,reduced}
+&=0.9999999999999993.
+\end{align}
+For 24q:
+\begin{align}
+\max_k\ell_F(B_k)&=5.17\times10^{-16},\\
+\sum_k|\theta_k|\|QB_kU\|_F&=5.14\times10^{-14},\\
+\min_{\rm prefixes}F_{\rm full,reduced}
+&=0.9999999999999987.
+\end{align}
+The final full/reduced energies agree to the reported double precision in both cases.
+The corrected physical construction therefore passes the same representation audit that the projected bare sequence fails.
+
+\section{ADAPT selection, repeats, reoptimization, and ablations}
+
+For anti-Hermitian candidate $B_k$,
+\begin{equation}
+g_k
+=
+\left.\frac{\partial E}{\partial\theta_k}\right|_0
+=
+\langle\Psi|[\hat H,B_k]|\Psi\rangle
+=
+2\,{\rm Re}\langle\Psi|\hat H B_k|\Psi\rangle.
+\end{equation}
+The largest $|g_k|$ is selected, and the pool is not drained, so previously used generators may be selected again, following the original ADAPT construction \cite{grimsley2019adapt}.
+Parameters are optimized with L-BFGS-B, including global reoptimization.
+Small-amplitude applications are subsequently pruned and the remaining amplitudes reoptimized. This is used only as a practical compaction step and is not presented as a new pruning algorithm \cite{vaquero2025pruned}.
+
+The final Cu 18q sequence has 50 applications and 39 unique generators.
+The 24q sequence has 61 applications and 41 unique generators.
+The sequence lengths are the smallest passing states found along the present search/pruning histories and are not proofs of global minimality.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Cu 18q physical-pool ablation.}
+\begin{tabular}{lrrrr}
+\toprule
+Pool & Applications & Error (m$E_h$) & Fidelity & Residual ($E_h$)\\
+\midrule
+Restricted S+D & 35 & 153.629 & 0.2866 & 0.4189\\
+Restricted S+D+T & 147 & 141.392 & 0.2672 & 0.3118\\
+Restricted S+D+T + repeats & 250 & 13.166 & 0.8783 & 0.0412\\
+Generalized rank-1/rank-2 + repeats & 50 & 1.493 & 0.9826 & 0.0480\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All rows are spin pure to numerical precision.
+This ablation separates spin correctness from practical expressivity.
+
+\section{Qubit mapping and Suzuki synthesis}
+
+Each physical fermionic generator $B_k$ is Jordan--Wigner mapped.
+Writing
+\begin{equation}
+H_k=-iB_k
+\end{equation}
+gives
+\begin{equation}
+e^{\theta_kB_k}=e^{-i(-\theta_k)H_k}.
+\end{equation}
+For
+\begin{equation}
+H=\sum_{j=1}^{m}H_j,
+\end{equation}
+the second-order Suzuki step is
+\begin{equation}
+S_2(t)=
+\left(\prod_{j=1}^{m-1}e^{-iH_jt/2}\right)
+e^{-iH_mt}
+\left(\prod_{j=m-1}^{1}e^{-iH_jt/2}\right).
+\end{equation}
+With $r$ repetitions, $S_2(t/r)^r$ is used.
+
+The stored validation environment uses Qiskit 2.2.3, Qiskit Aer 0.17.2, and Qiskit Nature 0.7.2.
+Circuits are transpiled at optimization level 1 to the abstract basis
+$\{R_z,\sqrt X,X,\mathrm{CX}\}$ without a device coupling map.
+
+The strict circuit-equivalence gate is
+\begin{align}
+F_{\rm circuit,fermionic}&\ge0.999,\\
+|\delta E_{\rm synth}|&\le0.1~{\rm m}E_h,\\
+|\langle S^2\rangle-0.75|&\le0.001,\\
+p(M_S{\rm\ target})&\ge0.999.
+\end{align}
+
+\subsection{Local factorization-error audit}
+
+A finite Suzuki product can violate spin even when the complete fermionic generator commutes with $S^2$, because the constituent Pauli or determinant-excitation terms need not commute with one another or with $S^2$ separately.
+We therefore evaluate each ansatz application in isolation at the actual optimized amplitude.
+
+For one Suzuki-2 repetition, the maximum isolated-application infidelity is
+\begin{align}
+0.1610 &\quad\text{for Cu 18q},\\
+2.46\times10^{-4} &\quad\text{for Cu 24q},\\
+4.19\times10^{-6} &\quad\text{for NO}.
+\end{align}
+The 18q sum is dominated by one rank-2 application with $|\theta|\simeq3.13$.
+
+Write one serialized physical generator as $B=\sum_a c_aA_a$, where $A_a$ are its nonzero determinant-excitation constituents (terms with $|c_a|\le10^{-12}$ are ignored for this diagnostic).
+In the fixed-$N$, fixed-$M_S$ determinant representation we define
+\begin{equation}
+c_{\rm comm}(B)
+=
+\max_{a<b}
+\frac{\|[A_a,A_b]\|_F}
+{\|A_a\|_F\,\|A_b\|_F},
+\label{eq:ccomm}
+\end{equation}
+with $c_{\rm comm}=0$ for a single active constituent.
+The coefficient magnitudes are not included in Eq.~\ref{eq:ccomm}; consequently $|\theta|^3c_{\rm comm}$ is used only as a simple descriptive heuristic motivated by the cubic local order of a symmetric second-order product formula, not as a formal Suzuki-error estimator.
+Across the three optimized sequences, this score has Spearman rank correlations with isolated-application infidelity of 0.927 (18q Cu), 0.961 (24q Cu), and 0.933 (NO), respectively.
+No inferential $p$ values are attached because the applications are deterministic members of three optimized sequences rather than independent draws from a statistical population.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\linewidth]{figS6_local_suzuki_predictor.pdf}
+\caption{Local Suzuki-2 infidelity versus the empirical score $|\theta|^3c_{\rm comm}$.}
+\end{figure}
+
+\subsection{Selective-refinement emulator test}
+
+Because the 18q error is concentrated in a few factors, a determinant-equivalent Suzuki emulator was used to search a restricted nonuniform repetition grid.
+The six variables were the applications 9, 19, 21, 25, 33, and 34, chosen from the largest isolated-application errors; every other application was fixed at $r=1$.
+The tested repetition sets were
+$r_9\in\{1,2,4,8,16\}$,
+$r_{25}\in\{1,2,4,8\}$, and
+$r_{19},r_{21},r_{33},r_{34}\in\{1,2,4\}$,
+for an exhaustive grid of 1620 schedules.
+Of these, 277 satisfy the strict state-level criteria.
+The lowest component-exponential proxy among this explicitly tested grid refines only applications 9, 21, 25, and 34:
+\begin{equation}
+r_9=4,\qquad r_{21}=r_{25}=r_{34}=2,
+\end{equation}
+with all other applications at $r=1$.
+The resulting emulator gives
+\begin{align}
+|\delta E_{\rm synth}|&=0.09502~{\rm m}E_h,\\
+F_{\rm circ,fermionic}&=0.9995825,\\
+\langle S^2\rangle&=0.750724,\\
+p_D&=0.999759.
+\end{align}
+Its component-exponential proxy is 1600, compared with 1334 for uniform $r=1$ and 5336 for uniform $r=4$.
+This result demonstrates concentration of the product-formula difficulty but is \emph{not} reported as a CX/depth reduction:
+the selective schedule has not been re-transpiled through Qiskit in the present environment, and transpiler cancellations need not scale linearly with this proxy.
+
+Recent exact and closed-form spin-adapted factorizations \cite{magoulas2025closedform,jain2026factorization} remain important alternatives.
+We have not established a one-to-one compiled comparison for the particular numerical linear-combination generators used here.
+
+\section{Measurement grouping and shot allocation}
+
+The Cu 18q and 24q Jordan--Wigner Hamiltonians contain 9,316 and 29,737 Pauli terms.
+Greedy QWC grouping gives 1,909 and 6,233 groups.
+For
+\begin{equation}
+\hat H=\sum_g\hat H_g,\qquad
+V_g={\rm Var}_\Psi(\hat H_g),
+\end{equation}
+and independent group sampling,
+\begin{equation}
+\sigma_E^2=\sum_g\frac{V_g}{n_g}.
+\end{equation}
+Variance-optimal allocation gives
+\begin{equation}
+n_g\propto\sqrt{V_g},
+\qquad
+N_{\rm shot}^{\rm opt}
+=
+\frac{\left(\sum_g\sqrt{V_g}\right)^2}{\sigma_E^2}.
+\end{equation}
+This is optimal only for the committed grouping and ideal state preparation \cite{verteletskyi2020measurement}.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Idealized final-energy shot estimates for the chosen greedy QWC grouping.}
+\begin{tabular}{lrrr}
+\toprule
+& 1.6 m$E_h$ & 1.0 m$E_h$ & 0.5 m$E_h$\\
+\midrule
+18 qubits & $1.43\times10^8$ & $3.65\times10^8$ & $1.46\times10^9$\\
+24 qubits & $5.46\times10^8$ & $1.40\times10^9$ & $5.59\times10^9$\\
+\bottomrule
+\end{tabular}
+\end{table}
+At 1.6 m$E_h$, variance-optimal allocation reduces the count relative to equal allocation by factors 26.66 and 42.91 for 18q and 24q, respectively.
+These estimates cover final-energy measurement only, not ADAPT gradient rounds or repeated optimizer evaluations \cite{ramoa2025resources}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\linewidth]{figS7_measurement_shots.pdf}
+\caption{Idealized final-energy shot estimates for the chosen greedy QWC groupings. The calculation excludes state-preparation error, device noise, calibration overhead, adaptive-gradient measurements, repeated optimizer evaluations, and alternative measurement strategies.}
+\label{fig:si_measurement}
+\end{figure}
+
+\section{One-particle diagnostics}
+
+The spin-orbital 1-RDM is
+\begin{equation}
+\gamma_{pq}
+=
+\langle\Psi|a_p^\dagger a_q|\Psi\rangle.
+\end{equation}
+For Cu 18q, the spatial 1-RDM Frobenius error is 0.1860, the maximum natural-occupation error 0.002109, and the occupation-vector $L_2$ error 0.002983.
+For 24q, the corresponding values are 0.1250, 0.001605, and 0.002985.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\linewidth]{figS1_natural_occupation_errors.pdf}
+\caption{Absolute natural-orbital occupation errors of the optimized Cu physical states relative to the exact target doublets.}
+\end{figure}
+
+The full-state residuals remain 0.0480 $E_h$ and 0.0585 $E_h$, so the compact states should not be interpreted as exact wavefunctions despite their model-space energy accuracy.
+
+\section{Multi-start robustness}
+
+Perturbed-start global reoptimizations finish in a narrow 1.49266--1.49306 m$E_h$ interval for Cu 18q and 1.18070--1.18125 m$E_h$ for Cu 24q.
+Several L-BFGS-B runs reach their iteration cap.
+These tests therefore support local energetic robustness but do not prove global optimizer convergence or uniqueness.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.80\linewidth]{figS2_multistart.pdf}
+\caption{Energy errors after reoptimization from perturbed parameter vectors.}
+\end{figure}
+
+\section{Implementation regression tests}
+
+Five-operator circuit prefixes were used to check fermionic signs, Jordan--Wigner conventions, and circuit assembly.
+The Cu 18q and 24q prefixes have circuit-to-fermionic fidelities above 0.999999998 at one Suzuki repetition.
+
+As a negative resource control, the restricted 147-operator Cu S+D+T sequence can itself be synthesized accurately at one Suzuki repetition, but requires 218,502 CX gates at depth 261,514 while its fermionic error remains 141.392 m$E_h$.
+A circuit may therefore be a faithful implementation of a poor ansatz.
+
+\section{Excluded Cu--S geometry extension}
+
+The exploratory five-point Cu--S scan failed its pre-specified CASSCF-convergence and active-orbital-continuity gates.
+Neither the doublet nor state-specific quartet calculations converged consistently across the full scan, and active-orbital continuity fell below threshold away from the reference geometry.
+The scan is excluded from all geometry-dependent scientific claims.
+
+\section{Reproducibility and provenance}
+
+The canonical Cu negative control was freshly regenerated from the current 18q FCIDUMP rather than relying on the missing historical 123-operator checkpoint.
+The relevant hashes are listed explicitly below so that the exact files can be identified without relying on filenames alone:
+
+\noindent Cu 18q FCIDUMP:\\
+{\small\texttt{4fe2f74860c4a7b1af7e677f62f4d59a1571c2758ff427ba8627607dcd8c8536}}
+
+\noindent 121-operator projected-ADAPT checkpoint:\\
+{\small\texttt{d372476940ccb67fd50af104958e36e68f8dddbac40933b9e5b5910e23bd9cd6}}
+
+\noindent 121-operator representation audit:\\
+{\small\texttt{f28ee7e78fa790a9c5224bea44b6a5156b1662941be402a1fec712d4facabd92}}
+
+The independent benchmark FCIDUMP hashes used in this revision are:
+
+\noindent NO CAS(7e,6o):\\
+{\small\texttt{6c04286a3895f61fef94109baacde752b8ab0c74df0c6642a50919d9f423465b}}
+
+\noindent OH CAS(7e,5o):\\
+{\small\texttt{bc9c14bce3d63cda90273cd4c2e3a0ad8138a0be809c635fcb182f7117e5f1e1}}
+
+The baseline public repository is
+\url{https://github.com/lucia-malickova/New-VQE-validation}.
+The peer-review reproducibility archive accompanying this manuscript contains the revision-specific 121-operator checkpoint and audit, the NO and OH FCIDUMPs and metadata, state-specific certificate and tangent-accessibility scripts and outputs, Hubbard stress-test source data, the exhaustive six-factor selective-Suzuki search record, and the source data used for the revised figures.
+This statement deliberately distinguishes the accompanying archive from the baseline public repository; no claim is made that every revision-specific file is already present in the public repository.
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+\end{document}
