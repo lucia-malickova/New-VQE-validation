@@ -485,3 +485,5 @@ def main():
 
 if __name__=="__main__":
     main()
+
+# CI trigger: 2026-09-26 novelty audit
