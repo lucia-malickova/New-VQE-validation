@@ -19,17 +19,40 @@ def vec_skew(A):
     iu=np.triu_indices(A.shape[0],1)
     return A[iu]
 
-def add_orth(A,Q,tol=1e-10):
-    v=vec_skew(A).copy()
-    # reorthogonalized MGS
-    for _ in range(2):
-        for q in Q:
-            v-=np.dot(q,v)*q
-    n=np.linalg.norm(v)
-    if n<=tol:
-        return False
-    Q.append(v/n)
-    return True
+def closure(mats,d,tol):
+    Q=[]; basis_mats=[]
+    def add_orth(A):
+        v=vec_skew(A).copy()
+        for _ in range(2):
+            for q in Q:
+                v-=np.dot(q,v)*q
+        n=np.linalg.norm(v)
+        if n<=tol:return False
+        Q.append(v/n)
+        return True
+    for A in mats:
+        if add_orth(A):
+            basis_mats.append(A/np.linalg.norm(vec_skew(A)))
+    initial=len(Q);target=d*(d-1)//2
+    rounds=[{"round":0,"dimension":initial}]
+    frontier=list(basis_mats)
+    for rnd in range(1,30):
+        new=[]
+        for A in frontier:
+            for G in mats:
+                C=A@G-G@A
+                if np.linalg.norm(C)<tol:continue
+                if add_orth(C):
+                    C=C/np.linalg.norm(vec_skew(C))
+                    basis_mats.append(C);new.append(C)
+                    if len(Q)>=target:break
+            if len(Q)>=target:break
+        rounds.append({"round":rnd,"dimension":len(Q),"new":len(new)})
+        if not new or len(Q)>=target:break
+        frontier=new
+    return {"tolerance":tol,"initial_linear_span_dimension":initial,
+            "max_real_skew_dimension":target,"lie_closure_dimension":len(Q),
+            "full_so_dimension_reached":bool(len(Q)==target),"rounds":rounds}
 
 def main():
     fcidump,cfg,meta=generate("OH",OUT)
@@ -38,54 +61,16 @@ def main():
     pool=build_pool(basis,U,Sp,d.norb,na,nb,max_rank=2)
     mats=[]
     for e in pool:
-        X=U.conj().T@(e.matrix@U)
-        X=.5*(X-X.conj().T)
+        X=U.conj().T@(e.matrix@U);X=.5*(X-X.conj().T)
         mats.append(np.asarray(np.real_if_close(X),float))
-
-    Q=[]
-    basis_mats=[]
-    for A in mats:
-        if add_orth(A,Q):
-            basis_mats.append(A/np.linalg.norm(vec_skew(A)))
-    initial=len(Q)
-    target=U.shape[1]*(U.shape[1]-1)//2
-    rounds=[{"round":0,"dimension":initial}]
-    frontier=list(basis_mats)
-
-    # Repeated commutators with the original generator set span the generated Lie algebra.
-    for rnd in range(1,30):
-        new=[]
-        current_basis=list(basis_mats)
-        for A in frontier:
-            for G in mats:
-                C=A@G-G@A
-                if np.linalg.norm(C)<1e-12:
-                    continue
-                if add_orth(C,Q):
-                    C=C/np.linalg.norm(vec_skew(C))
-                    basis_mats.append(C);new.append(C)
-                    if len(Q)>=target:
-                        break
-            if len(Q)>=target:
-                break
-        rounds.append({"round":rnd,"dimension":len(Q),"new":len(new)})
-        print(f"round {rnd} dim {len(Q)} new {len(new)} target {target}",flush=True)
-        if not new or len(Q)>=target:
-            break
-        frontier=new
-
-    out={
-        "system":"OH STO-3G CAS(7e,5o)",
-        "doublet_dimension":int(U.shape[1]),
-        "pool_size":len(pool),
-        "initial_linear_span_dimension":initial,
-        "max_real_skew_dimension":target,
-        "lie_closure_dimension":len(Q),
-        "full_so_dimension_reached":bool(len(Q)==target),
-        "rounds":rounds,
-        "interpretation_if_full":"Within real state space, the generated Lie algebra is so(d); the pool is therefore state-universal on the connected real unit sphere. A stalled first-gradient ADAPT search is then a search/optimization roadblock rather than a linear expressivity proof.",
-    }
+    tests=[]
+    for tol in (1e-8,1e-10,1e-12):
+        x=closure(mats,U.shape[1],tol);tests.append(x)
+        print("tol",tol,"dim",x["lie_closure_dimension"],"target",x["max_real_skew_dimension"],flush=True)
+    out={"system":"OH STO-3G CAS(7e,5o)","doublet_dimension":int(U.shape[1]),
+         "pool_size":len(pool),"tolerance_tests":tests,
+         "robust_full_so":all(x["full_so_dimension_reached"] for x in tests),
+         "interpretation_if_robust_full":"Across the tested numerical tolerances, the real Lie closure is so(d). This supports state-universality on the connected real unit sphere and makes a first-gradient stall a search/optimization issue rather than evidence of a missing real-state direction."}
     (OUT/"SUMMARY.json").write_text(json.dumps(out,indent=2),encoding="utf-8")
     print(json.dumps(out,indent=2))
-
 if __name__=="__main__":main()
