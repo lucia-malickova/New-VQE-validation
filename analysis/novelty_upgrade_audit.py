@@ -318,7 +318,7 @@ def generate_no_active_fcidump():
     return path, meta
 
 
-def physical_adapt(fcidump, tag, max_iters=80, tol_meh=1.6):
+def physical_adapt(fcidump, tag, max_iters=80, tol_meh=1.6, grad_stop=1e-6):
     data = read_fcidump(str(fcidump))
     nalpha, nbeta, ms, basis, Hms, U, Hd, Splus, psi0, phi0 = state_setup(data)
     E0 = float(np.linalg.eigvalsh(Hd)[0])
@@ -361,7 +361,7 @@ def physical_adapt(fcidump, tag, max_iters=80, tol_meh=1.6):
             grads[j]=abs(2.0*np.real(np.vdot(w,e.matrix@psi)))
         jbest=int(np.argmax(grads))
         gmax=float(grads[jbest])
-        if gmax<1e-8:
+        if gmax<grad_stop:
             break
         selected.append(jbest)
         theta=np.append(theta,0.0)
@@ -400,11 +400,21 @@ def physical_adapt(fcidump, tag, max_iters=80, tol_meh=1.6):
         "history":hist,
         "elapsed_s":time.time()-t0,
     }
-    # exact doublet fidelity
+    # Exact-target overlap.  For degenerate lowest-doublet manifolds (e.g. linear
+    # radical Pi states), a single eigenvector fidelity is basis dependent, so we
+    # also report the invariant weight in the entire numerically degenerate
+    # lowest-doublet eigenspace.
     evals,evecs=np.linalg.eigh(Hd)
+    deg_tol=1e-8
+    ng=int(np.sum(evals-evals[0] <= deg_tol))
     exact=U@evecs[:,0]
     exact/=np.linalg.norm(exact)
+    exact_sub=U@evecs[:,:ng]
     out["fidelity_exact_doublet"]=float(abs(np.vdot(exact,psi))**2)
+    out["lowest_doublet_degeneracy_tol_1e-8_Eh"]=ng
+    out["weight_lowest_doublet_eigenspace"]=float(np.linalg.norm(exact_sub.conj().T@psi)**2)
+    out["lowest_doublet_eigenvalues_Eh"]=[float(x) for x in evals[:min(6,len(evals))]]
+    out["gradient_stop_threshold"]=float(grad_stop)
     jdump(OUT/f"{tag}_physical_adapt.json",out)
     return out
 
