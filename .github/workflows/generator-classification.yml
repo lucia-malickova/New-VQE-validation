@@ -1,0 +1,27 @@
+name: Generator Classification
+
+on:
+  push:
+    branches: [novelty-upgrade-20260926]
+    paths:
+      - "analysis/classify_physical_generators.py"
+      - ".github/workflows/generator-classification.yml"
+  workflow_dispatch:
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -r requirements.txt
+      - run: python analysis/classify_physical_generators.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generator-classification
+          path: analysis/generator_classification
+          if-no-files-found: warn
