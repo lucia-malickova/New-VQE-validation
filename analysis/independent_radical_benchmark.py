@@ -5,6 +5,7 @@ import argparse
 import json
 import math
 import sys
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -181,12 +182,36 @@ def main():
     controls=add_controls(fcidump,proj,audit,tag,outdir)
     phys=physical_adapt(fcidump,tag,max_iters=100,tol_meh=1.6)
 
+    # Validate the independent physical ansatz at the qubit-circuit layer.
+    circuit_results=[]
+    result_json=outdir/f"{tag}_physical_adapt.json"
+    for reps in (1,2,4):
+        opath=outdir/f"{tag}_circuit_suzuki2_r{reps}.json"
+        cmd=[
+            sys.executable, str(ROOT/"src"/"circuit_validate_physical.py"),
+            str(result_json), "--fcidump", str(fcidump),
+            "--method","suzuki2","--reps",str(reps),
+            "--optimization-level","1","--output",str(opath)
+        ]
+        subprocess.run(cmd,check=True,cwd=str(ROOT/"src"))
+        circuit_results.append(json.loads(opath.read_text()))
+
     summary={
         "metadata":meta,
         "projected":{k:v for k,v in proj.items() if k not in ("selected_indices","theta","history")},
         "audit":{k:v for k,v in audit.items() if k not in ("prefix","lambda_op2","leakage_ratio_F")},
         "controls":controls["controls"],
-        "physical":{k:v for k,v in phys.items() if k not in ("selected_pool_indices","theta","history")},
+        "physical":{k:v for k,v in phys.items() if k not in ("selected_pool_indices","selected_generators","theta","history")},
+        "circuits":[{
+            "reps":x["product_formula_reps"],
+            "CX":x["transpiled_gate_counts"].get("cx",0),
+            "depth":x["transpiled_depth"],
+            "synthesis_error_mEh":x["actual_transpiled_circuit"]["energy_error_vs_exact_prefix_mEh"],
+            "fidelity_full":x["actual_transpiled_circuit"]["fidelity_full_with_exact_physical_prefix"],
+            "S2":x["actual_transpiled_circuit"]["S2_conditioned_on_target_Ms"],
+            "Ms_weight":x["actual_transpiled_circuit"]["target_Ms_weight"],
+            "PASS_strict":x["PASS"],
+        } for x in circuit_results],
     }
     jdump(outdir/"SUMMARY.json",summary)
     print(json.dumps(summary,indent=2))
