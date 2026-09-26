@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+.venv/
+venv/
+*.qasm
+reproduced_*.json
+.DS_Store

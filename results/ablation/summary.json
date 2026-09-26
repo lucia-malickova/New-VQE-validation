@@ -1,0 +1,7 @@
+{
+  "restricted_physical_SD":{"operator_applications":35,"error_mEh":153.628889,"S2":0.75,"fidelity_exact_doublet":0.286624497205},
+  "restricted_physical_SDT":{"operator_applications":147,"error_mEh":141.392349,"S2":0.75,"fidelity_exact_doublet":0.267160392300},
+  "restricted_physical_SDT_with_repeats":{"operator_applications":250,"error_mEh":13.166089,"S2":0.75,"fidelity_exact_doublet":0.878314,"residual_Eh":0.041204},
+  "restricted_SDT_circuit_suzuki2_r1":{"operator_applications":147,"synthesis_error_mEh":0.01331,"CX":218502,"depth":261514,"note":"Circuit synthesis is accurate, but the underlying fermionic ansatz remains 141.392 mEh above the target doublet."},
+  "provenance_note":"The older adapt_physical_spinadapted_SD_validation.json used a different FCIDUMP hash and was rejected. The 35-operator SD checkpoint was revalidated against the final 18q FCIDUMP before use."
+}

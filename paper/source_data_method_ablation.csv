@@ -1,0 +1,8 @@
+method,qubits,operator_applications,energy_error_mEh,S2,fidelity,status
+Projected-subspace ADAPT,18,123,1.5715327244834043,0.75,,emulator only
+"Same angles, bare generators",18,123,464.7114447052445,2.381595660091439,0.07416205040820534,fails equivalence
+Restricted physical S+D,18,35,153.62888891468174,0.75,0.2866212882475117,spin-pure; insufficient
+Restricted physical S+D+T,18,147,141.39234863660022,0.75,0.26716374858708536,spin-pure; insufficient
+Restricted S+D+T + repeats,18,250,13.166088935577136,0.75,0.8783140551152994,spin-pure; improved but above target
+Generalized physical + repeats,18,50,1.4926737471796514,0.75,0.9826136513667625,passes 1.6 mEh fermionic target
+Generalized physical + repeats,24,61,1.1812930188170867,0.75,0.990680914380462,passes 1.6 mEh fermionic target

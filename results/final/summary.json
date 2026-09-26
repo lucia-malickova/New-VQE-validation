@@ -1,0 +1,27 @@
+{
+  "18q": {
+    "exact_doublet_Eh": -2518.989067369946,
+    "non_target_quartet_Eh": -2518.995009103114,
+    "fermionic_best50": {"energy_Eh":-2518.987574696199,"error_mEh":1.4926737476343988,"S2":0.75,"fidelity_exact_doublet":0.9826136513673207,"residual_Eh":0.0480111262592041},
+    "suzuki2_r1": {"synthesis_error_mEh":44.380779703715234,"fidelity":0.8454131514494037,"CX":15936,"depth":18389,"PASS":false},
+    "suzuki2_r2": {"synthesis_error_mEh":2.416260206246079,"fidelity":0.9913647890492093,"CX":31118,"depth":36138,"PASS":false},
+    "suzuki2_r4": {"synthesis_error_mEh":0.1354618902951188,"fidelity":0.9994836505428647,"S2":0.7508418144042822,"CX":61482,"depth":71636,"total_error_mEh":1.6281356338367914,"PASS":false},
+    "measurement": {"pauli_terms":9316,"greedy_QWC_groups":1909,"shots_sigma_1p6_mEh":142710953,"shots_sigma_1p0_mEh":365340039,"shots_sigma_0p5_mEh":1461360156}
+  },
+  "24q": {
+    "exact_doublet_Eh": -2518.989131438323,
+    "non_target_quartet_Eh": -2518.995161621996,
+    "fermionic_best61": {"energy_Eh":-2518.9879501453033,"error_mEh":1.181293019271834,"S2":0.75,"fidelity_exact_doublet":0.9906809143799061,"residual_Eh":0.05853598985542065},
+    "suzuki2_r1": {"synthesis_error_mEh":0.09055061173057766,"fidelity":0.9996938373993297,"S2":0.7506244491838631,"target_Ms_weight":0.9999999999993264,"CX":22574,"depth":26409,"total_error_mEh":1.2718436310024116,"PASS":true},
+    "measurement": {"pauli_terms":29737,"greedy_QWC_groups":6233,"shots_sigma_1p6_mEh":545746816,"shots_sigma_1p0_mEh":1397111848,"shots_sigma_0p5_mEh":5588447391}
+  },
+  "projected_vs_physical": {
+    "projected_error_mEh":1.5715327244834043,
+    "bare_same_angles_error_mEh":464.7114447052445,
+    "bare_S2":2.381595660091439,
+    "fidelity_projected_vs_bare":0.07416205040820534,
+    "bare_doublet_weight":0.45613477996952034,
+    "selected_generators_with_doublet_leakage_gt_1e-10":"116/123"
+  },
+  "interpretation": "1.6 mEh is a model-space algorithmic benchmark, not a claim of real-enzyme chemical accuracy. No physical-QPU final-energy result is reported."
+}

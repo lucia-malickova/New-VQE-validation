@@ -1,0 +1,6 @@
+{
+  "projected_ADAPT_state":{"energy_Eh":-2518.9874958372175,"exact_doublet_reference_Eh":-2518.989067369942,"dev_mEh":1.5715327244834043,"S2":0.75},
+  "same_parameters_unprojected_generators":{"energy_Eh":-2518.5243559252367,"dev_vs_exact_doublet_mEh":464.7114447052445,"S2":2.381595660091439,"fidelity_with_projected_state":0.07416205040820534,"doublet_weight":0.45613477996952034,"non_doublet_weight":0.5438652200304797,"energy_of_normalized_doublet_component_Eh":-2518.523041030457,"fidelity_projected_vs_normalized_doublet_component":0.16258801929807004},
+  "selected_generator_doublet_leakage":{"count_selected":123,"count_non_spin_preserving_gt_1e-10":116,"max_ratio":0.5570860145311557,"median_ratio":0.51234753829798,"mean_ratio":0.4534929311947596},
+  "equivalence_test":{"PASS_same_algorithmic_state":false,"energy_difference_bare_minus_projected_Eh":0.4631399119807611}
+}

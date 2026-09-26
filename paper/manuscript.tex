@@ -1,0 +1,399 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{ragged2e}
+\usepackage{microtype}
+\usepackage{authblk}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{array}
+\justifying
+\hypersetup{colorlinks=true,citecolor=blue,urlcolor=blue,linkcolor=blue}
+
+\title{From Projected Subspaces to Physical Circuits:\\
+Spin-Faithful ADAPT-VQE for an Open-Shell Copper Center}
+
+\author[1]{Lucia Mal\'{\i}\v{c}kov\'a\thanks{Corresponding author: \href{mailto:lucy@thesafehaven.ai}{lucy@thesafehaven.ai}}}
+\author[2,3]{Petr Klenovsk\'y\thanks{E-mail: \href{mailto:klenovsky@physics.muni.cz}{klenovsky@physics.muni.cz}}}
+\affil[1]{Modelos Inteligencia Artificial, Cl. Tajinaste, San Miguel de Abona, Santa Cruz de Tenerife, Spain}
+\affil[2]{Department of Condensed Matter Physics, Faculty of Science, Masaryk University, Kotl\'a\v{r}sk\'a 267/2, 61137 Brno, Czech Republic}
+\affil[3]{Czech Metrology Institute, Okru\v{z}n\'i~31, 63800 Brno, Czech Republic}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For open-shell quantum chemistry, an accurate variational energy is not sufficient evidence that the implemented quantum circuit prepares the intended physical state.
+We demonstrate this distinction for an idealized type-1 (blue-copper) Cu(II) center using two exactly verifiable active-space Hamiltonians, CAS(15e,9o) and CAS(21e,12o), mapped to 18 and 24 qubits.
+Both contain a lower quartet in addition to the target Cu(II)-motivated doublet, making explicit total-spin control essential.
+An exact-doublet projected ADAPT-VQE calculation reaches a 1.572 m$E_h$ error with 123 operators, but applying the same optimized parameters to the corresponding unprojected fermionic generators gives only 0.074 fidelity with the projected state, $\langle S^2\rangle=2.382$, and a 464.7 m$E_h$ error.
+We therefore replace the projected construction by generalized physical spin-preserving rank-1/rank-2 operator pools and use repeated ADAPT selection, global reoptimization, and pruning.
+The resulting fermionic ans\"atze reach 1.493 m$E_h$ with 50 operator applications on 18 qubits and 1.181 m$E_h$ with 61 applications on 24 qubits, while maintaining $\langle S^2\rangle=0.75$ to numerical precision; their exact-state fidelities are 0.9826 and 0.9907.
+Circuit synthesis exposes a second accuracy--resource tradeoff.
+For the 24-qubit state, second-order Suzuki synthesis with one repetition reproduces the fermionic ansatz within 0.091 m$E_h$ and 0.99969 fidelity, yielding a total doublet error of 1.272 m$E_h$, but requires 22,574 CX gates at abstract-gate-set depth 26,409.
+For the 18-qubit state, four Suzuki repetitions reduce the synthesis error to 0.135 m$E_h$ and raise the fidelity to 0.99948, at the cost of 61,482 CX gates and depth 71,636; the resulting total error is 1.628 m$E_h$.
+Finally, ideal greedy qubit-wise-commuting measurement analysis requires approximately $1.43\times10^8$ and $5.46\times10^8$ optimally allocated shots, respectively, for a 1.6 m$E_h$ statistical uncertainty.
+The benchmark therefore separates four validation layers---spin targeting, physical fermionic ansatz construction, qubit-circuit synthesis, and measurement cost---that should not be conflated when assessing VQE accuracy or hardware readiness.
+\end{abstract}
+
+\section{Introduction}
+Variational quantum eigensolvers (VQEs) combine parameterized quantum circuits with classical optimization and remain a central approach to quantum electronic-structure simulation \cite{peruzzo2014vqe,mcclean2016theory,mcardle2020review}.
+Their physical meaning, however, depends on several logically distinct layers: the molecular Hamiltonian, the target symmetry sector, the variational manifold, the physical fermionic unitary sequence, the synthesized qubit circuit, and the measurements used to estimate observables.
+A favorable energy at one layer need not validate the next.
+
+ADAPT-VQE grows an ansatz one operator at a time according to energy derivatives \cite{grimsley2019adapt}.
+Generalized spin-complemented excitations and repeated operator selection already appear in the original method; later work has explored qubit pools \cite{tang2021qubitadapt}, symmetry breaking \cite{bertels2022symmetry}, compact circuit constructions \cite{magoulas2023cnot}, and pruning \cite{vaquero2025pruned}.
+The present work therefore does \emph{not} claim generalized excitations, operator reuse, or pruning as new algorithms.
+Instead, we address a validation problem that becomes acute for open-shell systems: a state optimized after exact projection into a target spin subspace need not be represented by the bare fermionic circuit whose resources are subsequently quoted.
+
+Type-1, or blue-copper, sites provide a chemically motivated benchmark.
+Their electronic structure is characterized by a strongly covalent Cu--thiolate interaction and an oxidized Cu(II) center with nominal $d^9$ doublet character; such sites mediate electron transfer in blue-copper proteins and multicopper oxidases \cite{solomon2004bluecopper,solomon2006thiolate,solomon2014copper}.
+The model used here is deliberately small and idealized.
+It is valuable precisely because exact spin-resolved classical references remain available, allowing every stage of the VQE pipeline to be falsified rather than assumed.
+
+Our starting diagnostic uses the exact target-doublet subspace.
+If $U$ spans that subspace, a projected generator $A_d=U^\dagger A U$ defines a valid reduced-space emulator evolution.
+It does not, in general, imply that $e^{\theta A}$ restricted to the same state is equivalent to $e^{\theta A_d}$.
+We quantify this mismatch, replace it with explicitly spin-preserving physical generators, scale the construction from 18 to 24 qubits, and then test the actual Jordan--Wigner/Suzuki circuits and their measurement burden.
+
+Throughout, the commonly used 1.6 m$E_h$ threshold is employed only as an \emph{algorithmic accuracy benchmark for a specified active-space Hamiltonian}.
+It is not a claim of 1 kcal/mol predictive accuracy for the real protein, for laccase, or for the underlying STO-3G model.
+
+\section{Computational methodology}
+
+\subsection{Copper-center Hamiltonians}
+The benchmark uses an idealized oxidized type-1 Cu(II) first-coordination-shell model with two nitrogen donors, a short cysteine-model sulfur donor, and a longer axial sulfur donor.
+The electronic-structure workflow was generated with PySCF \cite{sun2018pyscf}; the primary active space was selected with the atomic-valence active-space (AVAS) procedure \cite{sayfutyarova2017avas}, targeting the Cu $3d$ and cysteine-S $3p$ manifolds.
+
+The primary Hamiltonian is CAS(15e,9o), yielding 18 spin orbitals.
+An expanded CAS(21e,12o) Hamiltonian from the same model provides a 24-qubit algorithmic scaling benchmark.
+Because the two active spaces were not generated as a formally balanced state-specific convergence sequence for both multiplicities, their comparison is used to test the robustness of the quantum algorithm, not to claim converged spin-state energetics.
+Both Hamiltonians are mapped with the Jordan--Wigner transformation; alternative mappings such as Bravyi--Kitaev may reduce Pauli weights \cite{seeley2012bk}, but are not considered here.
+
+\subsection{Exact spin-resolved references}
+For each Hamiltonian, the target determinant sector has $M_S=1/2$ and fixed particle number.
+These quantum numbers do not fix total spin.
+Let $\hat S_+$ be the many-electron spin-raising operator.
+Because the target has $M_S=S=1/2$, the pure-doublet highest-weight subspace is $\mathcal H_D=\ker \hat S_+$.
+With $U$ an orthonormal basis of this null space, $H_D=U^\dagger H_{M_S}U$ provides an exact doublet oracle.
+
+The target doublet is selected because the benchmark is intended to represent an oxidized Cu(II) center.
+The active-space Hamiltonians themselves place a quartet below that doublet.
+We therefore call it the \emph{non-target quartet}, rather than an unphysical eigenstate.
+The calculated ordering is not interpreted as a converged prediction of the real blue-copper spin ordering.
+
+\subsection{Projected-subspace equivalence test}
+The diagnostic projected ADAPT calculation is performed entirely in the exact doublet basis using $A_{d,k}=U^\dagger A_k U$.
+To test whether this reduced-space state corresponds to the physical bare sequence, we reconstruct
+\begin{align}
+|\Psi_{\rm proj}\rangle &= \prod_k e^{\theta_k A_{d,k}}|\Phi_{\rm HF}\rangle_D,\\
+|\Psi_{\rm bare}\rangle &= \prod_k e^{\theta_k A_k}|\Phi_{\rm HF}\rangle
+\end{align}
+from the same 123 selected operators and optimized parameters.
+We compare energy, $\langle S^2\rangle$, doublet weight, projected/bare fidelity, and generator leakage.
+
+\subsection{Physical spin-preserving ADAPT}
+All subsequent adaptive calculations use physical fermionic generators that preserve the target doublet directly.
+Generalized rank-1 and rank-2 $M_S$-conserving determinant excitations are grouped by their spatial remove/add pattern.
+Within each group, spin-preserving linear combinations are obtained from the numerical null space of the doublet-to-complement coupling.
+A generator $B$ is retained only if its doublet leakage and normalized $S^2$ commutator defect are below numerical tolerance.
+For the final 18-qubit pool, the maximum measured leakage ratio is $3.14\times10^{-16}$ and the maximum normalized $S^2$ commutator defect is $1.11\times10^{-15}$.
+
+The final generalized pools contain 1,080 generators at 18 qubits and 3,762 at 24 qubits.
+ADAPT selection uses the magnitude of the energy derivative
+\begin{equation}
+g_k=2\,{\rm Re}\langle\Psi|H B_k|\Psi\rangle.
+\end{equation}
+The selected generator is appended without draining the pool, allowing repetitions.
+Parameters are reoptimized with L-BFGS-B, including periodic global reoptimization.
+High-accuracy sequences are then pruned by removing small-amplitude applications and reoptimizing the remainder.
+This pruning is used as a practical compaction step and is not presented as a new pruning algorithm \cite{vaquero2025pruned}.
+
+\subsection{Qubit mapping and circuit synthesis}
+The physical fermionic generators are mapped using Qiskit Nature 0.7.2 and Jordan--Wigner, and the resulting Hermitian Pauli operators are exponentiated with Qiskit 2.2.3 \texttt{PauliEvolutionGate} using a second-order Suzuki product formula \cite{qiskit2024,qiskitnature2023}.
+Qiskit Aer 0.17.2 is used for statevector validation.
+Circuits are transpiled at optimization level 1 to the abstract basis $\{R_z,\sqrt X,X,{\rm CX}\}$.
+The quoted depths and CX counts are therefore \emph{not} device-mapped Euro-Q-Exa resource estimates.
+
+Circuit validation includes full-state fidelity to the exact fermionic sequence, target-$M_S$ survival, conditioned $\langle S^2\rangle$, and synthesis energy error.
+A strict circuit-equivalence gate requires fidelity $\ge 0.999$, $|\delta E_{\rm synth}|\le0.1$ m$E_h$, $|\langle S^2\rangle-0.75|\le0.001$, and target-$M_S$ survival $\ge0.999$.
+
+\subsection{Measurement and wavefunction diagnostics}
+The qubit Hamiltonians are grouped greedily into qubit-wise-commuting (QWC) sets.
+For the chosen grouping, exact statevector variances are used to estimate the shot count under variance-optimal allocation,
+\begin{equation}
+N_{\rm shot}^{\rm opt}=
+\frac{\left(\sum_g\sqrt{{\rm Var}_g}\right)^2}{\sigma_E^2}.
+\end{equation}
+This is the minimum for that fixed grouping and ideal state preparation; it is not a global lower bound over all possible measurement strategies and excludes device noise and calibration overhead \cite{verteletskyi2020measurement}.
+
+Wavefunction quality is assessed independently using exact-state fidelity, the residual norm $r=\|(H-E)|\Psi\rangle\|$, one-particle reduced density matrices, and natural occupations.
+The compact ans\"atze are also reoptimized from perturbed initial parameters to assess local robustness.
+
+\section{Results}
+
+\subsection{Exact target-doublet references}
+Table~\ref{tab:references} summarizes the exact spin-resolved references.
+Both active spaces place the non-target quartet below the target doublet by about 6 m$E_h$.
+The similar values show that the lower quartet is not unique to the nine-orbital Hamiltonian, but they should not be read as chemically converged spin gaps.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Exact spin-resolved references. The target is the lowest doublet, not the global active-space eigenstate.}
+\label{tab:references}
+\begin{tabular}{lcc}
+\toprule
+& CAS(15e,9o) & CAS(21e,12o)\\
+\midrule
+Qubits & 18 & 24\\
+$M_S=1/2$ determinant dimension & 324 & 792\\
+Exact doublet dimension & 240 & 572\\
+$E_D$ (Hartree) & $-2518.989067370$ & $-2518.989131438$\\
+$E_Q$ (Hartree) & $-2518.995009103$ & $-2518.995161622$\\
+$E_D-E_Q$ (m$E_h$) & 5.941733 & 6.030184\\
+HF determinant energy (Hartree) & $-2518.540295701$ & $-2518.754566933$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Projected accuracy does not imply physical-circuit accuracy}
+The projected doublet ADAPT calculation reaches $E_{\rm proj}=-2518.987495837~E_h$ and $\Delta E_{\rm proj}=1.571533$ m$E_h$, with exactly $\langle S^2\rangle=0.75$.
+The corresponding bare physical sequence, using the same selected operators and angles, instead gives $E_{\rm bare}=-2518.524355925~E_h$, or 464.711 m$E_h$ above the target doublet, with $\langle S^2\rangle=2.381596$.
+Its doublet weight is 0.4561 and its fidelity with the projected state is only 0.07416.
+Moreover, 116 of the 123 selected bare generators exhibit doublet leakage above $10^{-10}$.
+The discrepancy is therefore structural, not a small numerical or transpilation error.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\linewidth]{fig1_method_ablation.pdf}
+\caption{Method ablation. Exact spin projection produces an accurate reduced-space state, but the same bare generator sequence fails. Physical spin adaptation cures the symmetry problem; generalized excitations and repeated selection are then required to recover sufficient expressivity.}
+\label{fig:ablation}
+\end{figure}
+
+\subsection{Spin correctness alone is not enough}
+The first physical spin-adapted pool is restricted to Hartree--Fock occupied-to-virtual excitations.
+With S+D generators, all 35 operators are exhausted at 153.629 m$E_h$ error.
+Adding triples gives 147 physical generators but reaches only 141.392 m$E_h$.
+Both states remain exactly spin pure.
+
+Allowing repeated selection from the same restricted S+D+T pool improves the 250-application state to 13.166 m$E_h$ error, fidelity 0.8783, and residual 0.0412 $E_h$, while preserving $\langle S^2\rangle=0.75$.
+This is a substantial improvement, but it still misses the 1.6 m$E_h$ model-space benchmark by almost an order of magnitude.
+The result isolates the role of pool expressivity: repeats help, but a generalized physical pool is still required.
+
+\subsection{Generalized physical pools recover compact accurate states}
+At 18 qubits, the 1,080-generator generalized physical pool yields a compact state with 50 operator applications, 39 of them unique.
+Its energy error is 1.492674 m$E_h$, with exact-state fidelity 0.982614, residual 0.048011 $E_h$, and unit doublet weight to numerical precision.
+
+At 24 qubits, the 3,762-generator pool yields a 61-application state using 41 unique generators.
+Its error is 1.181293 m$E_h$, with fidelity 0.990681 and residual 0.058536 $E_h$.
+Again $\langle S^2\rangle=0.75$ and the doublet weight is unity to numerical precision.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ablation of spin treatment, operator pool, and reuse. Errors refer to the target doublet.}
+\label{tab:ablation}
+\begin{tabular}{p{5.1cm}rrrr}
+\toprule
+Method & Ops & $\Delta E$ (m$E_h$) & $\langle S^2\rangle$ & Fidelity\\
+\midrule
+Projected-subspace ADAPT, 18q & 123 & 1.572 & 0.750 & ---\\
+Same angles, bare generators, 18q & 123 & 464.711 & 2.382 & 0.074$^\dagger$\\
+Restricted physical S+D, 18q & 35 & 153.629 & 0.750 & 0.2866\\
+Restricted physical S+D+T, 18q & 147 & 141.392 & 0.750 & 0.2672\\
+Restricted S+D+T + repeats, 18q & 250 & 13.166 & 0.750 & 0.8783\\
+Generalized physical + repeats, 18q & 50 & 1.493 & 0.750 & 0.9826\\
+Generalized physical + repeats, 24q & 61 & 1.181 & 0.750 & 0.9907\\
+\bottomrule
+\end{tabular}
+
+\raggedright\footnotesize
+$^\dagger$Fidelity to the projected-subspace state. Other fidelities are to the exact target doublet.
+\end{table}
+
+The compact solutions are locally robust to parameter perturbations.
+Seven 18-qubit reoptimizations finish in the 1.49266--1.49306 m$E_h$ range, while five 24-qubit reoptimizations finish in the 1.18070--1.18125 m$E_h$ range (Fig.~\ref{fig:multistart}).
+Some individual optimizer runs reach their iteration cap, so this test should be interpreted as energetic local robustness rather than a proof of global optimization.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.83\linewidth]{fig5_multistart.pdf}
+\caption{Multi-start robustness of the compact generalized physical ans\"atze. Perturbed parameter vectors return to narrow energy windows while preserving the target spin.}
+\label{fig:multistart}
+\end{figure}
+
+\subsection{Circuit synthesis introduces a second approximation}
+The physical fermionic ansatz and the mapped qubit circuit now use the same generators.
+Product-formula synthesis nevertheless introduces an additional approximation.
+
+For the 18-qubit 50-application state, one second-order Suzuki repetition gives a 44.381 m$E_h$ synthesis error and circuit-to-fermionic fidelity 0.8454.
+Two repetitions reduce these values to 2.416 m$E_h$ and 0.99136.
+Four repetitions reach 0.135 m$E_h$ synthesis error and 0.999484 fidelity.
+The total error relative to the exact target doublet is then 1.628 m$E_h$, slightly above the 1.6 m$E_h$ model-space benchmark.
+The four-repetition circuit does \emph{not} pass our strict 0.1 m$E_h$ synthesis criterion.
+
+For the 24-qubit 61-application state, one Suzuki repetition already passes all strict circuit-equivalence gates:
+the synthesis error is 0.0906 m$E_h$, fidelity is 0.999694, conditioned $\langle S^2\rangle=0.750624$, and target-$M_S$ survival exceeds 0.999999999.
+Its total target-doublet error is 1.272 m$E_h$.
+This favorable product-formula behavior is instance specific and is not evidence of favorable asymptotic scaling.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Circuit synthesis results after transpilation to an abstract $\{R_z,\sqrt X,X,\mathrm{CX}\}$ basis. These are not device-mapped resources.}
+\label{tab:circuit}
+\begin{tabular}{lrrrrrr}
+\toprule
+Case & Suzuki reps & CX & Depth & $\delta E_{\rm synth}$ & $F_{\rm circ}$ & Total $\Delta E$\\
+& & & & (m$E_h$) & & (m$E_h$)\\
+\midrule
+18q, 50 ops & 1 & 15,936 & 18,389 & 44.381 & 0.84541 & 45.873\\
+18q, 50 ops & 2 & 31,118 & 36,138 & 2.416 & 0.99136 & 3.909\\
+18q, 50 ops & 4 & 61,482 & 71,636 & 0.135 & 0.99948 & 1.628\\
+24q, 61 ops & 1 & 22,574 & 26,409 & 0.091 & 0.99969 & 1.272\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.83\linewidth]{fig2_synthesis_tradeoff_18q.pdf}
+\caption{Second-order Suzuki synthesis of the 18-qubit 50-application ansatz. Increasing the repetition count rapidly improves state and energy fidelity, but approximately doubles the CX count each time.}
+\label{fig:synthesis}
+\end{figure}
+
+The first five operators provide an implementation regression test:
+with one Suzuki repetition, both 18- and 24-qubit circuits have circuit-to-fermionic fidelity above 0.999999998 and essentially exact spin purity.
+Their energies remain hundreds of m$E_h$ above the target doublet, so these short prefixes validate implementation, not chemical accuracy.
+
+For comparison, the older restricted 147-operator S+D+T physical sequence is itself synthesized accurately with one Suzuki repetition, but requires 218,502 CX gates at depth 261,514 while its fermionic energy error remains 141.392 m$E_h$.
+This reinforces the need to optimize both variational expressivity and circuit resources.
+
+\subsection{Measurement cost is already severe}
+The 18-qubit Hamiltonian contains 9,316 Pauli terms and 1,909 greedy QWC groups.
+The 24-qubit Hamiltonian contains 29,737 Pauli terms and 6,233 groups.
+For the chosen groupings and ideal variance-optimal allocation, a 1.6 m$E_h$ statistical standard error requires approximately $1.43\times10^8$ shots at 18 qubits and $5.46\times10^8$ at 24 qubits.
+At 0.5 m$E_h$, the corresponding estimates are $1.46\times10^9$ and $5.59\times10^9$ shots.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ideal shot estimates for the chosen greedy QWC grouping and optimized physical states. These are not global lower bounds over all measurement strategies and are not QPU runtime predictions.}
+\label{tab:measurement}
+\begin{tabular}{lrrrrr}
+\toprule
+Case & Pauli terms & QWC groups & \multicolumn{3}{c}{Optimal shots}\\
+& & & 1.6 m$E_h$ & 1.0 m$E_h$ & 0.5 m$E_h$\\
+\midrule
+18 qubits & 9,316 & 1,909 & $1.43\times10^8$ & $3.65\times10^8$ & $1.46\times10^9$\\
+24 qubits & 29,737 & 6,233 & $5.46\times10^8$ & $1.40\times10^9$ & $5.59\times10^9$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.81\linewidth]{fig3_measurement_shots.pdf}
+\caption{Ideal shot burden for the chosen greedy QWC groupings. Hardware noise, state-preparation error, calibration, and alternative measurement strategies are not included.}
+\label{fig:shots}
+\end{figure}
+
+A qubit count that fits on a device is therefore insufficient evidence of hardware feasibility.
+At the m$E_h$ scale, these models are measurement-limited even before device noise is included.
+A near-term QPU experiment should be framed primarily as circuit/symmetry/noise validation rather than as a modest-shot demonstration of model-space chemical accuracy.
+
+\subsection{Wavefunction diagnostics beyond the energy}
+The exact-state fidelities of the compact physical states are high but not unity, and their residual norms remain 0.0480 and 0.0585 $E_h$.
+The one-particle diagnostics nevertheless remain close to the exact target doublets.
+For 18 qubits, the spatial 1-RDM Frobenius error is 0.1860, the maximum natural-occupation error is 0.002109, and the natural-occupation-vector $L_2$ error is 0.002983.
+For 24 qubits the corresponding values are 0.1250, 0.001605, and 0.002985.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.81\linewidth]{fig4_natural_occupation_errors.pdf}
+\caption{Absolute natural-orbital occupation errors relative to the exact target doublet. Natural occupations are well reproduced even though the full residual norms are not negligible.}
+\label{fig:natural}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{What is and is not new}
+Generalized spin-complemented ADAPT pools, repeated operator selection, symmetry-aware adaptive VQE, and pruning all have prior literature \cite{grimsley2019adapt,bertels2022symmetry,vaquero2025pruned}.
+The contribution here is therefore not a claim to those algorithmic ingredients individually.
+The methodological result is the explicit end-to-end separation of four layers that can otherwise be conflated:
+\begin{enumerate}[label=(\roman*)]
+\item the target spin sector of the electronic Hamiltonian;
+\item the variational state optimized in a reduced or full emulator space;
+\item the physical fermionic generator sequence;
+\item the synthesized qubit circuit and its measurement protocol.
+\end{enumerate}
+The projected counterexample shows that layer (ii) can be accurate while failing to define layer (iii).
+The physical generalized construction forces layers (ii) and (iii) to coincide.
+The Qiskit tests then quantify the approximation between layers (iii) and (iv).
+
+\subsection{Spin symmetry is necessary but insufficient}
+The restricted S+D and S+D+T calculations demonstrate that exact spin preservation alone does not guarantee a useful variational manifold.
+Their energies remain more than 140 m$E_h$ above the target despite perfect doublet purity.
+Repeated selection from the restricted pool recovers most of that missing flexibility, reducing the error to 13.166 m$E_h$, but generalized physical one- and two-body rotations are still needed to cross the 1.6 m$E_h$ model-space benchmark.
+
+Conversely, the projected-subspace result demonstrates that low energy alone does not prove circuit validity.
+For open-shell VQE studies, reporting energy and particle number without total-spin diagnostics and a physical-generator equivalence test can therefore be insufficient.
+
+\subsection{Hardware realism}
+Neither final long circuit is near-term hardware friendly.
+The cleaner 24-qubit circuit still has 22,574 CX gates and depth 26,409 before device connectivity, native-gate restrictions, calibration, or error mitigation are considered.
+The 18-qubit circuit requires still more gates when Suzuki error is pushed close to the fermionic-ansatz scale.
+More efficient circuit decompositions, including CNOT-efficient excitation circuits \cite{magoulas2023cnot}, are a natural next direction.
+
+Measurement is at least as important as state preparation.
+The $10^8$--$10^9$ ideal shot estimates imply that a realistic hardware campaign should not be judged by whether a modest number of measurements reproduces the final energy to 1.6 m$E_h$.
+More informative near-term observables include particle-number and $M_S$ survival, selected spin correlators, short-prefix state preparation, and error growth with circuit length.
+No physical-QPU result is reported in the present work.
+
+\subsection{Chemical interpretation and limitations}
+The benchmark employs STO-3G-based active-space Hamiltonians and an idealized first-shell model.
+The 1.6 m$E_h$ threshold is therefore an internal algorithmic benchmark, not an uncertainty estimate for a real enzyme.
+Likewise, the lower quartet in both Hamiltonians should not be interpreted as evidence that the experimental oxidized T1 center has quartet ground-state character.
+A balanced physical spin-state calculation would require state-specific orbital optimization for both multiplicities, systematic active-space and basis convergence, and a more realistic environment.
+
+A preliminary Cu--S geometry extension was generated during development.
+It failed the pre-specified CASSCF convergence and active-orbital continuity gates and is deliberately excluded from the scientific results.
+The five same-Hamiltonian exact diagonalizations generated in that failed scan all retain a lower quartet, but because the underlying orbital-generation workflow did not pass validation, those points are not used as a geometry-dependent physical claim.
+
+The 24-qubit CAS(21e,12o) calculation is similarly treated as an algorithmic scaling benchmark rather than as proof that the active space is converged chemically.
+
+\section{Conclusions}
+An exact-doublet projected ADAPT calculation can be numerically accurate without defining the physical circuit that is subsequently resource-counted.
+For the present open-shell copper model, the projected state reaches 1.572 m$E_h$, whereas the same optimized parameters applied to bare generators yield a strongly spin-contaminated state with only 0.074 projected-state fidelity and a 464.7 m$E_h$ error.
+
+A generalized physical spin-preserving construction removes this ambiguity.
+Repeated adaptive selection, global reoptimization, and pruning produce 50- and 61-application fermionic ans\"atze at 18 and 24 qubits with errors of 1.493 and 1.181 m$E_h$, respectively, while preserving the target doublet exactly.
+One-particle observables and multi-start tests support the internal consistency of these states.
+
+The qubit-circuit layer remains costly.
+At 24 qubits, one second-order Suzuki repetition passes the strict circuit-equivalence gates and gives a total 1.272 m$E_h$ error, but requires 22,574 CX gates.
+At 18 qubits, four repetitions approach state equivalence at 61,482 CX gates while leaving a total error of 1.628 m$E_h$ and narrowly failing the chosen strict synthesis-energy criterion.
+Ideal grouped measurements further require hundreds of millions of shots for m$E_h$ statistical precision.
+
+The broader lesson is that open-shell VQE validation should separately demonstrate the intended spin sector, equivalence between optimized and physical fermionic generators, controlled qubit synthesis, and a realistic measurement budget.
+Without all four checks, ``accurate VQE'' and ``hardware-ready circuit'' are not interchangeable statements.
+
+\section*{Data and Code Availability}
+The physical generalized-spin ADAPT implementation, compact 18- and 24-qubit ansatz checkpoints, FCIDUMP Hamiltonians, validation summaries, circuit-synthesis outputs, figure source data, and reproducibility scripts are openly available at
+\url{https://github.com/lucia-malickova/New-VQE-validation}.
+The superseded projected-ADAPT repository state is retained under the \texttt{legacy/} tree for provenance and as the explicitly tested failure case.
+A tagged archival release corresponding exactly to the submitted manuscript will be created at submission.
+
+\section*{Acknowledgements}
+P.K. acknowledges funding from the European Innovation Council Pathfinder program under Grant Agreement No.~101185617 (QCEED), funding by the Institutional Subsidy for the Long-Term Conceptual Development of a Research Organization granted to the Czech Metrology Institute by the Ministry of Industry and Trade of the Czech Republic, and by the project \emph{Quantum Materials for Applications in Sustainable Technologies}, CZ.02.01.01/00/22\_008/0004572.
+The authors acknowledge the EuroHPC access award to the Euro-Q-Exa infrastructure under project proposal No.~EHPC-QCP-2026Q01-017.
+% Retain the Euro-Q-Exa sentence only if the submitted work actually used, or was materially supported by, that awarded access.
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+\end{document}

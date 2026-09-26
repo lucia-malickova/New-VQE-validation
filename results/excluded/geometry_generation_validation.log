@@ -1,0 +1,20 @@
+step_00_R_2.000000: header=(9, 15, 1), CuS=2.000000 A, min_overlap=0.4656097073206587
+step_01_R_2.075000: header=(9, 15, 1), CuS=2.075000 A, min_overlap=0.44758801218795885
+step_02_R_2.152324: header=(9, 15, 1), CuS=2.152324 A, min_overlap=None
+step_03_R_2.225000: header=(9, 15, 1), CuS=2.225000 A, min_overlap=0.41226994998080346
+step_04_R_2.300000: header=(9, 15, 1), CuS=2.300000 A, min_overlap=0.48284275368412355
+VERDICT=FAIL
+ - step_00_R_2.000000: doublet CASSCF not converged
+ - step_00_R_2.000000: quartet CASSCF not converged
+ - step_00_R_2.000000: min tracked active-orbital overlap 0.4656 < 0.7
+ - step_01_R_2.075000: doublet CASSCF not converged
+ - step_01_R_2.075000: quartet CASSCF not converged
+ - step_01_R_2.075000: min tracked active-orbital overlap 0.4476 < 0.7
+ - step_02_R_2.152324: doublet CASSCF not converged
+ - step_02_R_2.152324: quartet CASSCF not converged
+ - step_03_R_2.225000: doublet CASSCF not converged
+ - step_03_R_2.225000: quartet CASSCF not converged
+ - step_03_R_2.225000: min tracked active-orbital overlap 0.4123 < 0.7
+ - step_04_R_2.300000: doublet CASSCF not converged
+ - step_04_R_2.300000: quartet CASSCF not converged
+ - step_04_R_2.300000: min tracked active-orbital overlap 0.4828 < 0.7
