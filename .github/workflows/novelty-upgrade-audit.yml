@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - novelty-upgrade-20260926
+    paths:
+      - "analysis/novelty_upgrade_audit.py"
+      - ".github/workflows/novelty-upgrade-audit.yml"
   workflow_dispatch:
 
 jobs:
