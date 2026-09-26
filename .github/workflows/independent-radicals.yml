@@ -1,0 +1,38 @@
+name: Independent Radical Benchmarks
+
+on:
+  push:
+    branches:
+      - novelty-upgrade-20260926
+    paths:
+      - "analysis/independent_radical_benchmark.py"
+      - ".github/workflows/independent-radicals.yml"
+  workflow_dispatch:
+
+jobs:
+  radical:
+    strategy:
+      fail-fast: false
+      matrix:
+        system: [NO, OH]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install "pyscf>=2.7,<3"
+      - name: Run benchmark
+        run: python analysis/independent_radical_benchmark.py --system ${{ matrix.system }}
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radical-${{ matrix.system }}
+          path: analysis/independent_benchmark_results/${{ matrix.system }}
+          if-no-files-found: warn
