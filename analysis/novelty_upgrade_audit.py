@@ -386,6 +386,7 @@ def physical_adapt(fcidump, tag, max_iters=80, tol_meh=1.6):
         "n_operator_applications":len(selected),
         "n_unique_generators":len(set(selected)),
         "selected_pool_indices":[int(x) for x in selected],
+        "selected_generators":[pool[i].as_dict() for i in selected],
         "theta":[float(x) for x in theta],
         "E_doublet":E0,
         "energy_Eh":float(np.vdot(psi,Hms@psi).real),
