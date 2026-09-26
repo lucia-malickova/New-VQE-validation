@@ -1,0 +1,29 @@
+name: OH Escape Audit
+
+on:
+  push:
+    branches: [novelty-upgrade-20260926]
+    paths:
+      - "analysis/oh_escape_audit.py"
+      - ".github/workflows/oh-escape.yml"
+  workflow_dispatch:
+
+jobs:
+  escape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install -r requirements.txt
+          python -m pip install "pyscf>=2.7,<3"
+      - run: python analysis/oh_escape_audit.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oh-escape-audit
+          path: analysis/oh_escape_audit
+          if-no-files-found: warn
