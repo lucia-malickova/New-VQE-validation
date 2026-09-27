@@ -3,6 +3,9 @@ DRAFT ALT TEXT FOR AIP/JCP REVISION
 MAIN MANUSCRIPT
 
 Figure 1:
+Four-stage validation ladder. A reduced-space optimization is connected to the parent full-space fermionic sequence, then to a synthesized qubit circuit, and finally to the measurement protocol. The first connection is exact for all amplitudes only when every implemented parent generator preserves the target subspace, while the later connections introduce independent synthesis and measurement approximations.
+
+Figure 2:
 Log-scale energy error versus number of selected ADAPT operators for the canonical Cu benchmark. The projected calculation approaches the 1.6 mEh target, whereas the same-amplitude full-space sequence and its post-projected doublet component remain hundreds of mEh above the target.
 
 Table I:
@@ -13,11 +16,25 @@ Compact representation-faithful Cu ansatze for 18- and 24-qubit fixed Hamiltonia
 
 SUPPLEMENTARY MATERIAL
 
-Figure S1: Single-generator Cu representation mismatch versus amplitude on logarithmic axes.
-Figure S2: Prefix fidelity, doublet weight, and post-projection fidelity along the canonical projected-ADAPT Cu sequence.
-Figure S3: Projected-bare and projected-postprojected fidelity for Hubbard-chain stress tests versus U/t.
-Figure S4: Variance-optimal final-energy shot estimates versus target statistical uncertainty for 18q and 24q Cu.
-Figure S5: Absolute natural-orbital occupation errors for optimized 18q and 24q Cu states.
-Figure S6: Final energy errors for perturbed-start reoptimizations of compact 18q and 24q Cu ansatze.
+Figure S1:
+Single-generator Cu representation mismatch versus amplitude on logarithmic axes, showing first-order leakage amplitude, second-order compressed-evolution mismatch, and approximately fourth-order post-projection infidelity.
 
-Supplementary tables report the state-specific certificate, fixed-parent constrained reoptimization, tangent accessibility, Hubbard stress tests, normalized basis sensitivity, physical-pool comparisons, and final-energy shot estimates.
+Figure S2:
+Prefix fidelity, doublet weight, and post-projection fidelity along the canonical projected-ADAPT Cu sequence.
+
+Figure S3:
+Projected-bare and projected-postprojected fidelity for Hubbard-chain stress tests versus U/t.
+
+Figure S4:
+Isolated Suzuki-2 infidelity versus optimized amplitude magnitude for noncommuting ansatz applications. The plot supports amplitude magnitude as a strong rank predictor within the noncommuting subset rather than a universal Suzuki-error law.
+
+Figure S5:
+Variance-optimal final-energy shot estimates versus target statistical uncertainty for 18q and 24q Cu.
+
+Figure S6:
+Absolute natural-orbital occupation errors for optimized 18q and 24q Cu states.
+
+Figure S7:
+Final energy errors for perturbed-start reoptimizations of compact 18q and 24q Cu ansatze.
+
+Supplementary tables report the state-specific certificate, fixed-parent constrained reoptimization, tangent accessibility, Hubbard stress tests, normalized basis sensitivity, spin-preserving-pool comparisons, and final-energy shot estimates.
