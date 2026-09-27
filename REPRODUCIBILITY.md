@@ -86,3 +86,31 @@ python paper/make_figures.py
 The preliminary Cu-S scan failed its own CASSCF-convergence and orbital-continuity
 gates. Its log is retained under `results/excluded/`, but it is not used for a
 geometry-dependent scientific claim.
+
+
+## Submission-v6 referee checks
+
+Canonical Cu geometry and the archived 18q generation protocol are stored in:
+
+```text
+benchmarks/cu18/T1_model_geometry.xyz
+benchmarks/cu18/T1_18q_electronic_structure_protocol.md
+```
+
+The generalized-pool basis-sensitivity test can be rerun with:
+
+```bash
+PYTHONPATH="$PWD/src" python src/revision_v6/test_pool_basis_sensitivity_v6.py   --fcidump data/18q/active.FCIDUMP --seeds 1 2 3   --output reproduced_pool_basis_sensitivity_v6.json
+```
+
+The Suzuki diagnostic baseline can be regenerated with:
+
+```bash
+python src/revision_v6/compare_suzuki_diagnostics_v6.py   paper/source_data_local_suzuki_predictor_v5.csv   --output reproduced_suzuki_diagnostic_v6.csv
+```
+
+The independent NO and OH FCIDUMPs and metadata used in the manuscript are under
+`benchmarks/no/` and `benchmarks/oh/`.
+
+The exact projector used in the representation audit is a classical small-system
+oracle, not a proposed scalable circuit primitive.

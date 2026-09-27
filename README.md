@@ -133,3 +133,28 @@ The repository intentionally records failed or excluded branches instead of
 silently converting them into positive results. In particular, the preliminary
 Cu-S geometry scan failed its own CASSCF-convergence/orbital-continuity gates
 and is not used for a geometry-dependent scientific claim.
+
+
+## Submission revision v6
+
+The current manuscript revision adds three deliberately critical checks:
+
+- the exact geometry and archived ROHF/AVAS/CASSCF generation protocol for the
+  canonical 18q Cu Hamiltonian;
+- a null-space-basis sensitivity test showing that the ADAPT trajectory is not
+  invariant under orthogonal rotations within multidimensional spin-preserving
+  pool subspaces;
+- a Suzuki diagnostic baseline showing that constituent noncommutativity is a
+  useful structural separator, while optimized amplitude magnitude already
+  carries most of the error ranking among noncommuting factors.
+
+The dense exact target-space projector is used only as a classical validation
+oracle in these small benchmarks; it is not proposed as a scalable quantum
+primitive.  The expanded 24q FCIDUMP is retained as an exactly validated fixed
+algorithmic Hamiltonian, but its dedicated 12-orbital active-space selection
+driver was not preserved, so geometry-to-FCIDUMP reproducibility is not claimed
+for that case.
+
+Revision-specific scripts are under `src/revision_v6/`, benchmark metadata
+under `benchmarks/`, and audit summaries/source data under
+`results/revision_v6/` and `paper/`.
