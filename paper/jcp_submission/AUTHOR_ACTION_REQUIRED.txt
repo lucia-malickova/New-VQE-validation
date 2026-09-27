@@ -1,0 +1,13 @@
+AUTHOR ACTION REQUIRED BEFORE JCP SUBMISSION
+
+1. CONFLICT OF INTEREST
+AIP Publishing requires a statement for every article.
+Please confirm the correct disclosure. If accurate:
+"The authors have no conflicts to disclose."
+
+2. CRediT AUTHOR CONTRIBUTIONS
+AIP Publishing requires an author-contribution statement.
+Please agree on the roles of Lucia Malickova and Petr Klenovsky.
+The repository does not establish the individual roles unambiguously enough to assign them safely.
+
+Do not submit a review PDF containing declaration placeholders.

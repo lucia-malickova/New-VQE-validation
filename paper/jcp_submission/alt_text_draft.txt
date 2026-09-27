@@ -1,0 +1,23 @@
+DRAFT ALT TEXT FOR AIP/JCP REVISION
+
+MAIN MANUSCRIPT
+
+Figure 1:
+Log-scale energy error versus number of selected ADAPT operators for the canonical Cu benchmark. The projected calculation approaches the 1.6 mEh target, whereas the same-amplitude full-space sequence and its post-projected doublet component remain hundreds of mEh above the target.
+
+Table I:
+Comparison of the canonical projected Cu ansatz, its same-amplitude full-space parent sequence, and full-space energy- or fidelity-reoptimized versions of the same 121 generators. Columns report energy error, doublet weight, fidelity to the projected state, and post-projected doublet energy error.
+
+Table II:
+Compact representation-faithful Cu ansatze for 18- and 24-qubit fixed Hamiltonians. Rows list active space, operator applications, unique generators, energy error, exact-doublet fidelity, residual norm, and spin expectation value.
+
+SUPPLEMENTARY MATERIAL
+
+Figure S1: Single-generator Cu representation mismatch versus amplitude on logarithmic axes.
+Figure S2: Prefix fidelity, doublet weight, and post-projection fidelity along the canonical projected-ADAPT Cu sequence.
+Figure S3: Projected-bare and projected-postprojected fidelity for Hubbard-chain stress tests versus U/t.
+Figure S4: Variance-optimal final-energy shot estimates versus target statistical uncertainty for 18q and 24q Cu.
+Figure S5: Absolute natural-orbital occupation errors for optimized 18q and 24q Cu states.
+Figure S6: Final energy errors for perturbed-start reoptimizations of compact 18q and 24q Cu ansatze.
+
+Supplementary tables report the state-specific certificate, fixed-parent constrained reoptimization, tangent accessibility, Hubbard stress tests, normalized basis sensitivity, physical-pool comparisons, and final-energy shot estimates.
