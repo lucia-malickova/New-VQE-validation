@@ -1,23 +1,25 @@
 # JCP submission checklist
 
-## Initial upload
-- Compiled main manuscript PDF.
+## Author declarations
+- Conflict of Interest inserted: "The authors have no conflicts to disclose."
+- Ethics Approval inserted as not applicable to this computational study.
+- CRediT Author Contributions inserted from the authors' supplied contribution descriptions.
+- Both authors must review and agree to the CRediT statement and approve the final manuscript before submission.
+
+## Figures and tables
+- Every figure and table in the main manuscript and supplementary material has an explicit text callout and LaTeX label.
+- Figure 1 terminology is aligned with the manuscript: "full-space evolution" rather than "physical evolution."
+
+## Graphical abstract / highlight image
+- A graphical abstract is not required for initial JCP submission.
+- AIP recommends a highlight image at revision; if none is supplied, Figure 1 may be used.
+
+## Submission files
+- Compiled main-manuscript PDF.
 - Separate supplementary-material PDF.
-- Article type: Article.
-- AIP/JCP REVTeX preprint format used for the review copy.
-- Figures embedded in the manuscript PDFs.
-- Abstract below 250 words.
-- Supplementary Material section follows the Conclusions.
-- Acknowledgments precede Author Declarations.
-- Data Availability statement included.
+- AIP/JCP REVTeX source, bibliography, and figure files.
 
-## Author action before submission
-- Confirm and insert Conflict of Interest statement.
-- Confirm and insert CRediT Author Contributions.
-- Verify author names, affiliations, and e-mail addresses.
-- Confirm any journal-required originality/exclusive-submission statements.
-
-## Graphical abstract
-No graphical abstract is required by the current JCP/AIP instructions.
-A highlight image is strongly recommended with a revised submission, not required for initial submission.
-If none is supplied and the paper contains figures, Figure 1 is used as the highlight image.
+## Before clicking Submit
+- Both authors approve the final manuscript and individual CRediT roles.
+- Corresponding author completes AIP's conflict-of-interest disclosure.
+- Authors verify names, affiliations, e-mail addresses, and that the manuscript is not under consideration elsewhere.

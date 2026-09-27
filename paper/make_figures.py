@@ -17,7 +17,7 @@ def fig1():
 
 def fig2():
  d=pd.read_csv(HERE/'source_data_projected_negative_control_prefix_v5.csv')
- fig,ax=plt.subplots(figsize=(8.2,5.2));ax.plot(d.ops,d.projected_error_mEh,label='Projected ADAPT');ax.plot(d.ops,d.bare_error_vs_doublet_mEh,label='Same angles, bare sequence');ax.plot(d.ops,d.postprojected_doublet_error_mEh,label='Bare state projected back to doublet');ax.axhline(1.6,linestyle='--',linewidth=1.2,label='1.6 mEh model-space benchmark');ax.set_yscale('log');ax.set_xlabel('Number of selected operator applications');ax.set_ylabel('Energy error relative to exact target doublet (mEh)');ax.set_title('Projected optimization and physical evolution diverge along the ADAPT sequence');ax.legend(fontsize=8);save(fig,'fig2_projected_prefix_divergence.pdf')
+ fig,ax=plt.subplots(figsize=(8.2,5.2));ax.plot(d.ops,d.projected_error_mEh,label='Projected ADAPT');ax.plot(d.ops,d.bare_error_vs_doublet_mEh,label='Same amplitudes, full-space parent sequence');ax.plot(d.ops,d.postprojected_doublet_error_mEh,label='Full-space state projected back to doublet');ax.axhline(1.6,linestyle='--',linewidth=1.2,label='1.6 mEh model-space benchmark');ax.set_yscale('log');ax.set_xlabel('Number of selected operator applications');ax.set_ylabel('Energy error relative to exact target doublet (mEh)');ax.set_title('Projected optimization and full-space evolution diverge along the ADAPT sequence');ax.legend(fontsize=8);save(fig,'fig2_projected_prefix_divergence.pdf')
 
 def fig3():
  d=pd.read_csv(HERE/'source_data_circuit_synthesis_v5.csv');d=d[d.qubits==18]

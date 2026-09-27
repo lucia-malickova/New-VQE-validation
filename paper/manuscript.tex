@@ -33,7 +33,7 @@ For a canonical CAS(15e,9o) type-1 Cu(II) Hamiltonian, 274 of 323 bare Hartree--
 Projected-doublet ADAPT reaches 1.5719 m$E_h$ with 121 operators, whereas the same amplitudes in the corresponding full-space sequence give 464.730 m$E_h$ error, 0.07343 fidelity with the projected state, and 54.45\% quartet weight.
 Reoptimizing the same 121 parent generators in the same order under the hard constraint $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$, showing that the catastrophic same-angle failure is primarily a representation/parameter-transfer failure but is not completely repaired by full-space reoptimization of the fixed sequence.
 An independent 12-qubit NO benchmark exhibits the same mechanism more mildly.
-A spin-preserving generalized physical construction removes the representation ambiguity and reaches 1.493 and 1.181 m$E_h$ at 18 and 24 qubits.
+A spin-preserving generalized full-space construction removes the representation ambiguity and reaches 1.493 and 1.181 m$E_h$ at 18 and 24 qubits.
 Circuit synthesis and final-energy measurement then constitute separate validation layers.
 The contribution is therefore a validation framework, not a new spin-adapted ADAPT algorithm.
 \end{abstract}
@@ -48,7 +48,7 @@ Likewise, finite product-formula implementations of spin-adapted generators can 
 Projected adaptive pools are not new.
 For example, contextual-subspace VQE optimizes projected operators directly in a reduced space \cite{weaving2023stabilizer}.
 Such algorithms are legitimate reduced-space variational methods.
-The narrower issue considered here arises only if the corresponding unprojected parent-generator sequence is subsequently treated as the physical implementation, or assigned a circuit resource count, without proving that it realizes the same variational state.
+The narrower issue considered here arises only if the corresponding unprojected parent-generator sequence is subsequently treated as the full-space implementation, or assigned a circuit resource count, without proving that it realizes the same variational state.
 The underlying invariant-subspace algebra is elementary; the practical question is how large the mismatch can become in an adaptive workflow and how to detect it before reduced-space optimization, full-space evolution, circuit synthesis, and measurement are conflated.
 
 The primary benchmark is an idealized type-1 (T1, ``blue-copper'') Cu(II) first-shell model, chosen because it provides a chemically motivated open-shell Hamiltonian while retaining exact spin-resolved references \cite{solomon2004bluecopper,solomon2014copper}.
@@ -161,7 +161,7 @@ This distinction is central: the audit does not show that projected-pool methods
 Simple invariant filtering is not an adequate repair.
 Only 49 of the 323 Cu excitations are individually invariant.
 Using all 49 once gives 210.619 m$E_h$ error, and allowing repeated selection through 100 applications gives 167.340 m$E_h$.
-At the Hartree--Fock reference, the projected bare S/D/T pool spans all 239 real tangent directions of the 240-dimensional doublet space, whereas the invariant-only subset spans 49 and the generalized physical rank-1/rank-2 pool spans 99.
+At the Hartree--Fock reference, the projected bare S/D/T pool spans all 239 real tangent directions of the 240-dimensional doublet space, whereas the invariant-only subset spans 49 and the generalized spin-preserving full-space rank-1/rank-2 pool spans 99.
 These are local first-order diagnostics, not controllability statements.
 
 \begin{figure}[htbp]
@@ -184,9 +184,9 @@ Only six NO parent excitations are individually invariant and this filtered pool
 A generalized spin-preserving pool instead gives a 19-application state at 1.5790 m$E_h$, unit doublet weight, and 0.998967 overlap with the exact lowest-doublet manifold.
 Additional OH and Hubbard stress tests are reported in the SI.
 
-\subsection{Representation-faithful physical ans\"atze}
+\subsection{Representation-faithful full-space ans\"atze}
 
-For Cu, the generalized physical pools contain 1,080 generators at 18 qubits and 3,762 at 24 qubits.
+For Cu, the generalized full-space spin-preserving pools contain 1,080 generators at 18 qubits and 3,762 at 24 qubits.
 After repeated selection, reoptimization, and pruning, the stored 18q and 24q ans\"atze contain 50 and 61 applications and reach 1.493 and 1.181 m$E_h$, respectively.
 Independent full-space and reduced-space reconstructions agree to machine precision over every prefix.
 
@@ -210,7 +210,7 @@ $\langle S^2\rangle$ & 0.7500 & 0.7500\\
 \end{tabular}
 \end{table}
 
-The physical-pool basis is not mathematically unique inside multidimensional null spaces.
+The spin-preserving pool basis is not mathematically unique inside multidimensional null spaces.
 A normalization-controlled SI audit finds modest top-group sensitivity along the stored 18q trajectory: random normalized basis changes affect the highest-gradient group at only 4 of 51 sampled prefixes, while a basis-invariant group-gradient score agrees with the canonical choice at 49--50 of 51 prefixes depending on normalization metric.
 No basis-independent minimality claim is made for the compact sequences.
 
@@ -268,6 +268,18 @@ Revision-specific scripts and source data are stored with the manuscript sources
 \section*{Acknowledgements}
 
 P.K. acknowledges support from the European Innovation Council Pathfinder programme under Grant Agreement No.~101185617 (QCEED); the Institutional Subsidy for the Long-Term Conceptual Development of a Research Organization granted to the Czech Metrology Institute by the Ministry of Industry and Trade of the Czech Republic; and the project \emph{Quantum Materials for Applications in Sustainable Technologies}, CZ.02.01.01/00/22\_008/0004572.
+
+\section*{Author Declarations}
+
+\subsection*{Conflict of Interest}
+The authors have no conflicts to disclose.
+
+\subsection*{Ethics Approval}
+Ethics approval was not required for this computational study, which involved no human participants or animals.
+
+\subsection*{Author Contributions}
+Lucia Mal\'{\i}\v{c}kov\'a: Conceptualization (lead; selection of the research topic); Investigation (lead; execution of the quantum-computing calculations); Writing -- original draft (supporting).
+Petr Klenovsk\'y: Formal analysis (lead; many-body calculations outside the quantum-computing workflow); Validation (lead; physical consistency checks); Investigation (supporting); Writing -- original draft (lead); Writing -- review \& editing (lead).
 
 \bibliographystyle{unsrt}
 \bibliography{references}

@@ -1,13 +1,22 @@
-AUTHOR ACTION REQUIRED BEFORE JCP SUBMISSION
+AUTHOR DECLARATIONS INSERTED - FINAL COAUTHOR APPROVAL REQUIRED
 
-1. CONFLICT OF INTEREST
-AIP Publishing requires a statement for every article.
-Please confirm the correct disclosure. If accurate:
-"The authors have no conflicts to disclose."
+Conflict of Interest:
+  The authors have no conflicts to disclose.
 
-2. CRediT AUTHOR CONTRIBUTIONS
-AIP Publishing requires an author-contribution statement.
-Please agree on the roles of Lucia Malickova and Petr Klenovsky.
-The repository does not establish the individual roles unambiguously enough to assign them safely.
+CRediT Author Contributions:
+  Lucia Malíčková:
+    Conceptualization (lead; selection of the research topic);
+    Investigation (lead; execution of the quantum-computing calculations);
+    Writing - original draft (supporting).
 
-Do not submit a review PDF containing declaration placeholders.
+  Petr Klenovský:
+    Formal analysis (lead; many-body calculations outside the quantum-computing workflow);
+    Validation (lead; physical consistency checks);
+    Investigation (supporting);
+    Writing - original draft (lead);
+    Writing - review & editing (lead).
+
+AIP requires all authors to review and agree to their CRediT roles and to approve the final manuscript.
+Lucia Malíčková, as corresponding author, must therefore confirm this statement before submission.
+
+The phrase "execution of the quantum-computing calculations" is deliberate. The manuscript does not report a physical-QPU final-energy calculation. If physical quantum-processing hardware generated scientific results reported in the paper, the hardware and those results should first be reconciled with the Methods section before changing this wording.
