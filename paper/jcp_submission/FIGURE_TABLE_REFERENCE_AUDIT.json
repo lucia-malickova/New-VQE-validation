@@ -1,0 +1,91 @@
+{
+  "main": [
+    {
+      "kind": "table",
+      "label": "tab:parent_reopt",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:prefix",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:main",
+      "refs": 1
+    }
+  ],
+  "supplementary": [
+    {
+      "kind": "table",
+      "label": "tab:statecert",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:single_scaling",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:prefix_state",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:fixed_parent_reopt",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:tangent",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:hubbard",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:hubbard",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:basis_sensitivity",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:poolcomparison",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:suzuki_local",
+      "refs": 1
+    },
+    {
+      "kind": "table",
+      "label": "tab:shots",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:si_measurement",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:natorb",
+      "refs": 1
+    },
+    {
+      "kind": "figure",
+      "label": "fig:multistart",
+      "refs": 1
+    }
+  ]
+}

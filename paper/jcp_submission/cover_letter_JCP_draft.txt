@@ -4,14 +4,12 @@ Please consider our manuscript, "From Projected Subspaces to Full-Space Implemen
 
 The work addresses a validation problem in adaptive quantum electronic-structure calculations. A variational calculation performed with generators compressed into a target symmetry subspace is a legitimate reduced-space problem, but the corresponding unprojected parent-generator sequence does not automatically implement the same variational state. We formulate an explicit representation-equivalence audit, quantify a severe failure in a reproducible open-shell Cu benchmark, and test the same mechanism in an independent NO benchmark and additional model controls.
 
-A central result is that a projected 121-operator Cu calculation reaches 1.5719 mEh error, whereas the same amplitudes in the parent full-space sequence give 464.730 mEh error and only 0.07343 fidelity with the projected state. Full-space reoptimization of the same fixed parent sequence recovers much of the target state but does not reproduce the reduced-space result in the tested energy- or fidelity-optimization searches. This narrows the interpretation to a representation/parameter-transfer failure rather than a claim that projected methods or the parent sequence are intrinsically invalid.
+A central result is that a projected 121-operator Cu calculation reaches 1.5719 mEh error, whereas the same amplitudes in the parent full-space sequence give 464.730 mEh error and only 0.07343 fidelity with the projected state. Full-space energy and fidelity reoptimization of the same fixed parent sequence recover much of the target state but do not reproduce the reduced-space result in the tested searches. This narrows the interpretation to a representation/parameter-transfer failure rather than a claim that projected methods or the parent sequence are intrinsically invalid.
 
 The manuscript does not present spin projection, spin-adapted pools, generalized excitations, repeated ADAPT selection, or pruning as new algorithms. Its contribution is a reproducible validation framework that separates reduced-space optimization, full-space fermionic evolution, circuit synthesis, and measurement. We believe this fits JCP's Theoretical Methods and Algorithms section and its interest in emerging quantum-computing methods for chemical physics.
 
 The code, Hamiltonians, checkpoints, validation data, and figure source data are publicly available at:
 https://github.com/lucia-malickova/New-VQE-validation
-
-[AUTHOR CONFIRMATION REQUIRED: add any journal-requested originality/exclusive-submission statement if accurate.]
 
 Sincerely,
 

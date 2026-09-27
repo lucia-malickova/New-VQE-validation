@@ -1,15 +1,15 @@
-# JCP submission materials
+# Final JCP submission-support materials
 
-The JCP-formatted submission package is generated from the current manuscript sources.
+Canonical sources are `paper/manuscript.tex` and `paper/supporting_information.tex`; exact mirrored copies are retained here.
 
-Final declaration wording:
-- Conflict of Interest: The authors have no conflicts to disclose.
-- Ethics Approval: not required for this computational study.
-- CRediT statement maps the authors' supplied contributions onto AIP's taxonomy.
+REVTeX mode: AIP/JCP preprint.
 
-Important wording:
-The CRediT statement says "execution of the quantum-computing calculations." This avoids implying that the paper reports physical-QPU results, which it currently does not.
+Formal audit:
+- main manuscript: 3/3 figure/table objects explicitly cited;
+- supplementary material: 14/14 explicitly cited;
+- all cited bibliography keys resolved.
 
-Before submission, both authors must review and agree to the CRediT statement and approve the final manuscript.
+Conflict of Interest and CRediT statements are inserted.
+Both authors still need to approve the final manuscript and individual CRediT roles before upload.
 
-All figures/tables are explicitly cited in the running text.
+No graphical abstract is required for initial JCP submission.
