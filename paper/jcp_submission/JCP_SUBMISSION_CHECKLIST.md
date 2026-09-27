@@ -5,11 +5,11 @@
 - Separate main and supplementary compilations.
 - Conflict of Interest inserted.
 - CRediT Author Contributions inserted.
-- Main: 3/3 figure/table objects labeled and explicitly cited.
+- Main: 4/4 figure/table objects labeled and explicitly cited.
 - Supplementary: 14/14 labeled and explicitly cited.
 - Bibliography audit PASS.
 - Graphical abstract not required for initial JCP submission.
-- AIP highlight image can be supplied at revision; Figure 1 is an acceptable fallback.
+- AIP highlight image can be supplied at revision; the numerical Cu representation-failure figure (now Figure 2) is an acceptable fallback.
 
 Before Submit:
 - both authors approve final manuscript;
