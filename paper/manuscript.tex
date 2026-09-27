@@ -47,14 +47,44 @@ The contribution is therefore a validation framework, not a new spin-adapted ADA
 
 Variational quantum eigensolvers (VQEs) and ADAPT-VQE are widely studied approaches to quantum electronic-structure simulation \cite{peruzzo2014vqe,mcclean2016theory,mcardle2020review,grimsley2019adapt}.
 Qubit pools, symmetry-aware and symmetry-complete pools, spin projection, compact excitation circuits, and pruning have all been developed subsequently \cite{tang2021qubitadapt,shkolnikov2023roadblocks,bertels2022symmetry,tsuchimochi2022spinproj,magoulas2023cnot,vaquero2025pruned}.
-For open-shell systems, fixed particle number and $M_S$ do not determine total spin, and symmetry preservation can be essential for state targeting \cite{burton2023disco,magoulas2026symmetry}.
+For open-shell systems, fixed particle number and $M_S$ do not determine total spin, and symmetry preservation can be essential for state targeting \cite{gard2020symmetry,seki2020symmetry,seki2022projection,burton2023disco,magoulas2026symmetry}.
 Likewise, finite product-formula implementations of spin-adapted generators can introduce symmetry error, motivating exact or closed-form factorizations \cite{magoulas2025closedform,jain2026factorization}.
+
+Several neighboring approaches therefore solve important but distinct problems.
+Symmetry projection restores or enforces a desired sector in the variational state or objective \cite{seki2020symmetry,tsuchimochi2022spinproj,seki2022projection}; symmetry-preserving state-preparation circuits and symmetry-aware or symmetry-complete pools constrain the accessible full-space manifold \cite{gard2020symmetry,shkolnikov2023roadblocks,burton2023disco,magoulas2026symmetry}; contextual-subspace VQE deliberately defines a reduced-space Hamiltonian and projected operator pool \cite{weaving2023stabilizer}; and recent exact or closed-form factorizations address how a specified spin-adapted full-space unitary is compiled \cite{magoulas2025closedform,jain2026factorization}.
+None of these statements by itself establishes that, for an arbitrary parent generator $A$, the reduced-space unitary $\exp(\theta U^\dagger A U)$ is identical to the target-space compression of the full-space parent evolution $\exp(\theta A)$.
+The present work isolates and audits precisely this representation-identification step.
 
 Projected adaptive pools are not new.
 For example, contextual-subspace VQE optimizes projected operators directly in a reduced space \cite{weaving2023stabilizer}.
 Such algorithms are legitimate reduced-space variational methods.
 The narrower issue considered here arises only if the corresponding unprojected parent-generator sequence is subsequently treated as the full-space implementation, or assigned a circuit resource count, without proving that it realizes the same variational state.
+Operationally, the ambiguity can enter when (i) parent excitations are projected or compressed into a target sector, (ii) ADAPT selection and parameter optimization are performed in that reduced representation, (iii) the selected parent labels and amplitudes are retained, and (iv) the unprojected parents are later exponentiated to construct a fermionic or qubit circuit or to quote resources.
+The reduced calculation never explores the complementary $Q$ sector, so a low reduced-space energy cannot diagnose a nonzero $QAP$.
+Figure~\ref{fig:validation_ladder} summarizes the resulting validation ladder.
 The underlying invariant-subspace algebra is elementary; the practical question is how large the mismatch can become in an adaptive workflow and how to detect it before reduced-space optimization, full-space evolution, circuit synthesis, and measurement are conflated.
+
+\begin{figure*}[htbp]
+\centering
+\setlength{\fboxsep}{6pt}
+\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
+Reduced-space\\optimization\\
+$\{U^\dagger A_kU,\theta_k\}$}}
+\hspace{0.01\textwidth}$\Longrightarrow$\hspace{0.01\textwidth}
+\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
+Parent full-space\\sequence\\
+$\prod_k e^{\theta_kA_k}$}}
+\hspace{0.01\textwidth}$\Longrightarrow$\hspace{0.01\textwidth}
+\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
+Synthesized\\qubit circuit\\
+product formula}}
+\hspace{0.01\textwidth}$\Longrightarrow$\hspace{0.01\textwidth}
+\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
+Measurement\\protocol\\
+energy estimator}}
+\caption{Validation layers that should not be identified without an explicit check.  The first arrow is exact for all amplitudes only when each implemented parent generator preserves the target subspace, $QA_kP=0$.  Subsequent arrows add independent circuit-synthesis and measurement approximations.}
+\label{fig:validation_ladder}
+\end{figure*}
 
 The primary benchmark is an idealized type-1 (T1, ``blue-copper'') Cu(II) first-shell model, chosen because it provides a chemically motivated open-shell Hamiltonian while retaining exact spin-resolved references \cite{solomon2004bluecopper,solomon2014copper}.
 A separate NO radical benchmark and Hubbard-model stress tests probe whether the same representation issue persists beyond that Hamiltonian.
@@ -193,6 +223,10 @@ Additional OH and Hubbard stress tests are reported in the supplementary materia
 
 \subsection{Representation-faithful full-space ans\"atze}
 
+The generalized spin-preserving pool used below is a representation-faithful \emph{positive control}, not a claim of a new or preferred scalable spin-adapted ADAPT algorithm.
+Existing work already provides symmetry-preserving state-preparation circuits, spin-adapted pools, symmetry-completeness analyses, and exact spin-adapted factorizations \cite{gard2020symmetry,shkolnikov2023roadblocks,burton2023disco,magoulas2026symmetry,magoulas2025closedform,jain2026factorization}.
+Its purpose here is narrower: to demonstrate on the same benchmarks that, once every implemented generator preserves the target sector, full-space and reduced-space evolutions can be required to represent the same variational construction.
+
 For Cu, the generalized full-space spin-preserving pools contain 1,080 generators at 18 qubits and 3,762 at 24 qubits.
 After repeated selection, reoptimization, and pruning, the stored 18q and 24q ans\"atze contain 50 and 61 applications and reach 1.493 and 1.181 m$E_h$, respectively.
 Independent full-space and reduced-space reconstructions agree to machine precision over every prefix.
@@ -236,7 +270,8 @@ These numbers exclude ADAPT gradient measurements, optimizer evaluations, device
 
 \subsection{Scope and limitations}
 
-Spin projection, projected pools, generalized excitations, repeated selection, spin-adapted pools, and pruning are established ideas \cite{tsuchimochi2022spinproj,weaving2023stabilizer,burton2023disco,magoulas2026symmetry}.
+Spin projection, symmetry-preserving state preparation, projected pools, generalized excitations, repeated selection, spin-adapted or symmetry-complete pools, and pruning are established ideas \cite{gard2020symmetry,seki2020symmetry,tsuchimochi2022spinproj,seki2022projection,weaving2023stabilizer,shkolnikov2023roadblocks,burton2023disco,magoulas2026symmetry}.
+We do not propose a new projector, a new general spin-adapted pool, or a new factorization method.
 Our contribution is narrower: when a reduced-space optimization is associated with a full-space parent implementation or resource count, representation equivalence must be established rather than assumed.
 The exact projector used here is a small-system validation oracle, not a scalable VQE primitive.
 
