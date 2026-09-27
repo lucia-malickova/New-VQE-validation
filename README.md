@@ -106,10 +106,10 @@ No physical-QPU energy result is claimed in this repository. Qiskit/Aer
 statevector circuit validation is separated explicitly from device-specific
 hardware execution.
 
-## Submission revision v5
+## Current manuscript sources
 
 `paper/manuscript.tex`, `paper/supporting_information.tex`, `paper/references.bib`,
-and the CSV figure source data correspond to the current submission-v5 manuscript.
+and the CSV figure source data correspond to the current submission-v6/v7 refinement.
 Generated PDF figures are reproduced locally with `python paper/make_figures.py`.
 
 ## Manuscript figures

@@ -11,3 +11,10 @@ This revision addresses the remaining detailed-referee concerns after v5.
 - Clarifies the phase-minimized state-distance diagnostic used alongside the D_seq vector-norm certificate.
 - Records that seed_transpiler was not pinned in the stored Qiskit resource campaign.
 - Documents the missing dedicated 24q active-space-selection driver instead of reconstructing it from inference.
+
+
+## Additional v7 clarification
+
+- The main text now distinguishes the fully archived geometry-to-FCIDUMP protocol for the canonical 18q Cu Hamiltonian from the fixed 24q FCIDUMP, whose dedicated 12-orbital selection driver was not preserved.
+- The relation-to-prior-work section now states explicitly that projected-pool methods are valid reduced-space methods; the audited failure concerns assigning an unprojected parent-generator implementation/resource count without proving representation equivalence.
+- The SI writes the equivalence with the explicit lift (U\exp[\theta(U^\dagger A U)]U^\dagger), removing any dimensional ambiguity between reduced- and full-space operators.

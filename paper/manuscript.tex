@@ -68,10 +68,10 @@ To test whether the observed representation failure is specific to that Hamilton
 \subsection{Open-shell benchmark Hamiltonians}
 
 The Cu benchmark uses an idealized oxidized T1 first-coordination-shell model with two nitrogen donors, a cysteine-model sulfur donor, and a longer axial sulfur donor.
-The underlying orbitals were obtained from a restricted open-shell Hartree--Fock calculation in the STO-3G basis.
-The primary complete active space is CAS(15e,9o), mapped to 18 qubits; CAS(21e,12o), mapped to 24 qubits, is used as an expanded algorithmic benchmark.
-The active-space construction uses PySCF and the atomic-valence active-space (AVAS) procedure targeting the Cu $3d$ and cysteine-S $3p$ manifolds \cite{sun2018pyscf,sayfutyarova2017avas}.
-Both Hamiltonians are mapped onto qubits using the Jordan--Wigner transformation.
+For the canonical 18-qubit case, the STO-3G orbitals were generated from ROHF, followed by AVAS targeting the Cu $3d$ and short Cu--S donor $3p$ manifold and a spin-constrained CASSCF; the complete geometry and archived generation settings are given in the SI and repository \cite{sun2018pyscf,sayfutyarova2017avas}.
+This procedure yields the primary CAS(15e,9o) Hamiltonian.
+The expanded CAS(21e,12o) FCIDUMP is retained from the same model campaign and used as a fixed 24-qubit algorithmic benchmark, but the dedicated 12-orbital selection driver was not preserved; accordingly, we do not claim geometry-to-FCIDUMP reproducibility for that expanded case.
+Both fixed Hamiltonians are mapped onto qubits using the Jordan--Wigner transformation.
 
 As an independent molecular test, we use an NO radical at $R_{\rm NO}=1.1508$~\AA{} with an ROHF/STO-3G reference.
 Freezing the lowest four canonical spatial orbitals leaves CAS(7e,6o), mapped to 12 qubits.
@@ -417,8 +417,9 @@ Likewise, symmetry-preserving fermionic unitary product states can represent ope
 Projected ADAPT pools have also been used in contextual-subspace VQE \cite{weaving2023stabilizer}.
 Our generalized physical pool should therefore be viewed as a validated implementation choice, not as a new general theory of symmetry-adapted operator pools.
 
-The distinct point tested here is representation equivalence between a reduced-space optimization and the physical generator sequence to which a circuit resource count is assigned.
-A projected pool defines a valid reduced-space variational problem; our question is whether the unprojected parent sequence used for a physical circuit or resource estimate implements that same variational state.
+The distinct point tested here is representation equivalence between a reduced-space optimization and the full-space generator sequence to which a circuit resource count is assigned.
+We do not argue that projected-pool methods are intrinsically incorrect: a projected pool defines a valid reduced-space variational problem.
+Our narrower concern is the additional identification step that occurs when a full-space parent-generator sequence is treated as the implementation, or its resources are quoted, without first establishing that it realizes the same projected variational state.
 The Cu calculation provides a severe, fully regenerated negative control; the independent NO calculation shows that the same structural mechanism can occur even when the target doublet is already the lowest spin state, but that post-projection may then nearly repair the state.
 Homogeneous Hubbard-chain tests in the SI reproduce the representation failure without any molecular-specific ingredients.
 Together these results support the general audit while also showing that the numerical severity of a violation cannot be inferred from symmetry labels alone.
