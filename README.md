@@ -21,6 +21,12 @@ Conflict of Interest and CRediT statements are inserted. Both authors must appro
 
 A graphical abstract is not required for initial JCP submission; AIP recommends a highlight image at revision.
 
+## Referee-hardening revision v12
+
+This branch sharpens the JCP submission without changing any established numerical result. It (i) distinguishes the representation-equivalence audit from spin projection, symmetry-preserving/spin-adapted pool design, contextual-subspace VQE, and exact spin-adapted factorization; (ii) adds a four-layer validation schematic to the main manuscript; (iii) states explicitly that the generalized spin-preserving pool is a positive control rather than a claimed new scalable algorithm; and (iv) adds targeted symmetry-projection and symmetry-preserving-circuit references.
+
+One item remains intentionally pending: the 18q nonuniform Suzuki schedule that passed the determinant-equivalent emulator has not yet been re-transpiled in the pinned Qiskit environment with a fixed transpiler seed. No passing compiled-circuit claim or CX/depth number from that schedule has been inserted into the manuscript. A dedicated rerun package is prepared separately; the manuscript should be updated only after its returned JSON reports PASS.
+
 ## Scientific scope
 
 The work does **not** claim a new spin-adapted ADAPT algorithm.
