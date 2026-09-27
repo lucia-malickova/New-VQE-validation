@@ -1,0 +1,24 @@
+{
+  "system": "OH",
+  "geometry_A": {
+    "O": [
+      0,
+      0,
+      0
+    ],
+    "H": [
+      0,
+      0,
+      0.97
+    ]
+  },
+  "basis": "STO-3G",
+  "reference": "ROHF doublet",
+  "ROHF_energy_Eh": -74.36156195793284,
+  "full_electrons": 9,
+  "full_spatial_orbitals": 6,
+  "frozen_lowest_spatial_orbitals": 1,
+  "active_space": "CAS(7e,5o)",
+  "active_spin_orbitals": 10,
+  "note": "Independent algorithmic open-shell benchmark; no converged chemical prediction is claimed."
+}

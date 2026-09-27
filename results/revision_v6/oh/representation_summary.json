@@ -1,0 +1,25 @@
+{
+  "active_space": "CAS(7e,5o)",
+  "geometry_A": {
+    "O": [
+      0,
+      0,
+      0
+    ],
+    "H": [
+      0,
+      0,
+      0.97
+    ]
+  },
+  "projected_error_mEh": 1.05508,
+  "bare_same_angle_error_mEh": 1.93276,
+  "projected_bare_fidelity": 0.999229332,
+  "bare_doublet_weight": 0.9992295,
+  "Dseq": 0.066661,
+  "postprojected_error_mEh": 1.04156,
+  "postprojected_fidelity": 0.999999832,
+  "physical_100op_error_mEh": 2.58052,
+  "physical_lowest_doublet_manifold_weight": 0.997527,
+  "note": "Auxiliary stress test; not counted as a successful physical-ADAPT benchmark."
+}

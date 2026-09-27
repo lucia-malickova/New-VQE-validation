@@ -1,0 +1,14 @@
+{
+  "active_space": "CAS(7e,6o)",
+  "exact_doublet_Eh": -127.632713244383,
+  "quartet_gap_mEh": 250.051,
+  "projected_error_mEh": 1.42861,
+  "bare_same_angle_error_mEh": 24.536971,
+  "projected_bare_fidelity": 0.972050492,
+  "bare_doublet_weight": 0.972105986,
+  "Dseq": 0.398787,
+  "postprojected_error_mEh": 1.477956,
+  "postprojected_fidelity": 0.999942914,
+  "physical_19op_error_mEh": 1.579026,
+  "physical_lowest_doublet_manifold_weight": 0.998967
+}

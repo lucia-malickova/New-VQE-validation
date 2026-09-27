@@ -47,6 +47,51 @@ E_Q^{24}&=-2518.995161621996~E_h.
 \end{align}
 The lower quartet is a property of these deliberately small approximate active-space Hamiltonians and is not interpreted as a prediction for the experimental oxidized T1 site.
 
+\subsubsection{Canonical Cu geometry and Hamiltonian-generation protocol}
+
+The canonical 18q FCIDUMP can be traced back to the archived geometry-to-Hamiltonian driver.
+The idealized first-shell geometry (in \AA) is
+\begin{center}
+\begin{tabular}{crrr}
+\toprule
+Atom & $x$ & $y$ & $z$\\
+\midrule
+Cu &  0.000 &  0.000 &  0.000\\
+N  &  2.000 &  0.000 &  0.000\\
+H  &  2.340 &  0.900 &  0.200\\
+H  &  2.340 & -0.620 &  0.740\\
+H  &  2.340 & -0.280 & -0.800\\
+N  & -1.000 &  1.732 &  0.000\\
+H  & -1.280 &  2.200 &  0.800\\
+H  & -1.550 &  2.120 & -0.620\\
+H  & -0.120 &  2.260 &  0.040\\
+S  & -0.600 & -1.100 &  1.750\\
+H  & -1.420 & -1.580 &  2.120\\
+S  &  0.200 & -0.500 & -2.830\\
+H  &  0.920 & -1.180 & -3.200\\
+H  & -0.540 & -0.920 & -3.280\\
+\bottomrule
+\end{tabular}
+\end{center}
+The model has total charge $+1$ and spin input $2S=1$.
+The short Cu--S donor is represented by SH$^-$ and the longer axial donor by SH$_2$; the two nitrogen donors are NH$_3$ fragments.
+These fragments are intentionally minimal and are used only to generate a controlled open-shell benchmark.
+
+The archived PySCF driver uses STO-3G, ROHF with level shift 0.2 and at most 300 SCF cycles (with a second-order Newton fallback if needed), followed by AVAS with labels
+\texttt{["Cu 3d","9 S 3p"]} and threshold 0.2.
+In the zero-based atom indexing of the geometry above, atom 9 is the short Cu--S donor.
+For the returned CAS(15e,9o), a spin-constrained CASSCF is then run with
+\texttt{max\_cycle\_macro=50}, \texttt{max\_cycle\_micro=20},
+energy tolerance $10^{-6}$, gradient tolerance $10^{-4}$,
+FCI-solver tolerance $10^{-7}$, and \texttt{fix\_spin\_(ss=0.75)}.
+The reduced one- and two-electron integrals are exported directly to FCIDUMP.
+The generator script explicitly allows use of the best orbitals if the macro-iteration cap is reached; a separate convergence flag was not serialized with the archived FCIDUMP, so we do not claim a fully converged chemical CASSCF result from this model.
+The scientific use of the file is instead as a fixed, exactly diagonalizable active-space Hamiltonian.
+
+The expanded CAS(21e,12o) FCIDUMP is retained from the same model campaign and is exactly validated as a fixed 24-qubit Hamiltonian.
+However, the separate 12-orbital selection driver that originally generated this expanded file is not preserved in the repository.
+Accordingly, the 24q case is used only as an algorithmic benchmark and is not claimed to be reproducible from the geometry alone.
+
 \subsection{Independent NO radical benchmark}
 
 As an independent molecular test, an NO radical at $R_{\rm NO}=1.1508$~\AA{} was treated at the ROHF/STO-3G level.
@@ -112,6 +157,11 @@ For a normalized state in the $M_S=1/2$ sector,
 =
 \|\hat S_+|\psi\rangle\|^2+M_S(M_S+1).
 \end{equation}
+
+The explicit matrix $U$ and projector $P=UU^\dagger$ are classical-oracle objects used because the present benchmark sectors are small enough to resolve exactly.
+They are not proposed as scalable quantum-circuit primitives.
+For spin, the production physical pool instead imposes the generator-level condition $[B,\hat S^2]\simeq0$ and verifies the exact-projector leakage only as a classical benchmark.
+For an arbitrary projected subspace lacking a compact symmetry generator, a scalable surrogate for $QAP=0$ is necessarily problem dependent.
 
 \section{Numerical conventions, tolerances, and optimization settings}
 
@@ -269,14 +319,18 @@ p_P(\Psi_{\rm phys})
 \end{equation}
 This certificate is state-specific rather than uniform over the complete target subspace.
 
-For the molecular negative controls:
+Table~\ref{tab:statecert} summarizes the molecular negative controls.
+The reported diagnostic distance is the phase-minimized pure-state distance
+$d_{\rm proj}=\sqrt{2-2|\langle\Psi_{\rm proj}|\Psi_{\rm phys}\rangle|}$.
+Because $d_{\rm proj}\le\|\Psi_{\rm phys}-\Psi_{\rm proj}\|$ for any fixed relative phase, it can be compared conservatively with the vector-norm certificate $D_{\rm seq}$ but is not the quantity directly bounded in Eq.~\ref{eq:Dseq}.
 \begin{table}[htbp]
 \centering
 \small
 \caption{State-specific sequence certificate. A zero lower bound denotes a mathematically valid but non-informative certificate.}
+\label{tab:statecert}
 \begin{tabular}{lrrrr}
 \toprule
-System & $D_{\rm seq}$ & Actual state distance & Certified $F_{\min}$ & Actual $F$\\
+System & $D_{\rm seq}$ & $d_{\rm proj}$ & Certified $F_{\min}$ & Actual $F$\\
 \midrule
 Cu CAS(15e,9o) & 4.6026 & 1.2075 & 0 & 0.07343\\
 NO CAS(7e,6o) & 0.3988 & 0.1678 & 0.8473 & 0.97205\\
@@ -539,7 +593,41 @@ For 24q:
 The final full/reduced energies agree to the reported double precision in both cases.
 The corrected physical construction therefore passes the same representation audit that the projected bare sequence fails.
 
-\section{ADAPT selection, repeats, reoptimization, and ablations}
+\subsection{Null-space basis choice and ADAPT trajectory sensitivity}
+
+Spin preservation fixes a null subspace of coefficient vectors inside each spatial remove/add group, but does not by itself fix a basis inside a multidimensional null space.
+The production implementation therefore does not use an arbitrary dense SVD basis.
+It enumerates small coefficient supports, accepts linearly independent null vectors from the smallest supports first, fixes the overall sign from the largest-magnitude nonzero coefficient, and snaps coefficients only when they are already within $5\times10^{-10}$ of the exact values $0$, $\pm1$, or $\pm1/\sqrt2$.
+This produces a deterministic sparse canonical basis across the stored calculations.
+
+For Cu 18q, the 1,080-generator generalized physical pool consists of 324 one-dimensional null-space groups and 378 two-dimensional groups.
+To determine whether ADAPT selection is nevertheless basis dependent, we applied independent random $O(2)$ rotations to every two-dimensional group.
+These rotations preserve each group's operator span, exact spin preservation, and the total physical pool span.
+We then repeated the same \emph{unpruned} 50-step ADAPT protocol and optimization schedule for the canonical basis and three fixed random seeds.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Sensitivity of the unpruned 50-step Cu 18q ADAPT search to orthogonal rotations within the two-dimensional spin-preserving null spaces. These runs probe selection-basis dependence and are not alternate reconstructions of the reported 50-application pruned ansatz, which comes from a longer search/pruning history.}
+\label{tab:basis_sensitivity}
+\begin{tabular}{lrrrr}
+\toprule
+Pool basis & Error at 30 ops & Error at 50 ops & Final $F_D$ & Unique ops\\
+& (m$E_h$) & (m$E_h$) & &\\
+\midrule
+Canonical sparse basis & 126.202 & 33.307 & 0.7191 & 48\\
+Random rotations, seed 1 & 126.109 & 30.179 & 0.7473 & 49\\
+Random rotations, seed 2 & 126.133 & 31.276 & 0.7329 & 48\\
+Random rotations, seed 3 & 126.191 & 6.970 & 0.9390 & 47\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The near-identical 30-step errors and later divergence show that basis dependence becomes important only after the early dominant directions have been exhausted.
+The test confirms that ADAPT trajectories and compact sequence lengths are not invariants of the physical operator span.
+Accordingly, the reported 50-application passing Cu state is a result for the deterministic canonical sparse basis and its documented search/pruning history, not a claim of a basis-independent minimal ansatz.
+
+\section{ADAPT selection, repeats, reoptimization, and method comparisons}
 
 For anti-Hermitian candidate $B_k$,
 \begin{equation}
@@ -576,7 +664,7 @@ Generalized rank-1/rank-2 + repeats & 50 & 1.493 & 0.9826 & 0.0480\\
 \end{table}
 
 All rows are spin pure to numerical precision.
-This ablation separates spin correctness from practical expressivity.
+This comparison separates spin correctness from practical expressivity.
 
 \section{Qubit mapping and Suzuki synthesis}
 
@@ -605,6 +693,7 @@ With $r$ repetitions, $S_2(t/r)^r$ is used.
 The stored validation environment uses Qiskit 2.2.3, Qiskit Aer 0.17.2, and Qiskit Nature 0.7.2.
 Circuits are transpiled at optimization level 1 to the abstract basis
 $\{R_z,\sqrt X,X,\mathrm{CX}\}$ without a device coupling map.
+The stored campaign did not pin \texttt{seed\_transpiler}; the reported CX/depth values should therefore be read as the archived realization for Qiskit 2.2.3 rather than as seed-independent compiler invariants.
 
 The strict circuit-equivalence gate is
 \begin{align}
@@ -638,14 +727,20 @@ c_{\rm comm}(B)
 \label{eq:ccomm}
 \end{equation}
 with $c_{\rm comm}=0$ for a single active constituent.
-The coefficient magnitudes are not included in Eq.~\ref{eq:ccomm}; consequently $|\theta|^3c_{\rm comm}$ is used only as a simple descriptive heuristic motivated by the cubic local order of a symmetric second-order product formula, not as a formal Suzuki-error estimator.
-Across the three optimized sequences, this score has Spearman rank correlations with isolated-application infidelity of 0.927 (18q Cu), 0.961 (24q Cu), and 0.933 (NO), respectively.
-No inferential $p$ values are attached because the applications are deterministic members of three optimized sequences rather than independent draws from a statistical population.
+This quantity is deliberately simple: it is computed before Jordan--Wigner mapping, ignores the constituent coefficients $c_a$, and is therefore not a rigorous error estimator for the Pauli-level Suzuki formula used by Qiskit.
+
+A direct baseline comparison changes the interpretation of this diagnostic.
+For Cu 18q, Cu 24q, and NO, respectively, 24/50, 30/61, and 5/19 applications have $c_{\rm comm}=0$; the largest isolated Suzuki infidelity in those commuting subsets is only $4.4\times10^{-16}$, $1.6\times10^{-15}$, and $2.2\times10^{-16}$.
+Thus constituent noncommutativity is an excellent structural separator in these data.
+However, inside the subset with $c_{\rm comm}>0$, the Spearman correlations of $|\theta|^3$ alone with isolated-application infidelity are already 0.925, 0.958, and 0.953.
+Multiplying by the continuous $c_{\rm comm}$ changes those correlations only to 0.928, 0.970, and 0.953.
+We therefore do \emph{not} claim that the numerical magnitude of $c_{\rm comm}$ adds an independent quantitative error law.
+The supported conclusion is narrower: commuting constituent sets are easy at this level, while among noncommuting factors the optimized amplitude magnitude carries most of the observed ranking information.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.80\linewidth]{figS6_local_suzuki_predictor.pdf}
-\caption{Local Suzuki-2 infidelity versus the empirical score $|\theta|^3c_{\rm comm}$.}
+\includegraphics[width=0.80\linewidth]{figS6_local_suzuki_amplitude_v6.pdf}
+\caption{Isolated Suzuki-2 infidelity versus optimized amplitude magnitude for applications with $c_{\rm comm}>0$. The amplitude is a strong rank predictor within this noncommuting subset; the continuous $c_{\rm comm}$ factor provides only a modest additional change in the rank correlations reported in the text.}
 \end{figure}
 
 \subsection{Selective-refinement emulator test}
@@ -790,10 +885,10 @@ The independent benchmark FCIDUMP hashes used in this revision are:
 \noindent OH CAS(7e,5o):\\
 {\small\texttt{bc9c14bce3d63cda90273cd4c2e3a0ad8138a0be809c635fcb182f7117e5f1e1}}
 
-The baseline public repository is
+The public repository is
 \url{https://github.com/lucia-malickova/New-VQE-validation}.
-The peer-review reproducibility archive accompanying this manuscript contains the revision-specific 121-operator checkpoint and audit, the NO and OH FCIDUMPs and metadata, state-specific certificate and tangent-accessibility scripts and outputs, Hubbard stress-test source data, the exhaustive six-factor selective-Suzuki search record, and the source data used for the revised figures.
-This statement deliberately distinguishes the accompanying archive from the baseline public repository; no claim is made that every revision-specific file is already present in the public repository.
+The submission-v6 repository state includes the regenerated 121-operator checkpoint and prefix audit, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the null-space-basis sensitivity test, the Hubbard stress-test source data, the exhaustive selective-Suzuki search record, the Suzuki diagnostic comparison, and the source data used for the revised figures.
+The archived legacy geometry and Hamiltonian-generation scripts are retained for the canonical 18q model; the missing dedicated 24q active-space selection driver is explicitly documented above rather than reconstructed from inference.
 
 \bibliographystyle{unsrt}
 \bibliography{references}

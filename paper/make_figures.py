@@ -47,10 +47,17 @@ def figS5():
  d=pd.read_csv(HERE/'source_data_hubbard4_representation_v5.csv');fig,ax=plt.subplots(figsize=(7.4,5.0));ax.plot(d.U_over_t,d.projected_bare_fidelity,marker='o',label='Projected vs bare fidelity');ax.plot(d.U_over_t,d.projected_postprojected_fidelity,marker='s',label='Projected vs post-projected bare fidelity');ax.set_xlabel(r'$U/t$');ax.set_ylabel('Fidelity');ax.set_title('Independent Hubbard-model stress test of representation equivalence');ax.legend();save(fig,'figS5_hubbard_representation_audit.pdf')
 
 def figS6():
- d=pd.read_csv(HERE/'source_data_local_suzuki_predictor_v5.csv');fig,ax=plt.subplots(figsize=(7.4,5.2))
- for case,marker in [('18q','o'),('24q','s'),('NO','^')]:
-  x=d[(d.case==case)&(d.theta3_comm>0)&(d.local_infidelity>0)];ax.loglog(x.theta3_comm,x.local_infidelity,linestyle='None',marker=marker,label=case)
- ax.set_xlabel(r'Local heuristic $|\theta|^3 c_{\rm comm}$');ax.set_ylabel('Single-application Suzuki-2 infidelity');ax.set_title('Large amplitudes and noncommuting constituents identify difficult Suzuki factors');ax.legend();save(fig,'figS6_local_suzuki_predictor.pdf')
+    d=pd.read_csv(HERE/"source_data_local_suzuki_predictor_v5.csv")
+    fig,ax=plt.subplots(figsize=(7.4,5.2))
+    for case,marker in [("18q","o"),("24q","s"),("NO","^")]:
+        q=d[(d["case"]==case)&(d["comm_relF"]>0)&(d["local_infidelity"]>0)]
+        ax.loglog(q["theta_abs"],q["local_infidelity"],linestyle="None",
+                  marker=marker,label=case)
+    ax.set_xlabel(r"Optimized amplitude magnitude $|\\theta|$")
+    ax.set_ylabel("Single-application Suzuki-2 infidelity")
+    ax.set_title("Among noncommuting factors, amplitude dominates local Suzuki difficulty")
+    ax.legend()
+    save(fig,"figS6_local_suzuki_amplitude_v6.pdf")
 
 def figS7():
  d=pd.read_csv(HERE/'source_data_measurement_shots_v5.csv');fig,ax=plt.subplots(figsize=(7.4,5.2));ax.plot(d.sigma_mEh,d.shots_18q,marker='o',label='18 qubits');ax.plot(d.sigma_mEh,d.shots_24q,marker='s',label='24 qubits');ax.set_yscale('log');ax.invert_xaxis();ax.set_xlabel('Target statistical uncertainty (mEh)');ax.set_ylabel('Optimally allocated shots for greedy QWC groups');ax.set_title('Measurement burden at the mEh scale');ax.legend();save(fig,'figS7_measurement_shots.pdf')

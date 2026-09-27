@@ -1,0 +1,19 @@
+{
+  "n_ops": 121,
+  "projected_error_mEh": 1.571906043409399,
+  "bare_error_mEh": 464.7296754533272,
+  "bare_S2": 2.3835368555324052,
+  "projected_bare_fidelity": 0.07343041338199759,
+  "doublet_weight": 0.4554877148225317,
+  "quartet_weight": 0.5445122851774683,
+  "postprojected_doublet_error_mEh": 465.1640287834198,
+  "postprojected_doublet_fidelity_to_projected": 0.16121271988775326,
+  "normalized_quartet_component_error_vs_exact_quartet_mEh": 470.30806952125204,
+  "n_leaking_gt_1e_10": 114,
+  "max_relative_fro_leakage": 0.557086,
+  "median_relative_fro_leakage": 0.512348,
+  "cumulative_L_spectral": 12.686453293746368,
+  "state_specific_Dseq": 4.602590330347376,
+  "min_prefix_fidelity": 0.03404561476987852,
+  "min_prefix_target_weight": 0.3575987593424277
+}
