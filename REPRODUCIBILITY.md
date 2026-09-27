@@ -114,3 +114,23 @@ The independent NO and OH FCIDUMPs and metadata used in the manuscript are under
 
 The exact projector used in the representation audit is a classical small-system
 oracle, not a proposed scalable circuit primitive.
+
+
+## Submission-v8 normalization-controlled basis audit
+
+The v6 raw O(2)-mixing probe is retained for provenance but is superseded for
+scientific interpretation because the canonical two-dimensional null-space
+basis vectors are individually normalized but not mutually orthogonal.
+
+Use the normalization-controlled audit instead:
+
+```bash
+PYTHONPATH="$PWD/src" python src/revision_v8/audit_normalized_pool_basis_sensitivity_v8.py \
+  --fcidump data/18q/active.FCIDUMP \
+  --checkpoint data/18q/best50_compact.json \
+  --n-random 100 \
+  --output-prefix reproduced_pool_basis_normalized_v8
+```
+
+The committed summary data are under paper/source_data_pool_basis_*_v8.csv
+and results/revision_v8/cu/.

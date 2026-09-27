@@ -319,12 +319,13 @@ The minimum full-versus-reduced fidelity over all 50 prefixes is $0.999999999999
 For 24 qubits, the corresponding values are $5.17\times10^{-16}$, $5.14\times10^{-14}$, and $0.9999999999999987$ over 61 prefixes.
 Thus the corrected construction passes the same representation audit that the projected bare sequence fails.
 
-The coefficient null space within a spatial excitation group is not unique when its dimension exceeds one.
-Our production pool therefore uses a deterministic sparse canonicalization rather than an arbitrary dense SVD basis.
-To quantify the remaining selection-basis dependence, we independently applied random $O(2)$ rotations to each of the 378 two-dimensional null-space groups while preserving the exact physical pool span.
-Under the same unpruned 50-step ADAPT search and optimization schedule, the canonical basis and three rotated bases give final errors of 33.31, 30.18, 31.28, and 6.97 m$E_h$, respectively.
-Thus ADAPT trajectories and compact sequence lengths are basis dependent even when the physical operator span is unchanged.
-The reported 50-application passing Cu state should therefore be interpreted as a result for the deterministic canonical pool basis and its longer search/pruning history, not as a basis-invariant minimal ansatz.
+Because a multidimensional coefficient null space admits non-unique bases, standard single-operator ADAPT selection is not formally basis invariant.
+A normalization-controlled audit in the SI shows that this issue is more limited along the stored Cu trajectory than an unnormalized basis mixing would suggest.
+The canonical two-dimensional null-space directions are individually normalized but not mutually orthogonal, so a raw index-space $O(2)$ mixing changes individual generator norms and is not a clean basis-sensitivity test.
+We therefore renormalized 100 random mixed bases at each of the 51 stored prefix states using either the coefficient-vector norm or the determinant-space Frobenius norm.
+Under either convention the top null-space group changed at only 4 of 51 prefixes; at the most sensitive prefix, 14\% (coefficient normalization) or 12\% (Frobenius normalization) of the random bases changed the top group.
+A basis-invariant group-gradient score selected the same group as the canonical single-operator rule at 50/51 prefixes under the coefficient metric and 49/51 under the Frobenius metric.
+Thus basis dependence is real but modest for top-group selection along this stored trajectory, and no basis-independent minimality claim is made for the compact ansatz.
 Full details are given in the SI.
 
 \begin{table}[htbp]
@@ -435,6 +436,9 @@ The Hubbard calculations test the algebra in a different model class but do not 
 An additional OH CAS(7e,5o) stress test in the SI gives a very small representation mismatch
 ($D_{\rm seq}=0.0667$, observed projected--bare fidelity 0.999229), but the present generalized physical first-gradient ADAPT search stalls at 2.58 m$E_h$.
 This auxiliary result is not used as a positive benchmark; it shows that representation fidelity alone does not guarantee efficient adaptive convergence.
+Single-operator ADAPT selection is also not formally invariant to a change of basis inside a multidimensional coefficient null space.
+The normalization-controlled prefix audit shows only modest top-group sensitivity along the stored 18q trajectory, but it does not establish that a complete search trajectory is basis independent.
+Accordingly, no basis-independent optimality or minimality is claimed for the compact ansatz; a group-gradient selection rule based on an invariant norm within each null-space group would remove this residual representation choice.
 
 The lower quartet in the Cu active spaces is not evidence that an experimental oxidized T1 center has quartet ground-state character.
 A balanced physical spin-state study would require state-specific orbital optimization, basis and active-space convergence, and a realistic environment.

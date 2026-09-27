@@ -1,0 +1,3 @@
+normalization_metric,prefix_states_tested,random_bases_per_prefix,prefixes_with_any_top_group_change,max_fraction_random_bases_changing_top_group,prefixes_where_canonical_top_differs_from_invariant_group_optimum
+coeff,51,100,4,0.14,1
+fro,51,100,4,0.12,2

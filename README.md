@@ -109,7 +109,7 @@ hardware execution.
 ## Current manuscript sources
 
 `paper/manuscript.tex`, `paper/supporting_information.tex`, `paper/references.bib`,
-and the CSV figure source data correspond to the current submission-v6/v7 refinement.
+and the CSV figure source data correspond to the current submission-v8 refinement.
 Generated PDF figures are reproduced locally with `python paper/make_figures.py`.
 
 ## Manuscript figures
@@ -158,3 +158,19 @@ for that case.
 Revision-specific scripts are under `src/revision_v6/`, benchmark metadata
 under `benchmarks/`, and audit summaries/source data under
 `results/revision_v6/` and `paper/`.
+
+
+## Submission revision v8
+
+The v8 referee audit supersedes the raw O(2)-mixing interpretation used in the
+earlier v6 basis-sensitivity probe. The deterministic sparse null-space basis
+is individually normalized but not mutually orthogonal, so raw pair mixing can
+rescale generators and hence their ADAPT gradients.
+
+The current manuscript uses a normalization-controlled audit instead: 100
+random bases are evaluated at all 51 stored Cu prefix states under both
+coefficient-vector and determinant-space Frobenius normalization. The
+highest-gradient null-space group changes at only 4/51 prefixes under either
+convention, with maximum changed-basis fractions 0.14 and 0.12. The old v6
+rotation table is retained only for provenance and is not used for a scientific
+claim in the v8 manuscript.

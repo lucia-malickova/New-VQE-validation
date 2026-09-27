@@ -597,39 +597,68 @@ For 24q:
 The final full/reduced energies agree to the reported double precision in both cases.
 The corrected physical construction therefore passes the same representation audit that the projected bare sequence fails.
 
-\subsection{Null-space basis choice and ADAPT trajectory sensitivity}
+\subsection{Normalization-controlled null-space basis sensitivity}
 
-Spin preservation fixes a null subspace of coefficient vectors inside each spatial remove/add group, but does not by itself fix a basis inside a multidimensional null space.
-The production implementation therefore does not use an arbitrary dense SVD basis.
-It enumerates small coefficient supports, accepts linearly independent null vectors from the smallest supports first, fixes the overall sign from the largest-magnitude nonzero coefficient, and snaps coefficients only when they are already within $5\times10^{-10}$ of the exact values $0$, $\pm1$, or $\pm1/\sqrt2$.
-This produces a deterministic sparse canonical basis across the stored calculations.
+The spin-preserving coefficient space within one spatial remove/add group can have dimension larger than one, so its individual basis vectors are not physically unique.
+The production implementation nevertheless needs a deterministic basis for standard single-operator ADAPT selection and therefore constructs a sparse canonical basis by searching small supports first, fixing a deterministic sign, and snapping coefficients only when they are already within $5\times10^{-10}$ of the exact values $0$, $\pm1$, or $\pm1/\sqrt2$.
 
-For Cu 18q, the 1,080-generator generalized physical pool consists of 324 one-dimensional null-space groups and 378 two-dimensional groups.
-To determine whether ADAPT selection is nevertheless basis dependent, we applied independent random $O(2)$ rotations to every two-dimensional group.
-These rotations preserve each group's operator span, exact spin preservation, and the total physical pool span.
-We then repeated the same \emph{unpruned} 50-step ADAPT protocol and optimization schedule for the canonical basis and three fixed random seeds.
+A direct normalization audit revealed an important subtlety.
+For all 378 two-dimensional Cu 18q null-space groups, the two canonical coefficient vectors have unit Euclidean norm but are not mutually orthogonal:
+\begin{equation}
+|c_1^\mathsf{T}c_2|=\frac13.
+\end{equation}
+Likewise, the corresponding determinant-space generators have equal Frobenius norms within numerical precision but normalized Frobenius overlap
+\begin{equation}
+\frac{|\langle B_1,B_2\rangle_F|}{\|B_1\|_F\|B_2\|_F}=0.3913043478.
+\end{equation}
+Consequently, applying an $O(2)$ matrix directly to the pair $(B_1,B_2)$ does not preserve the norm of each mixed generator.
+Across these groups, such raw mixing can change the Frobenius norm by a factor as large as 1.512 and the Hartree--Fock action norm by a factor as large as 1.732.
+Because ADAPT gradients scale with generator normalization, an unnormalized mixing is therefore not a clean test of basis sensitivity.
+
+We instead perform a normalization-controlled prefix audit.
+For each of the 51 states along the stored 50-application Cu trajectory (including the Hartree--Fock state), we generate 100 independent random mixes of every two-dimensional null-space group,
+\begin{align}
+\widetilde B_1&=\cos\alpha\,B_1+\sin\alpha\,B_2,\\
+\widetilde B_2&=-\sin\alpha\,B_1+\cos\alpha\,B_2,
+\end{align}
+and renormalize each mixed direction before comparing the largest ADAPT gradient.
+Two conventions are tested independently:
+(i) unit Euclidean norm of the underlying coefficient vector and
+(ii) the canonical determinant-space Frobenius norm.
+All one-dimensional groups are unchanged.
+
+For a metric with Gram matrix $M_{ij}=\langle B_i,B_j\rangle_M$ and signed gradient vector $g_i$, the steepest normalized direction available inside one null-space group has the basis-invariant score
+\begin{equation}
+G_{\mathcal G}=\sqrt{\boldsymbol g^\mathsf{T}M^{-1}\boldsymbol g}.
+\label{eq:group_gradient}
+\end{equation}
+Under an invertible basis change $B'=BR$, one has $M'=R^\mathsf{T}MR$ and $\boldsymbol g'=R^\mathsf{T}\boldsymbol g$, so Eq.~\ref{eq:group_gradient} is invariant.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Sensitivity of the unpruned 50-step Cu 18q ADAPT search to orthogonal rotations within the two-dimensional spin-preserving null spaces. These runs probe selection-basis dependence and are not alternate reconstructions of the reported 50-application pruned ansatz, which comes from a longer search/pruning history.}
+\caption{Normalization-controlled basis sensitivity evaluated on all 51 stored Cu 18q prefix states, with 100 independent random bases per prefix. Sensitive prefixes are prefixes for which at least one random basis changes the highest-gradient null-space group relative to the canonical pool.}
 \label{tab:basis_sensitivity}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lccc}
 \toprule
-Pool basis & Error at 30 ops & Error at 50 ops & Final $F_D$ & Unique ops\\
-& (m$E_h$) & (m$E_h$) & &\\
+Metric & Sensitive & Max.\ changed & Group-opt.\ agreement\\
+& prefixes & fraction & (prefixes)\\
 \midrule
-Canonical sparse basis & 126.202 & 33.307 & 0.7191 & 48\\
-Random rotations, seed 1 & 126.109 & 30.179 & 0.7473 & 49\\
-Random rotations, seed 2 & 126.133 & 31.276 & 0.7329 & 48\\
-Random rotations, seed 3 & 126.191 & 6.970 & 0.9390 & 47\\
+Coefficient Euclidean & 4/51 & 0.14 & 50/51\\
+Generator Frobenius & 4/51 & 0.12 & 49/51\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The near-identical 30-step errors and later divergence show that basis dependence becomes important only after the early dominant directions have been exhausted.
-The test confirms that ADAPT trajectories and compact sequence lengths are not invariants of the physical operator span.
-Accordingly, the reported 50-application passing Cu state is a result for the deterministic canonical sparse basis and its documented search/pruning history, not a claim of a basis-independent minimal ansatz.
+The controlled result is therefore more modest than a raw basis mixing would imply.
+Standard single-operator ADAPT is formally basis dependent, and a few late or near-degenerate decisions can change under normalized rotations, but the highest-gradient group is robust at most sampled prefix states of the stored Cu trajectory.
+At the most sensitive coefficient-normalized prefix, 14 of 100 random bases change the top group; under Frobenius normalization the maximum corresponding fraction is 12 of 100.
+The canonical single-operator choice agrees with the coefficient-metric invariant group optimum at 50 of 51 prefixes and with the Frobenius-metric optimum at 49 of 51.
+
+These tests do not establish basis-independent full-trajectory convergence because a single altered choice can change all subsequent optimized states.
+They do, however, show that the canonical sparse basis does not produce a large normalization-induced selection bias along the stored trajectory.
+The reported 50-application passing state remains a result for the documented canonical basis and search/pruning history, not a proof of a basis-independent minimal ansatz.
+A group-wise ADAPT rule based on Eq.~\ref{eq:group_gradient} would remove the arbitrary basis choice once a generator normalization metric is specified.
 
 \section{ADAPT selection, repeats, reoptimization, and method comparisons}
 
@@ -891,7 +920,7 @@ The independent benchmark FCIDUMP hashes used in this revision are:
 
 The public repository is
 \url{https://github.com/lucia-malickova/New-VQE-validation}.
-The submission-v6 repository state includes the regenerated 121-operator checkpoint and prefix audit, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the null-space-basis sensitivity test, the Hubbard stress-test source data, the exhaustive selective-Suzuki search record, the Suzuki diagnostic comparison, and the source data used for the revised figures.
+The submission-v8 repository state includes the regenerated 121-operator checkpoint and prefix audit, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the normalization-controlled null-space-basis audit, the Hubbard stress-test source data, the exhaustive selective-Suzuki search record, the Suzuki diagnostic comparison, and the source data used for the revised figures.
 The archived legacy geometry and Hamiltonian-generation scripts are retained for the canonical 18q model; the missing dedicated 24q active-space selection driver is explicitly documented above rather than reconstructed from inference.
 
 \bibliographystyle{unsrt}
