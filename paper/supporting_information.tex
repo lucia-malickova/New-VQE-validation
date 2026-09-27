@@ -11,7 +11,7 @@
 \hypersetup{colorlinks=true,citecolor=blue,urlcolor=blue,linkcolor=blue}
 
 \title{Supporting Information for:\\
-From Projected Subspaces to Physical Circuits:\\
+From Projected Subspaces to Full-Space Implementations:\\
 Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
 \author{Lucia Mal\'{\i}\v{c}kov\'a and Petr Klenovsk\'y}
 \date{}
@@ -417,6 +417,58 @@ The minimum prefix fidelity is 0.03405 and the minimum target-doublet weight is 
 \includegraphics[width=0.84\linewidth]{figS4_projected_prefix_state_diagnostics.pdf}
 \caption{Prefix-level state diagnostics for the canonical Cu projected-ADAPT negative control.}
 \end{figure}
+
+\section{Fixed parent-sequence full-space reoptimization}
+
+The severe same-angle Cu mismatch tests representation equivalence, but by itself it does not determine whether the 121 parent generators are intrinsically unable to represent a good target-doublet state after their parameters are reoptimized.
+We therefore keep the \emph{same 121 full-space generators in exactly the same order} and optimize all amplitudes directly in the fixed-$M_S=1/2$ determinant space.
+
+The target-spin constraint is imposed on
+\begin{equation}
+p_D(\boldsymbol\theta)
+=
+\|U^\dagger|\Psi(\boldsymbol\theta)\rangle\|^2
+\end{equation}
+using SLSQP with analytic derivatives of both the physical energy and $p_D$.
+The determinant-excitation exponentials are evaluated exactly as independent two-level rotations in the determinant basis; this representation agrees with \texttt{expm\_multiply} to better than $1.4\times10^{-16}$ in the validation check.
+The operator order is never changed.
+
+For the principal constraint $p_D\ge0.999$, four starts were used: the zero-amplitude vector and three independent Gaussian perturbations of it with standard deviation 0.05 (random seed 9272026).
+All four optimizations terminate successfully.
+Three converge to the same energy within $5\times10^{-10}$ m$E_h$ and the fourth to a nearby local minimum:
+\begin{table}[htbp]
+\centering
+\small
+\caption{Full-space reoptimization of the fixed 121-generator Cu parent sequence under $p_D\ge0.999$. The projected reduced-space result is 1.5719 m$E_h$.}
+\label{tab:fixed_parent_reopt}
+\begin{tabular}{lrrrr}
+\toprule
+Start & $\Delta E$ (m$E_h$) & $p_D$ & $F_{\rm proj}$ & Post-proj.\ $\Delta E_D$ (m$E_h$)\\
+\midrule
+Zero & 8.481522 & 0.999000 & 0.979887 & 7.335468\\
+Zero + perturbation 1 & 8.481522 & 0.999000 & 0.979887 & 7.335467\\
+Zero + perturbation 2 & 8.481522 & 0.999000 & 0.979887 & 7.335471\\
+Zero + perturbation 3 & 8.973359 & 0.999000 & 0.977998 & 7.995240\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The best solution has
+\begin{equation}
+\langle S^2\rangle=0.753000,\qquad
+F(\Psi_{\rm proj},\Psi_{\rm full})=0.979887 .
+\end{equation}
+Tightening the constraint to $p_D\ge0.9999$ and starting from zero amplitudes yields 11.269613 m$E_h$, with $F_{\rm proj}=0.970168$ and a post-projected error of 11.030494 m$E_h$.
+
+The constrained landscape is nonconvex.
+Starts in the basin of the original projected amplitudes converge to substantially poorer stationary solutions (43.7706 m$E_h$ for $p_D\ge0.999$ and 47.8917 m$E_h$ for $p_D\ge0.9999$).
+These higher minima are retained as an optimizer diagnostic rather than used to support the main conclusion.
+
+This test changes the interpretation of the catastrophic same-angle result.
+The fixed parent sequence is capable of approaching the projected target much more closely after target-spin-constrained full-space reoptimization, so the 464.730 m$E_h$ failure should not be described as evidence that the parent sequence is intrinsically useless.
+However, none of the converged constrained searches reaches the 1.6 m$E_h$ benchmark, and the best normalized doublet component remains 7.335 m$E_h$ above the exact target.
+The robust conclusion is therefore that the reduced-space optimized amplitudes are not transferable to the parent full-space sequence without an equivalence check; a residual fixed-order expressivity/optimization gap remains in the tested searches, but global optimality is not claimed.
+
 
 \section{Pool-wide invariance and first-order accessibility}
 

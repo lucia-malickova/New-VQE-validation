@@ -11,7 +11,7 @@
 \justifying
 \hypersetup{colorlinks=true,citecolor=blue,urlcolor=blue,linkcolor=blue}
 
-\title{From Projected Subspaces to Physical Circuits:\\
+\title{From Projected Subspaces to Full-Space Implementations:\\
 Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
 
 \author[1]{Lucia Mal\'{\i}\v{c}kov\'a\thanks{Corresponding author: \href{mailto:lucy@thesafehaven.ai}{lucy@thesafehaven.ai}}}
@@ -26,457 +26,234 @@ Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
 \maketitle
 
 \begin{abstract}
-A variational state optimized in a symmetry-projected space need not be the state prepared by exponentiating the corresponding unprojected full-space fermionic generators.
-For an orthogonal target-space projector $P$, $Q=I-P$, and an anti-Hermitian generator $A$, the two descriptions are exactly equivalent for all amplitudes only when the target subspace is invariant, $QAP=0$.
-We formulate this condition as a representation-equivalence audit and test it on open-shell ADAPT-VQE benchmarks.
+A variational state optimized in a symmetry-projected space need not be the state prepared by exponentiating the corresponding unprojected parent generators.
+For an orthogonal target-space projector $P$, $Q=I-P$, and an anti-Hermitian generator $A$, exact equivalence for all amplitudes requires target-space invariance, $QAP=0$.
+We formulate this condition as a representation-equivalence audit for open-shell ADAPT-VQE.
 For a canonical CAS(15e,9o) type-1 Cu(II) Hamiltonian, 274 of 323 bare Hartree--Fock-origin single, double, and triple excitations violate this condition.
-A deterministic projected-doublet ADAPT calculation reaches 1.5719 m$E_h$ error with 121 operators, but the same amplitudes applied to the bare physical sequence give 464.730 m$E_h$ error, 0.07343 fidelity with the projected state, and 54.45\% quartet weight.
-Post-projecting the physical state does not repair the mismatch.
-Simply discarding all non-invariant bare excitations also fails: even with repeated selection the resulting pool remains 167.34 m$E_h$ above the target.
-At the Hartree--Fock reference, this filtering collapses the rank of the accessible target-space tangent directions from 239 for the projected bare pool to 49, whereas the generalized physical spin-preserving pool restores 99 independent first-order directions.
-Spin-preserving generalized physical generators then yield 1.493 and 1.181 m$E_h$ errors at 18 and 24 qubits and pass the representation audit to machine precision.
-An independent 12-qubit NO CAS(7e,6o) benchmark reproduces the same failure mechanism more mildly, showing that its severity is system dependent.
-Circuit and measurement audits then expose separate, implementation-dependent costs.
-The resulting contribution is a validation framework linking projected optimization, physical fermionic evolution, circuit synthesis, and measurement without conflating these layers.
+Projected-doublet ADAPT reaches 1.5719 m$E_h$ with 121 operators, whereas the same amplitudes in the corresponding full-space sequence give 464.730 m$E_h$ error, 0.07343 fidelity with the projected state, and 54.45\% quartet weight.
+Reoptimizing the same 121 parent generators in the same order under the hard constraint $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$, showing that the catastrophic same-angle failure is primarily a representation/parameter-transfer failure but is not completely repaired by full-space reoptimization of the fixed sequence.
+An independent 12-qubit NO benchmark exhibits the same mechanism more mildly.
+A spin-preserving generalized physical construction removes the representation ambiguity and reaches 1.493 and 1.181 m$E_h$ at 18 and 24 qubits.
+Circuit synthesis and final-energy measurement then constitute separate validation layers.
+The contribution is therefore a validation framework, not a new spin-adapted ADAPT algorithm.
 \end{abstract}
 
 \section{Introduction}
 
-Variational quantum eigensolvers (VQEs) remain a widely studied route for quantum electronic-structure simulation \cite{peruzzo2014vqe,mcclean2016theory,mcardle2020review}.
-ADAPT-VQE introduced the iterative construction of a problem-tailored ansatz from an operator pool \cite{grimsley2019adapt}; subsequent work has developed qubit pools, symmetry-aware and symmetry-complete pools, spin projection, compact circuit constructions, and pruning \cite{tang2021qubitadapt,shkolnikov2023roadblocks,bertels2022symmetry,tsuchimochi2022spinproj,magoulas2023cnot,vaquero2025pruned}.
-For open-shell systems, fixed particle number and fixed spin projection $M_S$ do not determine the total spin $S$, so explicit spin control can be essential for state targeting.
-Spin-preserving unitary product states and the tradeoff between symmetry adaptation, universality, and gate efficiency have likewise been studied extensively \cite{burton2023disco,magoulas2026symmetry}.
-Recent work has also shown that naive product-formula implementations of spin-adapted fermionic generators can break spin symmetry, motivating exact or closed-form circuit factorizations \cite{magoulas2025closedform,jain2026factorization}.
+Variational quantum eigensolvers (VQEs) and ADAPT-VQE are widely studied approaches to quantum electronic-structure simulation \cite{peruzzo2014vqe,mcclean2016theory,mcardle2020review,grimsley2019adapt}.
+Qubit pools, symmetry-aware and symmetry-complete pools, spin projection, compact excitation circuits, and pruning have all been developed subsequently \cite{tang2021qubitadapt,shkolnikov2023roadblocks,bertels2022symmetry,tsuchimochi2022spinproj,magoulas2023cnot,vaquero2025pruned}.
+For open-shell systems, fixed particle number and $M_S$ do not determine total spin, and symmetry preservation can be essential for state targeting \cite{burton2023disco,magoulas2026symmetry}.
+Likewise, finite product-formula implementations of spin-adapted generators can introduce symmetry error, motivating exact or closed-form factorizations \cite{magoulas2025closedform,jain2026factorization}.
 
-Projection of an adaptive operator pool into a reduced subspace is also not unique to the present work.
-For example, contextual-subspace VQE has applied stabilizer-subspace projection to an ADAPT pool so that the optimization is performed directly in a reduced space \cite{weaving2023stabilizer}.
-Such a reduced-space construction is mathematically legitimate, but it does not by itself imply that exponentiating an unprojected parent generator implements the exponential of its compression.
-The present work therefore does \emph{not} claim spin projection, projected operator pools, generalized excitations, repeated operator selection, spin-adapted pools, or pruning as new algorithms.
-Instead, we address the narrower validation question:
-if an adaptive calculation is optimized with compressed generators $U^\dagger A U$ in a target symmetry subspace, does the physical sequence built from the corresponding $A$ actually implement the same variational state?
-This distinction follows from elementary invariant-subspace algebra, but its numerical consequences can be severe.
-We turn the condition into an explicit audit, demonstrate both failure and positive-control cases, and separate this representation question from subsequent circuit-synthesis and measurement approximations.
+Projected adaptive pools are not new.
+For example, contextual-subspace VQE optimizes projected operators directly in a reduced space \cite{weaving2023stabilizer}.
+Such algorithms are legitimate reduced-space variational methods.
+The narrower issue considered here arises only if the corresponding unprojected parent-generator sequence is subsequently treated as the physical implementation, or assigned a circuit resource count, without proving that it realizes the same variational state.
+The underlying invariant-subspace algebra is elementary; the practical question is how large the mismatch can become in an adaptive workflow and how to detect it before reduced-space optimization, full-space evolution, circuit synthesis, and measurement are conflated.
 
-The primary benchmark is an idealized type-1 (T1, ``blue-copper'') Cu(II) center.
-T1 sites contain a strongly covalent Cu--S(Cys) interaction and are efficient electron-transfer centers \cite{solomon2004bluecopper,solomon2014copper}.
-In multicopper oxidases such as laccases, oxidation occurs near the T1 site and the electron is transferred through the protein to the T2/T3 trinuclear Cu cluster, where dioxygen reduction takes place \cite{solomon2014copper}.
-The Cu model is intentionally much smaller than a complete enzyme: its role is to provide a chemically motivated open-shell Hamiltonian for which exact spin-resolved references remain available.
-To test whether the observed representation failure is specific to that Hamiltonian, we additionally use an independently constructed 12-qubit NO radical benchmark and homogeneous Hubbard-model stress tests reported in the Supporting Information (SI).
+The primary benchmark is an idealized type-1 (T1, ``blue-copper'') Cu(II) first-shell model, chosen because it provides a chemically motivated open-shell Hamiltonian while retaining exact spin-resolved references \cite{solomon2004bluecopper,solomon2014copper}.
+A separate NO radical benchmark and Hubbard-model stress tests probe whether the same representation issue persists beyond that Hamiltonian.
+No chemically converged prediction for blue-copper proteins, NO, or OH is claimed.
 
-\section{Computational Model and Validation Strategy}
+\section{Model and Validation Strategy}
 
-\subsection{Open-shell benchmark Hamiltonians}
+The canonical Cu Hamiltonian is CAS(15e,9o), mapped to 18 qubits.
+Its STO-3G orbitals were generated from ROHF, AVAS targeting Cu $3d$ and the short Cu--S donor $3p$ manifold, and spin-constrained CASSCF; the exact geometry and numerical settings are given in the Supporting Information (SI) \cite{sun2018pyscf,sayfutyarova2017avas}.
+An archived CAS(21e,12o) FCIDUMP is used only as a fixed 24-qubit algorithmic benchmark because its dedicated 12-orbital selection driver was not preserved.
+The independent NO test uses ROHF/STO-3G CAS(7e,6o) at $R_{\rm NO}=1.1508$~\AA{}.
 
-The Cu benchmark uses an idealized oxidized T1 first-coordination-shell model with two nitrogen donors, a cysteine-model sulfur donor, and a longer axial sulfur donor.
-For the canonical 18-qubit case, the STO-3G orbitals were generated from ROHF, followed by AVAS targeting the Cu $3d$ and short Cu--S donor $3p$ manifold and a spin-constrained CASSCF; the complete geometry and archived generation settings are given in the SI and repository \cite{sun2018pyscf,sayfutyarova2017avas}.
-This procedure yields the primary CAS(15e,9o) Hamiltonian.
-The expanded CAS(21e,12o) FCIDUMP is retained from the same model campaign and used as a fixed 24-qubit algorithmic benchmark, but the dedicated 12-orbital selection driver was not preserved; accordingly, we do not claim geometry-to-FCIDUMP reproducibility for that expanded case.
-Both fixed Hamiltonians are mapped onto qubits using the Jordan--Wigner transformation.
-
-As an independent molecular test, we use an NO radical at $R_{\rm NO}=1.1508$~\AA{} with an ROHF/STO-3G reference.
-Freezing the lowest four canonical spatial orbitals leaves CAS(7e,6o), mapped to 12 qubits.
-This deliberately small model is used only as an algorithmic open-shell benchmark; no converged chemical prediction is claimed.
-Its lowest doublet is numerically twofold degenerate within $10^{-10}\,E_h$, so comparisons with the exact ground state use overlap with the complete lowest-doublet eigenspace rather than fidelity to an arbitrary member of that degenerate pair.
-
-For the Cu calculations the target is the lowest doublet in the fixed-$M_S=1/2$ sector.
-Let $\hat S_+$ denote the many-electron spin-raising operator.
-Within this fixed-$M_S$ sector, the pure-doublet ($S=1/2$) highest-weight subspace is
+For the target doublet in the fixed-$M_S=1/2$ sector,
 \begin{equation}
-\mathcal H_D=\ker \hat S_+ ,
-\label{eq:doublet}
+\mathcal H_D=\ker\!\left(\hat S_+\big|_{\mathcal H_{M_S=1/2}}\right),
+\qquad
+P=UU^\dagger,\quad Q=I-P,
 \end{equation}
-where the kernel is understood within the $M_S=1/2$ determinant space.
-Let $U$ be a matrix whose orthonormal columns span $\mathcal H_D$, and define
+where the columns of $U$ form an orthonormal basis of $\mathcal H_D$.
+For a full-space anti-Hermitian fermionic generator $A$, let
 \begin{equation}
-P=UU^\dagger,\qquad Q=I-P .
+A_d=U^\dagger A U.
 \end{equation}
-Then $H_D=U^\dagger H_{M_S}U$ provides the exact target-doublet Hamiltonian.
-The Cu Hamiltonians contain a lower quartet, whereas in the NO benchmark the lowest quartet lies well above the target doublet.
-This difference is useful because it separates representation inequivalence from the separate issue of variational collapse into a lower wrong-spin state.
-
-\subsection{Representation-equivalence audit}
-
-Consider an anti-Hermitian full-space fermionic generator $A$ and its reduced-space representation
+The lifted reduced-space unitary and the compressed full-space evolution satisfy
 \begin{equation}
-A_d=U^\dagger A U .
+Ue^{\theta A_d}U^\dagger
+=
+Pe^{\theta A}P
+\quad\text{for all real }\theta
 \end{equation}
-The lifted projected evolution $Ue^{\theta A_d}U^\dagger$ and the compressed physical evolution $P e^{\theta A}P$ are exactly equivalent on the target subspace for all real $\theta$ if and only if that subspace is invariant under $A$,
+if and only if
 \begin{equation}
-QAP=0 .
+QAP=0.
 \label{eq:invariance}
 \end{equation}
 For anti-Hermitian $A$, Eq.~\ref{eq:invariance} is equivalent to $[A,P]=0$.
-If the condition fails, Taylor expansion gives
+If invariance fails,
+\begin{align}
+Qe^{\theta A}P&=\theta QAP+\mathcal O(\theta^2),\\
+Pe^{\theta A}P-e^{\theta PAP}P
+&=
+-\frac{\theta^2}{2}(QAP)^\dagger(QAP)+\mathcal O(\theta^3).
+\end{align}
+The SI gives the proof, finite-amplitude bounds, and a state-specific telescoping certificate.
+The exact projector is used only as a classical validation oracle for these small benchmarks; for total-spin symmetry, $[A,\hat S^2]=0$ is a projector-free sufficient condition for preserving every total-spin eigenspace.
+
+The corrected ansatz uses full-space anti-Hermitian generators $B_k$ whose target-space leakage and normalized $S^2$ commutator defect vanish to numerical precision,
 \begin{equation}
-P e^{\theta A}P-e^{\theta PAP}P
+|\Psi(\boldsymbol\theta)\rangle
 =
--\frac{\theta^2}{2}(QAP)^\dagger(QAP)
-+\mathcal O(\theta^3),
-\label{eq:compressed_mismatch}
+e^{\theta_M B_M}\cdots e^{\theta_1B_1}|\Phi_{\rm HF}\rangle.
 \end{equation}
-while leakage from the target subspace begins at first order,
-\begin{equation}
-Qe^{\theta A}P
-=
-\theta QAP+\mathcal O(\theta^2).
-\label{eq:leakshort}
-\end{equation}
-A proof, finite-amplitude bounds, numerical stress tests, and a sufficient bound for a product of generators are given in the SI.
-
-For the structural audit we use
-\begin{equation}
-\ell_F(A)
-=
-\frac{\|QAU\|_F}{\|AU\|_F},
-\label{eq:leakratio}
-\end{equation}
-where $\|\cdot\|_F$ is the Frobenius norm.
-For nonzero $AU$, $\ell_F(A)=0$ if and only if Eq.~\ref{eq:invariance} holds.
-For a sequence we additionally evaluate
-\begin{equation}
-L=\sum_k |\theta_k|\,\|QA_kP\|_2 .
-\label{eq:L}
-\end{equation}
-The SI proves that $L\ll1$ is sufficient for small cumulative representation mismatch.
-A large $L$ does not prove failure because the bound is not tight and cancellations may occur.
-
-For a fixed projected trajectory we also use a tighter, state-specific telescoping certificate.
-Let
-$A_{0,k}=PA_kP+QA_kQ$ and let $|\phi_{k-1}\rangle$ be the lifted projected state immediately before factor $k$.
-Define
-\begin{equation}
-\delta_k=
-\left\|
-\left(e^{\theta_kA_k}-e^{\theta_kA_{0,k}}\right)
-|\phi_{k-1}\rangle
-\right\|,
-\qquad
-D_{\rm seq}=\sum_k\delta_k .
-\label{eq:Dseq}
-\end{equation}
-A telescoping identity and unitarity give
-$\|\Psi_{\rm phys}-\Psi_{\rm proj}\|\le D_{\rm seq}$.
-For normalized states, $D_{\rm seq}\le\sqrt2$ therefore certifies
-$F\ge(1-D_{\rm seq}^2/2)^2$, and $D_{\rm seq}\le1$ certifies target-space weight
-$p_P\ge1-D_{\rm seq}^2$.
-Unlike $L$, this certificate is input-state specific and requires the projected prefix states, but it can be substantially tighter.
-The proof and numerical values are reported in the SI.
-
-The exact projector $P=UU^\dagger$ is used here as a classical validation oracle because all benchmark spaces are small enough to resolve the target-spin sector exactly.
-We do not propose constructing this dense projector on a quantum processor or in a large active space.
-For spin specifically, the scalable design condition used by the corrected fermionic ansatz is imposed directly at generator level through $[B_k,\hat S^2]\simeq0$; for more general projected subspaces, a scalable surrogate for the exact audit is problem dependent.
-
-\subsection{Physical spin-preserving ADAPT, circuits, and measurements}
-
-The corrected ansatz uses physical anti-Hermitian generators $B_k$ retained only when their numerical target-space leakage and normalized $S^2$ commutator defects are below numerical tolerance:
-\begin{equation}
-|\Psi(\boldsymbol{\theta})\rangle=
-e^{\theta_M B_M}\cdots e^{\theta_2 B_2}e^{\theta_1 B_1}
-|\Phi_{\rm HF}\rangle ,
-\qquad [B_k,\hat S^2]\simeq0.
-\label{eq:physical}
-\end{equation}
-ADAPT selection, repeated selection, global reoptimization, pruning, and the construction of spin-preserving linear combinations are described in the SI.
-
-For circuit validation, each $B_k$ is mapped onto qubits using the Jordan--Wigner transformation and synthesized using a second-order Suzuki product formula.
-The quoted circuit counts characterize this explicitly validated implementation, not an intrinsic lower bound for spin-preserving ADAPT.
-Recent exact and closed-form factorizations provide important alternatives for suitable spin-adapted generators \cite{magoulas2025closedform,jain2026factorization}.
-
-For final-energy measurement, Pauli terms are greedily grouped into qubit-wise-commuting (QWC) sets.
-For a fixed grouping, write $\hat H=\sum_g\hat H_g$ and define
-$V_g={\rm Var}_\Psi(\hat H_g)$.
-Under independent group sampling and ideal state preparation, the variance-optimal total shot count is
-\begin{equation}
-N_{\rm shot}^{\rm opt}
-=
-\frac{\left(\sum_g \sqrt{V_g}\right)^2}{\sigma_E^2},
-\label{eq:shots}
-\end{equation}
-where $\sigma_E$ is the target standard deviation of the total energy estimate \cite{verteletskyi2020measurement}.
-This result is conditional on the chosen grouping and does not include the gradient measurements or repeated objective evaluations required to construct the ADAPT ansatz \cite{ramoa2025resources}.
-
-Throughout, 1.6 m$E_h$ is used only as an internal algorithmic benchmark for a specified active-space Hamiltonian.
-It is not a claim of 1 kcal/mol predictive accuracy for the real protein, NO, or the underlying STO-3G models.
+Pool construction, ADAPT selection, repeated operator use, optimization, pruning, circuit synthesis, and measurement allocation are documented in the SI.
+Throughout, 1.6 m$E_h$ is only an internal benchmark for a specified active-space Hamiltonian, not a claim of chemical accuracy for the underlying molecular model.
 
 \section{Results and Discussion}
 
-\subsection{Canonical Cu negative control: projected accuracy does not imply physical equivalence}
+\subsection{Cu: representation failure and fixed-sequence reoptimization}
 
-We regenerated the projected-doublet ADAPT sequence deterministically from the current canonical CAS(15e,9o) FCIDUMP.
-The resulting 121-operator sequence reaches
-$E=-2518.987495464~E_h$, only 1.5719 m$E_h$ above the exact target doublet.
-Applying the same amplitudes to the corresponding unprojected generators instead gives
-$E=-2518.524337694~E_h$, an error of 464.730 m$E_h$, with
-$\langle S^2\rangle=2.383537$.
-The bare state has doublet weight 0.45549 and only 0.07343 fidelity with the projected state.
+The regenerated 121-operator projected-doublet ADAPT sequence reaches
+$E=-2518.987495464~E_h$, 1.5719 m$E_h$ above the exact target doublet.
+Using the same selected parent generators and the same amplitudes in the full fixed-$M_S$ space instead gives 464.730 m$E_h$ error, $\langle S^2\rangle=2.383537$, doublet weight 0.45549, and only 0.07343 fidelity with the projected state.
+Post-projecting that full-space state does not repair the result: its normalized doublet component remains 465.164 m$E_h$ above the target and has fidelity 0.16121 with the projected state.
 
-The failure is structural rather than an isolated bad operator.
-Of all 323 bare Hartree--Fock-origin single, double, and triple excitations in the projected pool, 274 (84.8\%) violate Eq.~\ref{eq:invariance}: 22/22 singles, 126/133 doubles, and 126/168 triples.
-The selected sequence contains 114 non-invariant generators out of 121, with maximum $\ell_F=0.5571$ and median $\ell_F=0.5123$.
-Its spectral-norm budget is $L=12.69$ and the state-specific telescoping budget is $D_{\rm seq}=4.603$.
-Both are already too large to provide a nontrivial fidelity guarantee.
-Because these are sufficient rather than necessary bounds, their large values are interpreted only as failures of a small-mismatch certificate, not as quantitative predictions of the observed fidelity loss.
+This mismatch is not caused by one exceptional operator.
+Of 323 bare Hartree--Fock-origin single, double, and triple excitations, 274 violate Eq.~\ref{eq:invariance}; the selected sequence contains 114 non-invariant factors.
+The SI sequence certificates are correspondingly non-informative for this severe case.
 
-For CAS(15e,9o), the fixed-$M_S=1/2$ space contains only doublet and quartet sectors.
-The bare state's non-doublet weight is therefore exactly its quartet weight,
+To distinguish a failure of parameter transfer from a failure of the fixed parent sequence itself, we next reoptimized all 121 amplitudes in the \emph{same generator order} directly in the full fixed-$M_S$ space while enforcing
 \begin{equation}
-w_Q=0.544512 .
+p_D=\|U^\dagger\Psi\|^2\ge0.999.
+\label{eq:hardspin}
 \end{equation}
-Post-projection does not rescue the sequence:
-the normalized doublet component of the bare state remains 465.164 m$E_h$ above the exact target and has only 0.16121 fidelity with the optimized projected state.
-The complementary normalized quartet component is 470.308 m$E_h$ above the exact quartet minimum.
-Thus the physical sequence is not merely an accurate doublet contaminated by a lower quartet; neither normalized spin component is close to the corresponding low-energy state.
-
-A tempting repair would be to discard every bare excitation that fails Eq.~\ref{eq:invariance}.
-This leaves only 49 of the 323 Cu excitations.
-Using all 49 once gives 210.619 m$E_h$ error; allowing repeated selection through 100 applications improves this only to 167.340 m$E_h$.
-The loss of first-order accessibility is severe.
-All determinant-space Hamiltonians and generators used in this audit are real, so the relevant normalized-state manifold is real; a $d_D$-dimensional target space therefore has at most $d_D-1$ independent real tangent directions at a normalized state.
-At the Hartree--Fock reference the projected bare S/D/T pool spans all 239 such directions of the 240-dimensional doublet space, whereas the invariant-only subset spans only 49.
-The generalized physical rank-1/rank-2 pool provides 99 independent Hartree--Fock tangent directions.
-These ranks are local first-order diagnostics rather than controllability proofs, but they quantify why simple invariant filtering can sacrifice much of the accessibility created by projection.
+Starting from zero amplitudes and three independent Gaussian perturbations of that start, all constrained SLSQP runs converged; the best three solutions are indistinguishable at 8.4815 m$E_h$, and the four-run range is 8.4815--8.9734 m$E_h$.
+The best state has $p_D=0.999$, $\langle S^2\rangle=0.753$, and fidelity 0.97989 with the original projected state.
+Its normalized doublet component is still 7.335 m$E_h$ above the exact doublet.
+Tightening the constraint to $p_D\ge0.9999$ gives 11.270 m$E_h$ from the zero-amplitude start.
+Separate starts near the original projected amplitudes converge to poorer local minima, demonstrating nonconvexity; no global-optimality claim is made.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Representation-equivalence negative controls for the canonical Cu and independent NO projected-ADAPT calculations. $L$ is the sufficient spectral-norm sequence budget in Eq.~\ref{eq:L}; large $L$ is not interpreted as a tight error estimate.}
-\label{tab:representation}
-\begin{tabular}{lcc}
+\caption{Canonical Cu representation test for the same 121 parent generators. The constrained rows reoptimize all amplitudes in the full fixed-$M_S$ space without changing operator order.}
+\label{tab:parent_reopt}
+\begin{tabular}{lrrrr}
 \toprule
-& Cu CAS(15e,9o) & NO CAS(7e,6o)\\
+Construction & $\Delta E$ (m$E_h$) & $p_D$ & $F_{\rm proj}$ & Post-proj.\ $\Delta E_D$ (m$E_h$)\\
 \midrule
-Projected operator applications & 121 & 16\\
-Non-invariant selected generators & 114 & 11\\
-Projected error (m$E_h$) & 1.5719 & 1.4286\\
-$L$ & 12.686 & 0.5759\\
-$D_{\rm seq}$ & 4.603 & 0.3988\\
-Bare same-angle error (m$E_h$) & 464.730 & 24.537\\
-$F(\Psi_{\rm proj},\Psi_{\rm bare})$ & 0.07343 & 0.97205\\
-Bare target-doublet weight & 0.45549 & 0.97211\\
-Post-projected error (m$E_h$) & 465.164 & 1.4780\\
-$F(\Psi_{\rm proj},\Psi_{\rm bare,D})$ & 0.16121 & 0.999943\\
+Projected reduced-space ansatz & 1.5719 & 1 & 1 & 1.5719\\
+Same amplitudes, full space & 464.730 & 0.45549 & 0.07343 & 465.164\\
+Full-space reopt., $p_D\ge0.999$ & 8.4815 & 0.99900 & 0.97989 & 7.3355\\
+Full-space reopt., $p_D\ge0.9999$ & 11.2696 & 0.99990 & 0.97017 & 11.0305\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:ablation} places this representation failure in a broader comparison of tested ansatz constructions.
-Spin correctness alone is not enough:
-restricted physical S+D and S+D+T pools remain 153.629 and 141.392 m$E_h$ above the target, respectively.
-Allowing repeated selection lowers the restricted S+D+T error to 13.166 m$E_h$, while the generalized physical pool reaches the 1.6 m$E_h$ model-space benchmark.
+Thus the catastrophic 464.7 m$E_h$ failure is primarily a representation/parameter-transfer failure: the same parent sequence can recover much of the target state after full-space spin-constrained reoptimization.
+However, in the tested order it still does not reproduce the 1.6 m$E_h$ projected result.
+This distinction is central: the audit does not show that projected-pool methods are invalid, nor that the parent sequence is globally incapable of representing the target; it shows that the projected optimization and the unprojected same-parameter implementation are different variational constructions.
+
+Simple invariant filtering is not an adequate repair.
+Only 49 of the 323 Cu excitations are individually invariant.
+Using all 49 once gives 210.619 m$E_h$ error, and allowing repeated selection through 100 applications gives 167.340 m$E_h$.
+At the Hartree--Fock reference, the projected bare S/D/T pool spans all 239 real tangent directions of the 240-dimensional doublet space, whereas the invariant-only subset spans 49 and the generalized physical rank-1/rank-2 pool spans 99.
+These are local first-order diagnostics, not controllability statements.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.98\linewidth]{fig1_method_ablation_v5.pdf}
-\caption{Ansatz-construction comparison. The first seven bars refer to the canonical 18-qubit Cu Hamiltonian; the final bar is the expanded 24-qubit Cu benchmark and is shown only as an additional positive control. The entries differ in pool definition, repetition policy, and optimized sequence length and therefore should not be interpreted as a one-variable-at-a-time ablation. Projected-space accuracy does not transfer to the corresponding bare physical sequence, whereas filtering to individually invariant bare excitations restores representation fidelity but not sufficient expressivity.}
-\label{fig:ablation}
-\end{figure}
-
-The mismatch develops during the adaptive sequence rather than appearing only at the final state.
-By the eighth selected operator the projected--bare fidelity has fallen to 0.8819 and the bare doublet weight to 0.8866; the sequence later reaches a minimum prefix fidelity of 0.0340.
-Figure~\ref{fig:prefix} compares the projected, bare, and post-projected energy errors over all 121 prefixes.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.86\linewidth]{fig2_projected_prefix_divergence.pdf}
-\caption{Canonical Cu projected-ADAPT negative control. The projected energy approaches the target while the same amplitudes applied to the bare physical sequence do not. Projecting the resulting bare state back into the doublet subspace does not recover the optimized projected trajectory.}
+\includegraphics[width=0.92\linewidth]{fig2_projected_prefix_divergence.pdf}
+\caption{Canonical Cu negative control. The projected energy approaches the target while the same amplitudes in the parent full-space sequence do not. Post-projection of the resulting full-space state does not recover the optimized projected trajectory.}
 \label{fig:prefix}
 \end{figure}
 
-\subsection{Independent molecular test: the same mechanism is milder for NO}
+\subsection{Independent NO test}
 
-The NO CAS(7e,6o) Hamiltonian provides a qualitatively different open-shell test.
-Its exact target doublet lies 250.051 m$E_h$ below the lowest quartet, so a representation mismatch cannot be attributed to variational collapse into a lower quartet.
-Nevertheless, 225 of 231 bare S/D/T excitations (97.4\%) fail the invariant-subspace test, including all 17 singles and all 127 triples.
+For NO CAS(7e,6o), the exact target doublet lies 250.051 m$E_h$ below the lowest quartet, so representation failure cannot be attributed to collapse into a lower wrong-spin state.
+Nevertheless, 225 of 231 bare S/D/T excitations are non-invariant.
+Projected ADAPT reaches 1.4286 m$E_h$ with 16 operators; the same parent sequence and amplitudes give 24.537 m$E_h$, doublet weight 0.97211, and fidelity 0.97205 with the projected state.
+Here the state-specific SI certificate is nontrivial, guaranteeing $F\ge0.8473$.
+Unlike Cu, post-projection almost repairs the result: the post-projected error is 1.4780 m$E_h$ and its fidelity with the projected state is 0.999943.
+The same mechanism therefore occurs in an independent molecular Hamiltonian, but its severity is strongly system and sequence dependent.
 
-Projected ADAPT reaches 1.4286 m$E_h$ error with 16 operators, 11 of which are non-invariant.
-The same bare sequence gives 24.537 m$E_h$ error, $\langle S^2\rangle=0.83369$, doublet weight 0.97211, and projected--bare fidelity 0.97205.
-Here $D_{\rm seq}=0.3988$, which by itself certifies
-$F\ge0.8473$ and target-doublet weight $p_D\ge0.8410$; the observed values are substantially better.
-Unlike the Cu case, post-projection almost repairs the state: the post-projected error is 1.4780 m$E_h$ and its fidelity with the optimized projected state is 0.999943.
-The representation failure is therefore reproducible in an independent molecular Hamiltonian, but its physical severity is strongly system and sequence dependent.
+Only six NO parent excitations are individually invariant and this filtered pool remains 52.154 m$E_h$ above the target.
+A generalized spin-preserving pool instead gives a 19-application state at 1.5790 m$E_h$, unit doublet weight, and 0.998967 overlap with the exact lowest-doublet manifold.
+Additional OH and Hubbard stress tests are reported in the SI.
 
-The lowest exact NO doublet is a numerically twofold-degenerate manifold.
-The projected state has 0.997999 weight in that manifold; the bare state has 0.970221, and the post-projected bare state has 0.998061.
-The single-vector exact-state fidelity is therefore not used for this benchmark.
+\subsection{Representation-faithful physical ans\"atze}
 
-Simple invariant filtering again loses expressivity.
-Only six bare NO pool elements satisfy Eq.~\ref{eq:invariance}; using all six gives 52.154 m$E_h$ error, and allowing repeated selection through 60 applications does not improve that value.
-At the Hartree--Fock reference the projected S/D/T pool spans 171 of the 209 available target-space tangent directions, the invariant-only subset spans only six, and the generalized physical pool spans 56.
-A generalized physical spin-preserving pool then produces a 19-application ansatz (13 unique generators) at 1.5790 m$E_h$ error, unit doublet weight, and 0.998967 overlap with the exact lowest-doublet manifold.
-Its maximum selected representation leakage is $4.36\times10^{-16}$ and the cumulative Frobenius upper bound is $1.63\times10^{-14}$.
-This corrected NO sequence therefore provides an independent positive control as well as an independent negative control.
-
-\subsection{Physical spin-preserving ADAPT removes the representation ambiguity in the Cu models}
-
-The generalized 18-qubit Cu pool contains 1,080 physical spin-preserving generators.
-After repeated ADAPT selection, reoptimization, and pruning, a 50-application ansatz (39 unique generators) reaches 1.493 m$E_h$ error with exact-doublet fidelity 0.982614 and residual 0.0480 $E_h$.
-The 24-qubit pool contains 3,762 generators and yields a 61-application ansatz (41 unique generators) at 1.181 m$E_h$ error, fidelity 0.990681, and residual 0.0585 $E_h$.
-Both have $\langle S^2\rangle=0.75$ and unit doublet weight to numerical precision.
-
-We independently reconstructed each corrected sequence in the full fixed-$M_S$ determinant space and in the exact-doublet basis.
-For 18 qubits, the maximum recomputed relative leakage is $4.13\times10^{-16}$ and the conservative Frobenius sequence budget is $3.91\times10^{-14}$.
-The minimum full-versus-reduced fidelity over all 50 prefixes is $0.9999999999999993$.
-For 24 qubits, the corresponding values are $5.17\times10^{-16}$, $5.14\times10^{-14}$, and $0.9999999999999987$ over 61 prefixes.
-Thus the corrected construction passes the same representation audit that the projected bare sequence fails.
-
-Because a multidimensional coefficient null space admits non-unique bases, standard single-operator ADAPT selection is not formally basis invariant.
-A normalization-controlled audit in the SI shows that this issue is more limited along the stored Cu trajectory than an unnormalized basis mixing would suggest.
-The canonical two-dimensional null-space directions are individually normalized but not mutually orthogonal, so a raw index-space $O(2)$ mixing changes individual generator norms and is not a clean basis-sensitivity test.
-We therefore renormalized 100 random mixed bases at each of the 51 stored prefix states using either the coefficient-vector norm or the determinant-space Frobenius norm.
-Under either convention the top null-space group changed at only 4 of 51 prefixes; at the most sensitive prefix, 14\% (coefficient normalization) or 12\% (Frobenius normalization) of the random bases changed the top group.
-A basis-invariant group-gradient score selected the same group as the canonical single-operator rule at 50/51 prefixes under the coefficient metric and 49/51 under the Frobenius metric.
-Thus basis dependence is real but modest for top-group selection along this stored trajectory, and no basis-independent minimality claim is made for the compact ansatz.
-Full details are given in the SI.
+For Cu, the generalized physical pools contain 1,080 generators at 18 qubits and 3,762 at 24 qubits.
+After repeated selection, reoptimization, and pruning, the stored 18q and 24q ans\"atze contain 50 and 61 applications and reach 1.493 and 1.181 m$E_h$, respectively.
+Independent full-space and reduced-space reconstructions agree to machine precision over every prefix.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Exact spin references and compact physical ADAPT results for the Cu benchmarks. $E_D$ and $E_Q$ denote the exact lowest doublet and quartet energies; $\Delta E=E_{\rm ADAPT}-E_D$, and $r=\|(\hat H-E)|\Psi\rangle\|$. The 24-qubit case is an expanded algorithmic benchmark, not a proof of chemical active-space convergence or asymptotic scaling.}
+\caption{Compact representation-faithful Cu ans\"atze. The 24q case is a fixed-Hamiltonian algorithmic benchmark, not a chemical convergence study.}
 \label{tab:main}
 \begin{tabular}{lcc}
 \toprule
 & 18 qubits & 24 qubits\\
 \midrule
 Active space & CAS(15e,9o) & CAS(21e,12o)\\
-$E_D$ (Hartree) & $-2518.989067370$ & $-2518.989131438$\\
-$E_Q$ (Hartree) & $-2518.995009103$ & $-2518.995161622$\\
-$E_D-E_Q$ (m$E_h$) & 5.9417 & 6.0302\\
-Physical operator applications & 50 & 61\\
+Operator applications & 50 & 61\\
 Unique generators & 39 & 41\\
-Fermionic $\Delta E$ (m$E_h$) & 1.4927 & 1.1813\\
+$\Delta E$ (m$E_h$) & 1.4927 & 1.1813\\
 Exact-doublet fidelity & 0.9826 & 0.9907\\
-Residual $r$ ($E_h$) & 0.0480 & 0.0585\\
+Residual ($E_h$) & 0.0480 & 0.0585\\
 $\langle S^2\rangle$ & 0.7500 & 0.7500\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The maximum natural-occupation errors relative to the exact Cu doublets are 0.00211 and 0.00160 for 18 and 24 qubits.
-The finite residual norms in Table~\ref{tab:main}, however, show that the compact states should not be interpreted as exact eigenstates despite their model-space energy accuracy.
-Perturbed-start reoptimizations return to narrow energy windows; detailed diagnostics are reported in the SI.
+The physical-pool basis is not mathematically unique inside multidimensional null spaces.
+A normalization-controlled SI audit finds modest top-group sensitivity along the stored 18q trajectory: random normalized basis changes affect the highest-gradient group at only 4 of 51 sampled prefixes, while a basis-invariant group-gradient score agrees with the canonical choice at 49--50 of 51 prefixes depending on normalization metric.
+No basis-independent minimality claim is made for the compact sequences.
 
-\subsection{Circuit synthesis is a separate, highly nonuniform approximation}
+\subsection{Circuit and measurement validation}
 
-The exact fermionic ansatz may be representation faithful while a finite product-formula circuit is not.
-For the 18-qubit Cu state, one Suzuki repetition is inadequate; four repetitions reduce the synthesis error to 0.135 m$E_h$ and raise the circuit-to-fermionic fidelity to 0.999484.
-The total error is then 1.628 m$E_h$, slightly above the 1.6 m$E_h$ benchmark, at 61,482 CX gates and abstract-gate-set depth 71,636.
-The 24-qubit Cu state passes the strict circuit-equivalence gate at one repetition:
-0.0906 m$E_h$ synthesis error, 0.999694 circuit-to-fermionic fidelity, $\langle S^2\rangle=0.750624$, and target-$M_S$ survival above 0.999999999.
-The corrected NO circuit is easier still: one repetition gives 0.00293 m$E_h$ synthesis error and 0.9999939 circuit-to-fermionic fidelity.
+Second-order Suzuki synthesis introduces a separate approximation.
+For the 18q Cu state, four uniform repetitions give 0.135 m$E_h$ synthesis error and circuit-to-fermionic fidelity 0.999484 at 61,482 CX gates and abstract-gate-set depth 71,636.
+For 24q, one repetition gives 0.0906 m$E_h$ and fidelity 0.999694 at 22,574 CX gates and depth 26,409; for NO, one repetition gives 0.00293 m$E_h$ and fidelity 0.9999939.
+These are archived Qiskit-2.2.3 realizations without a device coupling map and are not optimal-circuit bounds.
+The SI shows that the large 18q error is concentrated in a few large-amplitude noncommuting factors and that selective refinement can satisfy the strict state-level synthesis gate in a determinant-equivalent emulator, but no CX reduction is claimed without re-transpilation.
 
-\begin{table}[htbp]
-\centering
-\small
-\caption{Second-order Suzuki synthesis after transpilation to the abstract $\{R_z,\sqrt X,X,\mathrm{CX}\}$ basis. These are implementation-specific, non-device-mapped resource counts rather than lower bounds for spin-preserving circuits.}
-\label{tab:circuit}
-\begin{tabular}{lrrrrr}
-\toprule
-Case & Suzuki repetitions & CX & Depth & $\delta E_{\rm synth}$ (m$E_h$) & $F_{\rm circ}$\\
-\midrule
-Cu 18q, 50 ops & 1 & 15,936 & 18,389 & 44.381 & 0.84541\\
-Cu 18q, 50 ops & 2 & 31,118 & 36,138 & 2.416 & 0.99136\\
-Cu 18q, 50 ops & 4 & 61,482 & 71,636 & 0.135 & 0.99948\\
-Cu 24q, 61 ops & 1 & 22,574 & 26,409 & 0.091 & 0.99969\\
-NO 12q, 19 ops & 1 & 7,328 & 9,869 & 0.0029 & 0.999994\\
-\bottomrule
-\end{tabular}
-\end{table}
+Final-energy measurement is likewise protocol dependent.
+For the chosen greedy QWC groupings and ideal state preparation, variance-optimal allocation requires approximately $1.43\times10^8$ shots (18q) and $5.46\times10^8$ shots (24q) for a 1.6 m$E_h$ statistical uncertainty.
+These numbers exclude ADAPT gradient measurements, optimizer evaluations, device noise, and alternative measurement strategies.
 
-A local factorization audit explains why the nominally larger 24-qubit circuit can be easier to synthesize than the 18-qubit circuit.
-At one Suzuki repetition, the maximum single-application infidelity is 0.1610 for the 18-qubit Cu sequence, but only $2.46\times10^{-4}$ for 24-qubit Cu and $4.19\times10^{-6}$ for NO.
-For the 18-qubit case, one rank-2 application with $|\theta|=3.13$ accounts for nearly all of the local-error sum.
-The SI defines a constituent-commutator diagnostic $c_{\rm comm}$ and shows a simpler interpretation than our initial heuristic suggested:
-all applications with $c_{\rm comm}=0$ have only roundoff-level isolated Suzuki error, whereas among applications with $c_{\rm comm}>0$ the optimized amplitude magnitude is already a strong rank predictor of the error.
-For Cu 18q, Cu 24q, and NO, the Spearman correlations of $|\theta|^3$ with local infidelity inside the noncommuting subset are 0.925, 0.958, and 0.953; including the continuous factor $c_{\rm comm}$ changes these only to 0.928, 0.970, and 0.953.
-We therefore use noncommutativity primarily as a structural filter and do not claim that $c_{\rm comm}$ provides an independent quantitative error law.
-The SI further shows that selectively refining the few difficult factors can satisfy the strict state-level synthesis criteria in the determinant-equivalent Suzuki emulator with a much smaller component-exponential proxy than uniform refinement; because that selective schedule has not been re-transpiled through Qiskit, no CX or depth reduction is claimed from it.
+\subsection{Scope and limitations}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.82\linewidth]{fig3_synthesis_tradeoff_18q.pdf}
-\caption{Accuracy--resource tradeoff for uniform second-order Suzuki synthesis of the 18-qubit physical Cu ansatz. The product-formula error falls rapidly, but the CX count approximately doubles with each repetition.}
-\label{fig:synthesis}
-\end{figure}
+Spin projection, projected pools, generalized excitations, repeated selection, spin-adapted pools, and pruning are established ideas \cite{tsuchimochi2022spinproj,weaving2023stabilizer,burton2023disco,magoulas2026symmetry}.
+Our contribution is narrower: when a reduced-space optimization is associated with a full-space parent implementation or resource count, representation equivalence must be established rather than assumed.
+The exact projector used here is a small-system validation oracle, not a scalable VQE primitive.
 
-\subsection{Final-energy measurement remains expensive for the chosen protocol}
-
-The 18- and 24-qubit Cu Hamiltonians contain 9,316 and 29,737 Pauli terms, forming 1,909 and 6,233 greedy QWC groups.
-Even with exact state preparation and variance-optimal allocation for those fixed groupings, Eq.~\ref{eq:shots} gives estimated total shot counts of approximately
-$1.43\times10^8$ and $5.46\times10^8$, respectively, for a 1.6 m$E_h$ statistical uncertainty.
-For the same groupings, variance-optimal allocation reduces these estimates by factors of 26.7 and 42.9 relative to equal allocation.
-Thus the large counts are not an artifact of naive equal shot assignment.
-
-The corresponding uncertainty dependence is plotted in the SI.
-These counts describe final-energy estimation only.
-They are not the full measurement cost of constructing the ADAPT sequence, and they are not global lower bounds over all measurement strategies.
-Likewise, the circuit counts in Table~\ref{tab:circuit} characterize one Jordan--Wigner/Suzuki implementation rather than the cost of an optimal spin-adapted circuit.
-
-\subsection{Relation to recent work and scope of the contribution}
-
-Spin contamination and spin projection in adaptive VQE are not new observations \cite{tsuchimochi2022spinproj}.
-Likewise, symmetry-preserving fermionic unitary product states can represent open-shell states efficiently, and prior work has analyzed symmetry roadblocks, symmetry breaking, and conditions under which symmetry preservation is needed to prevent convergence to the wrong sector \cite{shkolnikov2023roadblocks,bertels2022symmetry,burton2023disco,magoulas2026symmetry}.
-Projected ADAPT pools have also been used in contextual-subspace VQE \cite{weaving2023stabilizer}.
-Our generalized physical pool should therefore be viewed as a validated implementation choice, not as a new general theory of symmetry-adapted operator pools.
-
-The distinct point tested here is representation equivalence between a reduced-space optimization and the full-space generator sequence to which a circuit resource count is assigned.
-We do not argue that projected-pool methods are intrinsically incorrect: a projected pool defines a valid reduced-space variational problem.
-Our narrower concern is the additional identification step that occurs when a full-space parent-generator sequence is treated as the implementation, or its resources are quoted, without first establishing that it realizes the same projected variational state.
-The Cu calculation provides a severe, fully regenerated negative control; the independent NO calculation shows that the same structural mechanism can occur even when the target doublet is already the lowest spin state, but that post-projection may then nearly repair the state.
-Homogeneous Hubbard-chain tests in the SI reproduce the representation failure without any molecular-specific ingredients.
-Together these results support the general audit while also showing that the numerical severity of a violation cannot be inferred from symmetry labels alone.
-
-\subsection{Limitations}
-
-All molecular calculations use deliberately small STO-3G active-space models.
-The exact target-space projector is used only as a classical oracle for these small validation problems and is not presented as a scalable large-active-space algorithm.
-The 1.6 m$E_h$ threshold is therefore an internal algorithmic benchmark, not the uncertainty of a real protein or NO calculation.
-The Cu 18q and 24q cases are too few and too closely related to establish asymptotic scaling or quantum advantage, while the independent NO benchmark is only 12 qubits.
-The archived geometry-to-Hamiltonian driver is fully specified for the canonical 18q Cu FCIDUMP; the expanded 24q FCIDUMP is preserved and exactly validated as a fixed algorithmic Hamiltonian, but the separate 12-orbital active-space selection driver that originally generated it is not retained, so no claim of geometry-to-FCIDUMP reproducibility is made for the 24q benchmark.
-The Hubbard calculations test the algebra in a different model class but do not substitute for a broader molecular benchmark set.
-An additional OH CAS(7e,5o) stress test in the SI gives a very small representation mismatch
-($D_{\rm seq}=0.0667$, observed projected--bare fidelity 0.999229), but the present generalized physical first-gradient ADAPT search stalls at 2.58 m$E_h$.
-This auxiliary result is not used as a positive benchmark; it shows that representation fidelity alone does not guarantee efficient adaptive convergence.
-Single-operator ADAPT selection is also not formally invariant to a change of basis inside a multidimensional coefficient null space.
-The normalization-controlled prefix audit shows only modest top-group sensitivity along the stored 18q trajectory, but it does not establish that a complete search trajectory is basis independent.
-Accordingly, no basis-independent optimality or minimality is claimed for the compact ansatz; a group-gradient selection rule based on an invariant norm within each null-space group would remove this residual representation choice.
-
-The lower quartet in the Cu active spaces is not evidence that an experimental oxidized T1 center has quartet ground-state character.
-A balanced physical spin-state study would require state-specific orbital optimization, basis and active-space convergence, and a realistic environment.
-The preliminary Cu--S geometry extension generated during development failed pre-specified CASSCF-convergence and active-orbital-continuity gates and is excluded from geometry-dependent claims.
-
-We have not implemented the recent exact spin-adapted circuit factorizations for the specific numerical linear-combination generators used here.
-Accordingly, neither the Suzuki CX counts nor the selective-refinement component proxy should be interpreted as optimal circuit resources.
-No physical-QPU final-energy result is reported.
+All molecular benchmarks use deliberately small STO-3G active spaces.
+The 24q Cu Hamiltonian is reproducible as a fixed FCIDUMP but not from a preserved 12-orbital selection driver.
+The lower Cu quartet is not interpreted as an experimental prediction.
+The exploratory Cu--S scan failed its pre-specified convergence/orbital-continuity gates and is excluded.
+The reported compact ADAPT sequences are search-history dependent; no global minimality, quantum advantage, optimal circuit resource, or physical-QPU claim is made.
 
 \section{Conclusions}
 
-The central result is a representation-validation failure and a reproducible way to detect it.
-For an anti-Hermitian generator, lifted projected evolution and full-space physical exponentiation are exactly interchangeable on the target subspace only when the full-space generator leaves that subspace invariant.
-In the canonical Cu projected-ADAPT sequence, 114 of 121 selected generators violate this condition.
-An apparently accurate 1.5719 m$E_h$ projected result then corresponds, under the same amplitudes applied to the bare physical sequence, to 464.730 m$E_h$ error, 54.45\% quartet weight, and only 0.07343 fidelity with the projected state.
-Even post-projecting the physical result fails to recover the optimized state.
+A projected adaptive ansatz and the corresponding parent full-space sequence are the same variational construction only when the relevant target space is invariant under every implemented generator.
+The canonical Cu example shows how severely this identification can fail: 1.5719 m$E_h$ in projected space becomes 464.730 m$E_h$ when the same amplitudes are applied to the parent sequence.
+Full-space reoptimization of that fixed sequence under $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$ and raises the projected-state fidelity to 0.97989.
+The catastrophic failure is therefore not evidence that the parent sequence is intrinsically useless; it is primarily evidence that reduced-space parameters cannot be transferred without an equivalence check.
+The remaining gap to 1.6 m$E_h$ shows that reoptimization of the fixed order does not completely recover the projected construction in the tested searches.
 
-The problem is not repaired by simply discarding non-invariant bare operators: the resulting invariant-only Cu pool remains 167.34 m$E_h$ above the target even with repeated selection and reduces the Hartree--Fock target-space tangent rank from 239 to 49.
-Spin-preserving linear combinations and a generalized physical pool recover substantially more first-order accessibility and the needed nonlinear expressivity, giving 1.493 and 1.181 m$E_h$ errors for the 18- and 24-qubit Cu models while passing the representation audit to machine precision.
-The independent NO benchmark reproduces the mechanism more mildly and demonstrates that its severity is system dependent rather than universal.
+An independent NO benchmark reproduces the mechanism more mildly, while representation-faithful spin-preserving Cu and NO ans\"atze provide positive controls.
+Circuit synthesis and measurement then constitute separate approximations and resource layers.
 
-Circuit synthesis and measurement then appear as genuinely separate validation layers.
-In particular, the strong variation of Suzuki error across the three validated physical sequences is associated with a small number of large-amplitude, internally noncommuting factors rather than qubit count alone.
-
-The broader contribution is therefore not a new spin-adapted ADAPT algorithm.
-It is a reusable validation principle:
-the state optimized in a symmetry-reduced representation, the physical fermionic sequence, the synthesized qubit circuit, and the measurement protocol should be checked as distinct objects.
-A low projected-space energy alone does not establish that the physical circuit implements the same variational state.
+The practical recommendation is correspondingly narrow:
+when a projected or otherwise reduced-space adaptive optimization is connected to a full-space implementation, the optimized state, the parent fermionic sequence, the compiled circuit, and the measurement protocol should be validated as distinct objects.
+A low reduced-space energy alone does not establish that a quoted full-space circuit implements the same variational state.
 
 \section*{Supporting Information}
 
-Proof and finite-amplitude form of the representation-equivalence criterion; numerical tolerances and optimization settings; operator-norm and state-specific sequence certificates; canonical Cu projected-ADAPT negative control and prefix audit; pool-wide invariance and Hartree--Fock tangent-accessibility tests; invariant-only controls; independent NO, auxiliary OH, and Hubbard-model benchmarks; positive-control audits of the corrected physical sequences; adaptive selection and pruning details; circuit mapping, local Suzuki-error diagnostics, and selective-refinement search definition; measurement grouping and shot allocation; 1-RDM and natural-occupation analysis; multi-start robustness; provenance and excluded calculations.
+Exact Hamiltonian-generation details; proofs and finite-amplitude bounds; numerical tolerances; state-specific certificates; fixed-parent-sequence constrained reoptimization; Cu prefix and pool audits; tangent accessibility; normalization-controlled basis sensitivity; NO, OH, and Hubbard tests; physical-pool construction; circuit and Suzuki diagnostics; measurement grouping; 1-RDM diagnostics; optimizer robustness; provenance and excluded calculations.
 
 \section*{Data and Code Availability}
 
-The Cu Hamiltonians, physical generalized spin-preserving ADAPT implementation, serialized physical checkpoints, regenerated 121-operator projected-ADAPT negative control, independent NO/OH benchmark FCIDUMPs, representation-equivalence and tangent-space audits, basis-sensitivity and Suzuki-diagnostic tests, circuit-synthesis outputs, and figure source data are available at
-\url{https://github.com/lucia-malickova/New-VQE-validation}.
-The repository records the exact revision-specific source data and scripts used for this manuscript under the paper and validation directories; generated figures can be rebuilt from those committed sources.
+The Hamiltonians, checkpoints, validation audits, constrained-reoptimization tests, independent benchmarks, circuit outputs, and figure source data are available in the
+\href{https://github.com/lucia-malickova/New-VQE-validation}{public GitHub repository}.
+Revision-specific scripts and source data are recorded there with the manuscript sources.
 
 \section*{Acknowledgements}
 

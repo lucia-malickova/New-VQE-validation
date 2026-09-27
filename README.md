@@ -174,3 +174,8 @@ highest-gradient null-space group changes at only 4/51 prefixes under either
 convention, with maximum changed-basis fractions 0.14 and 0.12. The old v6
 rotation table is retained only for provenance and is not used for a scientific
 claim in the v8 manuscript.
+
+
+## Revision v9
+
+The current paper adds a fixed-parent full-space constrained reoptimization test for the canonical 121-generator negative control and shortens the main article while moving secondary technical detail to the SI. Under p_D >= 0.999, the best converged fixed-order full-space reoptimization reaches 8.4815 mEh rather than the 464.730 mEh same-angle error, clarifying that the catastrophic mismatch is primarily a parameter-transfer/representation failure rather than proof that the parent sequence is intrinsically useless.

@@ -1,0 +1,10 @@
+{
+  "best_pD_ge_0.999_error_mEh": 8.481521937028447,
+  "best_pD_ge_0.999_init": "zero+pert0",
+  "best_pD_ge_0.9999_error_mEh": 11.269612838987086,
+  "n_converged_pD_0.999": 7,
+  "zero_or_nearzero_pD_0.999_range_mEh": [
+    8.481521937028447,
+    8.973358587354596
+  ]
+}
