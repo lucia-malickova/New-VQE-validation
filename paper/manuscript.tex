@@ -129,6 +129,13 @@ Its normalized doublet component is still 7.335 m$E_h$ above the exact doublet.
 Tightening the constraint to $p_D\ge0.9999$ gives 11.270 m$E_h$ from the zero-amplitude start.
 Separate starts near the original projected amplitudes converge to poorer local minima, demonstrating nonconvexity; no global-optimality claim is made.
 
+We also optimized the same fixed sequence directly for overlap with the projected state.
+Starting from the best energy-constrained basin, unconstrained fidelity maximization converges reproducibly to
+$F_{\rm proj}=0.988268$ with $p_D=0.99716$.
+Imposing $p_D\ge0.999$ during the fidelity maximization gives
+$F_{\rm proj}=0.987416$ from three tested starts.
+These are converged local optima rather than certified global maxima, but none of the tested full-space searches reproduces the projected state exactly.
+
 \begin{table}[htbp]
 \centering
 \small
@@ -140,8 +147,9 @@ Construction & $\Delta E$ (m$E_h$) & $p_D$ & $F_{\rm proj}$ & Post-proj.\ $\Delt
 \midrule
 Projected reduced-space ansatz & 1.5719 & 1 & 1 & 1.5719\\
 Same amplitudes, full space & 464.730 & 0.45549 & 0.07343 & 465.164\\
-Full-space reopt., $p_D\ge0.999$ & 8.4815 & 0.99900 & 0.97989 & 7.3355\\
-Full-space reopt., $p_D\ge0.9999$ & 11.2696 & 0.99990 & 0.97017 & 11.0305\\
+Full-space energy reopt., $p_D\ge0.999$ & 8.4815 & 0.99900 & 0.97989 & 7.3355\\
+Full-space fidelity reopt., $p_D\ge0.999$ & 10.8166 & 0.99900 & 0.98742 & 9.8863\\
+Full-space energy reopt., $p_D\ge0.9999$ & 11.2696 & 0.99990 & 0.97017 & 11.0305\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -234,9 +242,10 @@ The reported compact ADAPT sequences are search-history dependent; no global min
 
 A projected adaptive ansatz and the corresponding parent full-space sequence are the same variational construction only when the relevant target space is invariant under every implemented generator.
 The canonical Cu example shows how severely this identification can fail: 1.5719 m$E_h$ in projected space becomes 464.730 m$E_h$ when the same amplitudes are applied to the parent sequence.
-Full-space reoptimization of that fixed sequence under $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$ and raises the projected-state fidelity to 0.97989.
+Full-space energy reoptimization of that fixed sequence under $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$ and raises the projected-state fidelity to 0.97989.
+Direct fidelity maximization under the same purity constraint reaches 0.98742 but still does not reproduce the projected state.
 The catastrophic failure is therefore not evidence that the parent sequence is intrinsically useless; it is primarily evidence that reduced-space parameters cannot be transferred without an equivalence check.
-The remaining gap to 1.6 m$E_h$ shows that reoptimization of the fixed order does not completely recover the projected construction in the tested searches.
+The remaining energy and fidelity gaps show that the fixed-order full-space construction does not completely recover the projected construction in the tested searches, without establishing a global impossibility result.
 
 An independent NO benchmark reproduces the mechanism more mildly, while representation-faithful spin-preserving Cu and NO ans\"atze provide positive controls.
 Circuit synthesis and measurement then constitute separate approximations and resource layers.
@@ -247,13 +256,14 @@ A low reduced-space energy alone does not establish that a quoted full-space cir
 
 \section*{Supporting Information}
 
-Exact Hamiltonian-generation details; proofs and finite-amplitude bounds; numerical tolerances; state-specific certificates; fixed-parent-sequence constrained reoptimization; Cu prefix and pool audits; tangent accessibility; normalization-controlled basis sensitivity; NO, OH, and Hubbard tests; physical-pool construction; circuit and Suzuki diagnostics; measurement grouping; 1-RDM diagnostics; optimizer robustness; provenance and excluded calculations.
+Exact Hamiltonian-generation details; proofs and finite-amplitude bounds; numerical tolerances; state-specific certificates; fixed-parent-sequence energy and fidelity reoptimization; Cu prefix and pool audits; tangent accessibility; normalization-controlled basis sensitivity; NO, OH, and Hubbard tests; physical-pool construction; circuit and Suzuki diagnostics; measurement grouping; 1-RDM diagnostics; optimizer robustness; provenance and excluded calculations.
 
 \section*{Data and Code Availability}
 
-The Hamiltonians, checkpoints, validation audits, constrained-reoptimization tests, independent benchmarks, circuit outputs, and figure source data are available in the
-\href{https://github.com/lucia-malickova/New-VQE-validation}{public GitHub repository}.
-Revision-specific scripts and source data are recorded there with the manuscript sources.
+The public GitHub repository contains the Hamiltonians, checkpoints, validation audits,
+fixed-parent reoptimization tests, independent benchmarks, circuit outputs, and figure source data:
+\url{https://github.com/lucia-malickova/New-VQE-validation}.
+Revision-specific scripts and source data are stored with the manuscript sources.
 
 \section*{Acknowledgements}
 

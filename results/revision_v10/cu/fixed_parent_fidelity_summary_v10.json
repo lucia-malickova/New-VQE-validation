@@ -1,0 +1,11 @@
+{
+  "analytic_gradient_finite_difference_max_abs_error": 2.7617980818961385e-11,
+  "unconstrained_best_fidelity": 0.9882684961489299,
+  "unconstrained_best_doublet_weight": 0.9971553741133882,
+  "unconstrained_best_energy_error_mEh": 9.87476302907453,
+  "constrained_pD": 0.999,
+  "constrained_best_fidelity": 0.9874161888381022,
+  "constrained_energy_error_mEh": 10.816570711995155,
+  "constrained_doublet_weight": 0.9989999999999937,
+  "interpretation": "Local multi-start diagnostic only; no certified global fidelity maximum."
+}

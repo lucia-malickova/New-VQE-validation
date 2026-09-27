@@ -383,7 +383,7 @@ The deterministic projected ADAPT run contains 121 operators and reaches
 E_{\rm proj}=-2518.987495463899~E_h,
 \end{equation}
 or 1.571906 m$E_h$ above the exact target doublet.
-Applying the same selected labels and amplitudes to the bare physical generators gives
+Applying the same selected labels and amplitudes to the bare full-space parent generators gives
 \begin{align}
 E_{\rm bare}&=-2518.524337694489~E_h,\\
 \Delta E_{\rm bare}&=464.729675~{\rm m}E_h,\\
@@ -430,6 +430,7 @@ p_D(\boldsymbol\theta)
 \|U^\dagger|\Psi(\boldsymbol\theta)\rangle\|^2
 \end{equation}
 using SLSQP with analytic derivatives of both the physical energy and $p_D$.
+All constrained runs use \texttt{ftol}$=10^{-12}$ and at most 1000 SLSQP iterations; the final constraint value is reported explicitly rather than inferred from the optimizer status.
 The determinant-excitation exponentials are evaluated exactly as independent two-level rotations in the determinant basis; this representation agrees with \texttt{expm\_multiply} to better than $1.4\times10^{-16}$ in the validation check.
 The operator order is never changed.
 
@@ -468,6 +469,33 @@ This test changes the interpretation of the catastrophic same-angle result.
 The fixed parent sequence is capable of approaching the projected target much more closely after target-spin-constrained full-space reoptimization, so the 464.730 m$E_h$ failure should not be described as evidence that the parent sequence is intrinsically useless.
 However, none of the converged constrained searches reaches the 1.6 m$E_h$ benchmark, and the best normalized doublet component remains 7.335 m$E_h$ above the exact target.
 The robust conclusion is therefore that the reduced-space optimized amplitudes are not transferable to the parent full-space sequence without an equivalence check; a residual fixed-order expressivity/optimization gap remains in the tested searches, but global optimality is not claimed.
+
+To probe fixed-order representability more directly, we also optimize the same 121 amplitudes for fidelity with the lifted projected state rather than for energy.
+The analytic fidelity gradient was independently checked against central finite differences at six amplitudes of the canonical checkpoint; the maximum absolute discrepancy was $2.8\times10^{-11}$.
+The objective is
+\begin{equation}
+\max_{\boldsymbol\theta}
+F_{\rm proj}(\boldsymbol\theta)
+=
+\left|
+\langle\Psi_{\rm proj}|\Psi_{\rm full}(\boldsymbol\theta)\rangle
+\right|^2 .
+\end{equation}
+Starting from the best $p_D\ge0.999$ energy-constrained basin and three independent perturbations of it, unconstrained fidelity maximization converges in all four cases to
+\begin{equation}
+F_{\rm proj}=0.988268496,\qquad p_D=0.997155
+\end{equation}
+to the displayed precision.
+The corresponding energy error is 9.8748 m$E_h$ and the normalized doublet component is 7.7646 m$E_h$ above the exact doublet.
+
+Because that fidelity optimum still contains about $0.28\%$ non-doublet weight, we repeat the optimization with the hard constraint $p_D\ge0.999$.
+Three tested starts---the best energy-constrained state, a perturbation of it, and the best unconstrained-fidelity state---all converge to
+\begin{equation}
+F_{\rm proj}=0.987416189,\qquad p_D=0.999000,
+\end{equation}
+with energy error 10.8166 m$E_h$.
+The agreement across these starts identifies a robust local optimum, not a certified global maximum.
+Accordingly, the fidelity test strengthens only the empirical statement that the fixed-order full-space sequence does not reproduce the projected state in the searches performed here; it does not prove that exact reproduction is impossible.
 
 
 \section{Pool-wide invariance and first-order accessibility}
