@@ -1,19 +1,27 @@
+28 September 2026
+
 Dear Editors of The Journal of Chemical Physics,
 
 Please consider our manuscript, "From Projected Subspaces to Full-Space Implementations: Representation-Equivalence Audits for Open-Shell ADAPT-VQE," for publication as an Article in The Journal of Chemical Physics.
 
-The work addresses a validation problem in adaptive quantum electronic-structure calculations. A variational calculation performed with generators compressed into a target symmetry subspace is a legitimate reduced-space problem, but the corresponding unprojected parent-generator sequence does not automatically implement the same variational state. We formulate an explicit representation-equivalence audit, quantify a severe failure in a reproducible open-shell Cu benchmark, and test the same mechanism in an independent NO benchmark and additional model controls.
+The manuscript addresses a validation issue in projected and reduced-space adaptive quantum electronic-structure calculations. A variational state optimized after projection or compression is a legitimate reduced-space object, but exponentiating the corresponding unprojected parent generators with the transferred parameters does not, in general, prepare the same state unless the target subspace is invariant. We formulate this as a representation-equivalence audit and quantify its practical consequences in reproducible open-shell benchmarks.
 
-A central result is that a projected 121-operator Cu calculation reaches 1.5719 mEh error, whereas the same amplitudes in the parent full-space sequence give 464.730 mEh error and only 0.07343 fidelity with the projected state. Full-space energy and fidelity reoptimization of the same fixed parent sequence recover much of the target state but do not reproduce the reduced-space result in the tested searches. This narrows the interpretation to a representation/parameter-transfer failure rather than a claim that projected methods or the parent sequence are intrinsically invalid.
+In the principal Cu benchmark, projected-doublet ADAPT reaches an error of 1.5719 mEh, whereas applying the same amplitudes to the corresponding parent full-space sequence gives a 464.730 mEh error and only 0.07343 fidelity with the projected state. Reoptimizing the same parent sequence directly in full space reduces the best converged error to 8.482 mEh, showing that the severe same-angle discrepancy is primarily a representation/parameter-transfer failure rather than evidence that the parent sequence is intrinsically unusable. Independent NO, OH, and Hubbard controls establish that the same mechanism can range from mild to severe depending on the system and sequence.
 
-As a positive end-to-end control, the representation-faithful 18-qubit Cu ansatz was also compiled with a selectively refined Suzuki-2 schedule and independently re-transpiled with a fixed Qiskit compiler seed. The actual compiled state passes all four predeclared circuit-equivalence criteria at 19,660 CX gates and depth 23,016 in the abstract gate basis, while a uniform four-repetition compilation remains both larger and slightly outside the synthesis-error threshold. This closes the circuit layer without making a device-specific hardware claim.
+The manuscript also separates subsequent validation layers. A representation-faithful spin-preserving construction provides a positive control, and a selectively refined 18-qubit Suzuki-2 implementation was re-transpiled with a fixed Qiskit compiler seed and passes all predeclared circuit-equivalence criteria at 19,660 CX gates and depth 23,016 in the stated abstract gate basis. Circuit synthesis and final-energy measurement are therefore treated as validation layers distinct from fermionic-level accuracy.
 
-The manuscript does not present spin projection, symmetry-preserving or spin-adapted pools, contextual-subspace projection, generalized excitations, repeated ADAPT selection, pruning, or spin-adapted circuit factorization as new algorithms. Those neighboring developments address symmetry restoration, ansatz design, reduced-space modeling, or compilation. Our narrower contribution is to audit a different identification step: whether a variational unitary optimized after projection/compression is actually represented by exponentiating the corresponding unprojected parent generators with the transferred parameters. The manuscript turns that distinction into a reproducible validation ladder separating reduced-space optimization, full-space fermionic evolution, circuit synthesis, and measurement. We believe this fits JCP's Theoretical Methods and Algorithms section and its interest in emerging quantum-computing methods for chemical physics.
+We emphasize that the manuscript does not claim a new general spin-adapted ADAPT algorithm, a new projection method, or a device-level quantum advantage. Its contribution is a validation framework for determining when a reduced-space variational construction can legitimately be identified with a parent full-space implementation and associated resource estimate. We believe this is well aligned with JCP's interest in rigorous methodology for electronic structure and computational chemical physics.
 
-The code, Hamiltonians, checkpoints, validation data, and figure source data are publicly available at:
-https://github.com/lucia-malickova/New-VQE-validation
+The code, fixed Hamiltonians, checkpoints, validation data, and figure source data are openly available at https://github.com/lucia-malickova/New-VQE-validation.
+
+Thank you for your consideration.
 
 Sincerely,
 
-Lucia Malickova
-Petr Klenovsky
+Lucia Malíčková
+Modelos Inteligencia Artificial S.L.
+lucy@thesafehaven.ai
+
+Petr Klenovský
+Masaryk University; Czech Metrology Institute
+klenovsky@physics.muni.cz
