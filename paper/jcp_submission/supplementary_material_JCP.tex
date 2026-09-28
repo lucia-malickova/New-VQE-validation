@@ -37,8 +37,8 @@ Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
 \subsection{Type-1 Cu active spaces}
 
 The primary benchmark is an idealized oxidized first-coordination-shell type-1 Cu(II) model with two nitrogen donors, a cysteine-model sulfur donor, and a longer axial sulfur donor.
-The molecular orbitals were obtained from a restricted open-shell Hartree--Fock calculation in the STO-3G basis.
-The primary active space, CAS(15e,9o), was constructed with PySCF \cite{sun2018pyscf} and the atomic-valence active-space (AVAS) procedure \cite{sayfutyarova2017avas}, targeting the Cu $3d$ and cysteine-S $3p$ manifolds.
+The molecular orbitals were obtained from a restricted open-shell Hartree--Fock (ROHF) calculation in the STO-3G basis.
+The primary complete active space, CAS(15e,9o), contains 15 active electrons in 9 active spatial orbitals and was constructed with PySCF \cite{sun2018pyscf} and the atomic-valence active-space (AVAS) procedure \cite{sayfutyarova2017avas}, targeting the Cu $3d$ and cysteine-S $3p$ manifolds.
 CAS(21e,12o) from the same model is used as an expanded algorithmic benchmark.
 
 The active-space Hamiltonian is written
@@ -1076,7 +1076,7 @@ The transpiled QPY artifact returned by the independent rerun has SHA256
 
 The public repository is
 \url{https://github.com/lucia-malickova/New-VQE-validation}.
-The submission-v12 repository state includes the regenerated 121-operator checkpoint and representation audit, the canonical 18q FCIDUMP and both compact and fully serialized best-50 positive-control checkpoints, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the normalization-controlled null-space-basis audit, the Hubbard stress-test source data, the exhaustive selective-Suzuki emulator search record, the fixed-seed Qiskit confirmation, the Suzuki diagnostic comparison, and the source data used for the revised figures.
+The current repository state includes the regenerated 121-operator checkpoint and representation audit, the canonical 18q FCIDUMP and both compact and fully serialized best-50 positive-control checkpoints, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the normalization-controlled null-space-basis audit, the Hubbard stress-test source data, the exhaustive selective-Suzuki emulator search record, the fixed-seed Qiskit confirmation, the Suzuki diagnostic comparison, and the source data used for the revised figures.
 The archived legacy geometry and Hamiltonian-generation scripts are retained for the canonical 18q model; the missing dedicated 24q active-space selection driver is explicitly documented above rather than reconstructed from inference.
 
 \bibliography{references}
