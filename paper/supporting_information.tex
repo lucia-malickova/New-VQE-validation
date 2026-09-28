@@ -449,7 +449,7 @@ p_D(\boldsymbol\theta)
 =
 \|U^\dagger|\Psi(\boldsymbol\theta)\rangle\|^2
 \end{equation}
-using SLSQP with analytic derivatives of both the physical energy and $p_D$.
+using the Sequential Least Squares Programming (SLSQP) algorithm with analytic derivatives of both the physical energy and $p_D$.
 All constrained runs use \texttt{ftol}$=10^{-12}$ and at most 1000 SLSQP iterations; the final constraint value is reported explicitly rather than inferred from the optimizer status.
 The determinant-excitation exponentials are evaluated exactly as independent two-level rotations in the determinant basis; this representation agrees with \texttt{expm\_multiply} to better than $1.4\times10^{-16}$ in the validation check.
 The operator order is never changed.
