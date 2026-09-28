@@ -16,7 +16,7 @@ Canonical sources:
 - `paper/references.bib`;
 - `paper/jcp_submission/` — mirrored self-contained submission-support source set.
 
-The current pre-submission state is **v22**. Main/JCP mirrors and SI/JCP mirrors are identical. CAS, ROHF, AVAS, CASSCF, and SLSQP are now defined explicitly at first use in the main manuscript; the standalone Supplement independently defines ROHF, AVAS, CAS, and SLSQP. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
+The current pre-submission state is **v23**. Main/JCP mirrors and SI/JCP mirrors are identical. CAS, ROHF, AVAS, CASSCF, and SLSQP are now defined explicitly at first use in the main manuscript; the standalone Supplement independently defines ROHF, AVAS, CAS, and SLSQP. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
 
 ## Key validated results
 
@@ -64,3 +64,6 @@ Revision v21 clarifies the Supplement's operator notation and geometry: it defin
 
 
 Revision v22 is a final copyedit: reduced-generator notation is harmonized to $A_D$, QWC/CX/L-BFGS-B/1-RDM/QPY terminology is clarified at first use, and a float barrier prevents the multistart figure from interrupting the following SI paragraph.
+
+
+Revision v23 adds the final JCP cover letter and the missing `booktabs` dependency required for standalone compilation of the manuscript and Supplement. The scientific content is unchanged.
