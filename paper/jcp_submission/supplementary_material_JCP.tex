@@ -145,22 +145,46 @@ They are algebraic validation models, not chemical benchmarks.
 
 \section{Exact spin resolution}
 
-Particle number and $M_S$ do not determine total spin.
-We construct
+Particle number and the spin projection $M_S$ do not by themselves determine the total spin $S$.
+We therefore resolve the target doublet sector explicitly.
+The spin-raising operator is
 \begin{equation}
-\hat S_+=\sum_p a_{p\alpha}^\dagger a_{p\beta}.
+\hat S_+=\sum_p a_{p\alpha}^\dagger a_{p\beta},
 \end{equation}
-Within the fixed-$M_S=1/2$ determinant space, the pure-doublet highest-weight subspace is
+where $a_{p\sigma}^\dagger$ and $a_{p\sigma}$ create and annihilate an electron, respectively, in spatial orbital $p$ with spin $\sigma$.
+Acting with $\hat S_+$ converts a $\beta$ electron into an $\alpha$ electron and raises $M_S$ by one.
+
+Within the fixed-$M_S=1/2$ determinant space, a pure doublet is a highest-weight state and is therefore annihilated by $\hat S_+$.
+The target doublet subspace is thus
 \begin{equation}
 \mathcal H_D
 =
-\ker\!\left(\hat S_+\big|_{\mathcal H_{M_S=1/2}}\right).
+\ker\!\left(\hat S_+\big|_{\mathcal H_{M_S=1/2}}\right),
 \end{equation}
-An orthonormal basis $U$ for this null space defines
+where $\ker$ denotes the null space.
+Let the columns of $U$ form an orthonormal basis of $\mathcal H_D$.
+Then $U^\dagger U=I$ in the reduced doublet coordinates, and
 \begin{equation}
-P=UU^\dagger,\qquad Q=I-P,
+P=UU^\dagger,\qquad Q=I-P
 \end{equation}
-and the exact target-space Hamiltonian
+are complementary orthogonal projectors in the full fixed-$M_S$ determinant space.
+Specifically,
+\[
+P^2=P=P^\dagger,\qquad
+Q^2=Q=Q^\dagger,\qquad
+PQ=QP=0.
+\]
+The notation $\operatorname{Ran}(P)$ means the range (image) of $P$, i.e. the set of states onto which $P$ projects.
+Here
+\[
+\operatorname{Ran}(P)=\mathcal H_D,
+\qquad
+\operatorname{Ran}(Q)=\mathcal H_D^\perp.
+\]
+Consequently, a state belongs entirely to the target doublet sector exactly when $P|\psi\rangle=|\psi\rangle$, or equivalently $Q|\psi\rangle=0$.
+For a normalized state, $\|Q|\psi\rangle\|^2$ is therefore its weight outside the target subspace.
+
+If $H_{M_S}$ denotes the Hamiltonian matrix in the full fixed-$M_S$ determinant basis, its exact representation in the doublet basis is
 \begin{equation}
 H_D=U^\dagger H_{M_S}U .
 \end{equation}
@@ -170,6 +194,7 @@ For a normalized state in the $M_S=1/2$ sector,
 =
 \|\hat S_+|\psi\rangle\|^2+M_S(M_S+1).
 \end{equation}
+Thus $\hat S_+$ provides both the exact doublet basis and a direct diagnostic of spin contamination.
 
 The explicit matrix $U$ and projector $P=UU^\dagger$ are classical-oracle objects used because the present benchmark sectors are small enough to resolve exactly.
 They are not proposed as scalable quantum-circuit primitives.
@@ -177,6 +202,16 @@ For spin, the production physical pool uses $M_S$-preserving excitation patterns
 For an arbitrary projected subspace lacking a compact symmetry generator, a scalable surrogate for $QAP=0$ is necessarily problem dependent.
 
 \section{Numerical conventions, tolerances, and optimization settings}
+
+Throughout the Supplement, $\|\cdot\|$ denotes the Euclidean norm for state vectors, $\|\cdot\|_2$ the spectral (operator) norm for matrices, and $\|\cdot\|_F$ the Frobenius norm.
+For a full-space generator $A$, we quantify its normalized target-space leakage by
+\begin{equation}
+\ell_F(A)
+=
+\frac{\|QAU\|_F}{\|AU\|_F},
+\end{equation}
+whenever the target-space action in the denominator is nonzero.
+The numerator is the part of $A$ that carries target-space basis vectors into the complementary $Q$ sector.
 
 The exact highest-weight basis is constructed with \texttt{scipy.linalg.null\_space} using relative cutoff $10^{-12}$; the stored implementation rejects an $S_+$ null-space defect above $10^{-9}$.
 Bare determinant-excitation generators are required to satisfy an anti-Hermiticity defect below $10^{-10}$.
@@ -203,22 +238,51 @@ Because the FCIDUMP integrals and determinant-space excitation matrices used in 
 
 \section{Representation-equivalence criterion}
 
-Let $A^\dagger=-A$.
+Let $A^\dagger=-A$ be a full-space anti-Hermitian parent generator and define its reduced representation
+\[
+A_D=U^\dagger A U.
+\]
+There are then two different evolutions that must not be identified without a check.
+The reduced-space evolution is $e^{\theta A_D}$; lifted back to the full determinant space it is
+$Ue^{\theta A_D}U^\dagger$.
+The actual parent evolution is $e^{\theta A}$; when only its target-space component is retained, it becomes $Pe^{\theta A}P$.
+The question is therefore whether these two operators agree on $\operatorname{Ran}(P)$.
+
+For clarity, relative to the orthogonal decomposition
+\[
+\mathcal H_{M_S}
+=
+\operatorname{Ran}(P)\oplus\operatorname{Ran}(Q),
+\]
+the generator has the block form
+\[
+A=
+\begin{pmatrix}
+PAP & PAQ\\
+QAP & QAQ
+\end{pmatrix}.
+\]
+The off-diagonal block $QAP$ maps a target-space state into the complementary subspace and is therefore the generator-level leakage block.
+Because $A$ is anti-Hermitian,
+$PAQ=-(QAP)^\dagger$, so the two off-diagonal blocks vanish together.
+
 The following conditions are equivalent:
 \begin{align}
 QAP&=0,\\
 [A,P]&=0,\\
-e^{\theta A}{\rm Ran}(P)&\subseteq{\rm Ran}(P)
+e^{\theta A}\operatorname{Ran}(P)&\subseteq\operatorname{Ran}(P)
 \quad\text{for all real }\theta,\\
 P e^{\theta A}P
 &=
-Ue^{\theta(U^\dagger A U)}U^\dagger
+Ue^{\theta A_D}U^\dagger
 =
 e^{\theta PAP}P
 \quad\text{for all real }\theta.
 \end{align}
-If $QAP=0$, anti-Hermiticity also gives
-$PAQ=-(QAP)^\dagger=0$, so $A=PAP+QAQ$ is block diagonal.
+The third condition states geometrically that the full-space evolution never carries a target-space state out of $\operatorname{Ran}(P)$.
+The fourth condition states operationally that the lifted reduced-space unitary and the compressed parent full-space evolution are the same operator on the target sector.
+
+If $QAP=0$, anti-Hermiticity also gives $PAQ=0$, so $A=PAP+QAQ$ is block diagonal with respect to the $P/Q$ decomposition.
 Conversely, equality of the second derivatives of the last relation at $\theta=0$ gives
 \begin{equation}
 PA^2P-(PAP)^2
@@ -228,11 +292,12 @@ PAQAP
 -(QAP)^\dagger(QAP),
 \end{equation}
 which vanishes only if $QAP=0$.
+This proves necessity for equality at arbitrary amplitudes.
 
 This necessity statement concerns equality of the generator-level reduced and compressed full-space evolutions for arbitrary amplitudes.
 For a particular finite product at one isolated parameter vector, accidental agreement or cancellation between non-invariant factors is not excluded; such a coincidence would not constitute an amplitude-independent representation guarantee.
 
-The short-amplitude expansions are
+The short-amplitude expansions make the hierarchy explicit:
 \begin{align}
 Qe^{\theta A}P
 &=
@@ -242,36 +307,46 @@ Pe^{\theta A}P-e^{\theta PAP}P
 -\frac{\theta^2}{2}(QAP)^\dagger(QAP)
 +\mathcal O(\theta^3).
 \end{align}
+Thus leakage \emph{amplitude} out of the target space starts at first order in $\theta$, whereas the mismatch between the two target-space evolutions starts at second order.
 
 \subsection{Finite-amplitude operator-norm bounds}
 
-Define
+Separate $A$ into its block-diagonal and block-off-diagonal parts,
 \begin{equation}
-A_0=PAP+QAQ,\qquad V=PAQ+QAP.
+A_0=PAP+QAQ,\qquad
+A_{\rm off}=PAQ+QAP,
 \end{equation}
+so that $A=A_0+A_{\rm off}$.
+The operator $A_0$ preserves the $P$ and $Q$ sectors separately, whereas $A_{\rm off}$ couples them.
 For anti-Hermitian $A$,
 \begin{equation}
-\|V\|_2=\|QAP\|_2\equiv\lambda.
+\|A_{\rm off}\|_2=\|QAP\|_2\equiv\lambda.
 \end{equation}
-The interaction-picture Dyson series gives
+The interaction-picture Dyson series then gives the finite-amplitude bounds
 \begin{align}
 \|Qe^{\theta A}P\|_2
 &\le\sinh(|\theta|\lambda),\\
 \|Pe^{\theta A}P-e^{\theta PAP}P\|_2
 &\le\cosh(|\theta|\lambda)-1.
 \end{align}
+These are uniform operator bounds: they hold for every normalized input state in the target subspace, but can therefore be conservative for a particular trajectory.
 
-For a sequence
+For a sequence of parent generators,
 \begin{equation}
-U_{\rm phys}=e^{\theta_MA_M}\cdots e^{\theta_1A_1},
+\mathcal U_{\rm phys}
+=
+e^{\theta_MA_M}\cdots e^{\theta_1A_1},
 \end{equation}
-with block-diagonal surrogate
+define $A_{0,k}=PA_kP+QA_kQ$ and the corresponding block-diagonal reference sequence
 \begin{equation}
-U_0=e^{\theta_MA_{0,M}}\cdots e^{\theta_1A_{0,1}},
+\mathcal U_0
+=
+e^{\theta_MA_{0,M}}\cdots e^{\theta_1A_{0,1}}.
 \end{equation}
-a Duhamel bound and telescoping sum give
+For an initial state in $\operatorname{Ran}(P)$, the $P$-sector action of $\mathcal U_0$ is exactly the lifted reduced-space trajectory.
+A Duhamel bound applied factor by factor and a telescoping sum give
 \begin{equation}
-\|U_{\rm phys}-U_0\|_2
+\|\mathcal U_{\rm phys}-\mathcal U_0\|_2
 \le
 L
 \equiv
@@ -279,65 +354,78 @@ L
 \label{eq:L}
 \end{equation}
 Thus $L\ll1$ is sufficient for representation fidelity.
-Large $L$ is not a proof of failure because the bound is generally loose.
+A large $L$ is not a proof of failure because this uniform bound can be loose and ignores the actual states visited by the ansatz.
 
 \subsection{State-specific telescoping certificate}
 
-The operator-norm budget ignores which target-space states are actually visited.
-A tighter input-state certificate can be obtained without changing the projected trajectory.
-Let
+A tighter certificate can be obtained by evaluating each factor on the specific lifted projected trajectory rather than taking a worst-case operator norm.
+Define
 \begin{equation}
-V_k=e^{\theta_kA_k},
+R_k=e^{\theta_kA_k},
 \qquad
-W_k=e^{\theta_kA_{0,k}},
+R_{0,k}=e^{\theta_kA_{0,k}},
 \end{equation}
 and let
 \begin{equation}
 |\phi_{k-1}\rangle
 =
-W_{k-1}\cdots W_1|\psi_0\rangle
+R_{0,k-1}\cdots R_{0,1}|\psi_0\rangle
 \end{equation}
-be the lifted projected prefix.
-Define the exact local discrepancy
+be the lifted projected state immediately before factor $k$.
+The exact local discrepancy introduced by that factor is
 \begin{equation}
 \delta_k
 =
-\|(V_k-W_k)|\phi_{k-1}\rangle\|
+\|(R_k-R_{0,k})|\phi_{k-1}\rangle\|,
 \end{equation}
-and
+and the accumulated state-specific budget is
 \begin{equation}
 D_{\rm seq}=\sum_k\delta_k.
 \label{eq:Dseq}
 \end{equation}
-Using
+
+The exact telescoping identity
 \begin{equation}
-V_M\cdots V_1-W_M\cdots W_1
+R_M\cdots R_1-R_{0,M}\cdots R_{0,1}
 =
 \sum_{k=1}^{M}
-V_M\cdots V_{k+1}(V_k-W_k)W_{k-1}\cdots W_1
+R_M\cdots R_{k+1}(R_k-R_{0,k})R_{0,k-1}\cdots R_{0,1}
 \end{equation}
-and the unitarity of every $V_j$ and $W_j$ gives the rigorous input-state bound
+together with the unitarity of all $R_j$ and $R_{0,j}$ gives
 \begin{equation}
 \|\Psi_{\rm phys}-\Psi_{\rm proj}\|
-\le D_{\rm seq}.
+\le D_{\rm seq},
 \end{equation}
-For normalized states and $D_{\rm seq}\le\sqrt2$,
+where
+$|\Psi_{\rm phys}\rangle=\mathcal U_{\rm phys}|\psi_0\rangle$
+and
+$|\Psi_{\rm proj}\rangle=\mathcal U_0|\psi_0\rangle$.
+For normalized states, the fidelity is
+$F(\Psi_{\rm phys},\Psi_{\rm proj})
+=|\langle\Psi_{\rm proj}|\Psi_{\rm phys}\rangle|^2$.
+When $D_{\rm seq}\le\sqrt2$,
 \begin{equation}
 F(\Psi_{\rm phys},\Psi_{\rm proj})
 \ge
 \left(1-\frac{D_{\rm seq}^2}{2}\right)^2.
 \label{eq:Fcert}
 \end{equation}
-Because $|\Psi_{\rm proj}\rangle\in{\rm Ran}(P)$,
-\begin{equation}
+Because $|\Psi_{\rm proj}\rangle\in\operatorname{Ran}(P)$, the target-subspace weight of the physical state,
+\[
 p_P(\Psi_{\rm phys})
 =
-1-\|Q\Psi_{\rm phys}\|^2
+\langle\Psi_{\rm phys}|P|\Psi_{\rm phys}\rangle
+=
+1-\|Q|\Psi_{\rm phys}\rangle\|^2,
+\]
+obeys
+\begin{equation}
+p_P(\Psi_{\rm phys})
 \ge
 \max(0,1-D_{\rm seq}^2).
 \label{eq:Pcert}
 \end{equation}
-This certificate is state-specific rather than uniform over the complete target subspace.
+Unlike $L$, this certificate is state-specific: it measures the discrepancies encountered along the actual projected trajectory rather than the largest possible action on the entire target subspace.
 
 Table~\ref{tab:statecert} summarizes the molecular negative controls.
 The reported diagnostic distance is the phase-minimized pure-state distance

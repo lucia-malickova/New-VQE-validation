@@ -16,7 +16,7 @@ Canonical sources:
 - `paper/references.bib`;
 - `paper/jcp_submission/` — mirrored self-contained submission-support source set.
 
-The current pre-submission state is **v20**. Main/JCP mirrors and SI/JCP mirrors are identical. CAS, ROHF, AVAS, CASSCF, and SLSQP are now defined explicitly at first use in the main manuscript; the standalone Supplement independently defines ROHF, AVAS, CAS, and SLSQP. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
+The current pre-submission state is **v21**. Main/JCP mirrors and SI/JCP mirrors are identical. CAS, ROHF, AVAS, CASSCF, and SLSQP are now defined explicitly at first use in the main manuscript; the standalone Supplement independently defines ROHF, AVAS, CAS, and SLSQP. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
 
 ## Key validated results
 
@@ -58,3 +58,6 @@ The 24q Hamiltonian is retained as a fixed FCIDUMP benchmark because the dedicat
 
 
 Revision v20 condenses the main-text scope section so that it states the positive scope of the claims rather than repeating detailed exclusions already documented elsewhere.
+
+
+Revision v21 clarifies the Supplement's operator notation and geometry: it defines $\operatorname{Ran}(P)$, the complementary projectors $P$ and $Q$, the reduced generator, leakage block, matrix norms, and the distinction between uniform and state-specific representation-error bounds.
