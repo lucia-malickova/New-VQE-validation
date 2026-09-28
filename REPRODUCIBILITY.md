@@ -58,6 +58,35 @@ done
 The r=4 result has fidelity 0.999484 and 0.135 mEh synthesis error, but it does
 not pass the deliberately strict 0.1 mEh synthesis-error criterion.
 
+The submission-v12 selective 18q circuit can be reproduced directly from the
+compact checkpoint; the validator materializes its generators deterministically
+when `selected_generators` are absent:
+
+```bash
+python src/revision_v12/run_selective_18q_qiskit.py \
+  data/18q/best50_compact.json \
+  --fcidump data/18q/active.FCIDUMP \
+  --seed-transpiler 9272026 \
+  --optimization-level 1 \
+  --basis-gates rz,sx,x,cx \
+  --qpy-output reproduced_18q_selective.qpy \
+  --strict \
+  --output reproduced_18q_selective.json
+```
+
+The archived reference run used Qiskit 2.2.3, Qiskit Aer 0.17.2, Qiskit Nature
+0.7.2, NumPy 2.0.2, SciPy 1.13.1, and Python 3.9.6. It gives 19,660 CX gates,
+depth 23,016, 0.0950208 mEh synthesis error, fidelity 0.99958246,
+$\langle S^2\rangle=0.75072418$, and target-$M_S$ weight
+0.9999999999994. The result passes all four predeclared circuit-equivalence
+gates. The full serialized checkpoint is also retained at
+`data/18q/best50_generalized_spin_adapted.json`.
+
+The canonical 18q FCIDUMP must have SHA256
+`4fe2f74860c4a7b1af7e677f62f4d59a1571c2758ff427ba8627607dcd8c8536`.
+The revision-v12 validator checks this hash by default. Its Python-popcount path
+uses `bin(i).count("1")`, so the recorded Python 3.9.6 environment is supported.
+
 24q full strict validation:
 
 ```bash
