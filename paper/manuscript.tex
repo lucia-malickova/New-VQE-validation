@@ -268,18 +268,14 @@ Final-energy measurement is likewise protocol dependent.
 For the chosen greedy QWC groupings and ideal state preparation, variance-optimal allocation requires approximately $1.43\times10^8$ shots (18q) and $5.46\times10^8$ shots (24q) for a 1.6 m$E_h$ statistical uncertainty.
 These numbers exclude ADAPT gradient measurements, optimizer evaluations, device noise, and alternative measurement strategies.
 
-\subsection{Scope and limitations}
+\subsection{Scope of claims}
 
 Spin projection, symmetry-preserving state preparation, projected pools, generalized excitations, repeated selection, spin-adapted or symmetry-complete pools, and pruning are established ideas \cite{gard2020symmetry,seki2020symmetry,tsuchimochi2022spinproj,seki2022projection,weaving2023stabilizer,shkolnikov2023roadblocks,burton2023disco,magoulas2026symmetry}.
-We do not propose a new projector, a new general spin-adapted pool, or a new factorization method.
-Our contribution is narrower: when a reduced-space optimization is associated with a full-space parent implementation or resource count, representation equivalence must be established rather than assumed.
-The exact projector used here is a small-system validation oracle, not a scalable VQE primitive.
+Our contribution is not a new projector, a new general spin-adapted pool, or a new factorization method, but a representation-equivalence validation framework for connecting a reduced-space optimization to a parent full-space implementation or resource estimate.
+The exact projector used here serves only as a small-system validation oracle.
 
-All molecular benchmarks use deliberately small STO-3G active spaces.
-The 24q Cu Hamiltonian is reproducible as a fixed FCIDUMP but not from a preserved 12-orbital selection driver.
-The lower Cu quartet is not interpreted as an experimental prediction.
-The exploratory Cu--S scan failed its pre-specified convergence/orbital-continuity gates and is excluded.
-The reported compact ADAPT sequences are search-history dependent; no global minimality, quantum advantage, optimal circuit resource, or physical-QPU claim is made.
+The molecular calculations are fixed algorithmic benchmarks rather than chemically converged predictions.
+The compact ADAPT sequences are search-history dependent, and the reported circuit and measurement resources are specific to the documented synthesis, transpilation, and measurement protocols; no global minimality, hardware-optimality, or quantum-advantage claim is made.
 
 \section{Conclusions}
 
