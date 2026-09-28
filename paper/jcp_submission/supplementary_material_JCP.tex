@@ -17,6 +17,7 @@
 \renewcommand{\theequation}{S\arabic{equation}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \renewcommand{\thetable}{S\Roman{table}}
+\newcommand{\aipalt}[1]{\par\smallskip{\footnotesize\textbf{Alt text:} #1\par}\smallskip}
 
 \begin{document}
 
@@ -438,6 +439,7 @@ Because $d_{\rm proj}\le\|\Psi_{\rm phys}-\Psi_{\rm proj}\|$ for any fixed relat
 \small
 \caption{State-specific sequence certificate. A zero lower bound denotes a mathematically valid but non-informative certificate.}
 \label{tab:statecert}
+\aipalt{Rows compare the Cu, NO, and OH molecular negative controls. Columns report the state-specific sequence budget $D_{\rm seq}$, the projected-versus-physical state distance $d_{\rm proj}$, the certified minimum fidelity, and the observed fidelity. The Cu certificate is non-informative and the observed fidelity is low, whereas the NO and especially OH certificates are nonzero and increasingly tight.}
 \begin{tabular}{lrrrr}
 \toprule
 System & $D_{\rm seq}$ & $d_{\rm proj}$ & Certified $F_{\min}$ & Actual $F$\\
@@ -479,6 +481,7 @@ The resulting scaling is shown in Fig.~\ref{fig:single_scaling}.
 \includegraphics[width=0.80\linewidth]{figS3_representation_scaling.pdf}
 \caption{Single-generator representation-equivalence test in the Cu active space.}
 \label{fig:single_scaling}
+\aipalt{Log-log plot of generator amplitude $\theta$ versus three errors for one non-invariant Cu excitation. Leakage amplitude grows approximately linearly with $\theta$, the compressed-evolution mismatch grows quadratically, and the normalized post-projection infidelity falls on an approximately fourth-order trend at small amplitude.}
 \end{figure}
 
 As a preserving control, the first generator of the final physical 18q sequence has $\ell_F=3.57\times10^{-16}$ and remains equivalent to double precision for test amplitudes through $\theta=1$.
@@ -526,6 +529,7 @@ The corresponding prefix-level state diagnostics are shown in Fig.~\ref{fig:pref
 \includegraphics[width=0.84\linewidth]{figS4_projected_prefix_state_diagnostics.pdf}
 \caption{Prefix-level state diagnostics for the canonical Cu projected-ADAPT negative control.}
 \label{fig:prefix_state}
+\aipalt{Line plot over the 121 selected Cu operator applications. The fidelity between the projected and bare full-space states, the bare-state doublet weight, and the fidelity after post-projection all drop sharply near the middle of the sequence and remain far below one for most later prefixes.}
 \end{figure}
 
 \section{Fixed parent-sequence full-space reoptimization}
@@ -553,6 +557,7 @@ The four principal constrained runs are summarized in Table~\ref{tab:fixed_paren
 \small
 \caption{Full-space reoptimization of the fixed 121-generator Cu parent sequence under $p_D\ge0.999$. The projected reduced-space result is 1.5719 m$E_h$.}
 \label{tab:fixed_parent_reopt}
+\aipalt{Four constrained full-space reoptimizations of the same 121-generator Cu parent sequence are compared. Three starts converge to the same 8.481522 m$E_h$ error with $p_D=0.999$ and $F_{\rm proj}=0.979887$; a fourth nearby local minimum is slightly worse at 8.973359 m$E_h$.}
 \begin{tabular}{lrrrr}
 \toprule
 Start & $\Delta E$ (m$E_h$) & $p_D$ & $F_{\rm proj}$ & Post-proj.\ $\Delta E_D$ (m$E_h$)\\
@@ -627,6 +632,7 @@ The resulting tangent-space ranks are summarized in Table~\ref{tab:tangent}.
 \small
 \caption{Hartree--Fock target-space tangent accessibility. The maximum nontrivial tangent dimension is $d_D-1$.}
 \label{tab:tangent}
+\aipalt{Target-space tangent dimensions at the Hartree--Fock reference for Cu, NO, and OH. Projected bare pools span substantially more directions than invariant-only bare pools, while generalized spin-preserving pools recover part of the lost tangent accessibility.}
 \begin{tabular}{lrrrr}
 \toprule
 System & $d_D-1$ & Projected bare S/D/T & Invariant bare & Generalized physical\\
@@ -732,6 +738,7 @@ The Hubbard results are summarized in Table~\ref{tab:hubbard}.
 \small
 \caption{Hubbard-chain stress tests. Energies are in units of $t$.}
 \label{tab:hubbard}
+\aipalt{Four-site, five-electron Hubbard-chain representation tests for $U/t=1,2,4,8$. As $U/t$ increases, the bare same-angle energy error increases and the projected-versus-bare fidelity decreases, while the target-doublet weight remains high but imperfect and the uniform leakage budget $L$ is large.}
 \begin{tabular}{rrrrrr}
 \toprule
 $U/t$ & Ops & Bare error & $F_{\rm proj,bare}$ & $p_D$ & $L$\\
@@ -750,6 +757,7 @@ The corresponding fidelity trends are shown in Fig.~\ref{fig:hubbard}.
 \includegraphics[width=0.80\linewidth]{figS5_hubbard_representation_audit.pdf}
 \caption{Representation-equivalence failure in the homogeneous Hubbard-chain stress tests.}
 \label{fig:hubbard}
+\aipalt{Line plot of fidelity versus $U/t$ for the Hubbard-chain stress tests. Both the projected-versus-bare fidelity and the projected-versus-post-projected fidelity decrease as interaction strength increases; post-projection improves the fidelity at every tested $U/t$ but does not restore unity.}
 \end{figure}
 
 These small models are not offered as evidence for chemical relevance.
@@ -841,6 +849,7 @@ The normalization-controlled basis audit is summarized in Table~\ref{tab:basis_s
 \small
 \caption{Normalization-controlled basis sensitivity evaluated on all 51 stored Cu 18q prefix states, with 100 independent random bases per prefix. Sensitive prefixes are prefixes for which at least one random basis changes the highest-gradient null-space group relative to the canonical pool.}
 \label{tab:basis_sensitivity}
+\aipalt{Normalization-controlled basis-sensitivity audit over 51 Cu prefix states. Only 4 of 51 prefixes are sensitive under either coefficient-Euclidean or generator-Frobenius normalization, and the canonical highest-gradient group agrees with the basis-invariant group optimum at 50 of 51 and 49 of 51 prefixes, respectively.}
 \begin{tabular}{lccc}
 \toprule
 Metric & Sensitive & Max.\ changed & Group-opt.\ agreement\\
@@ -888,6 +897,7 @@ The physical-pool comparison is summarized in Table~\ref{tab:poolcomparison}.
 \small
 \caption{Cu 18q physical-pool comparison.}
 \label{tab:poolcomparison}
+\aipalt{Comparison of four Cu 18-qubit spin-pure operator-pool strategies. Restricted S+D and S+D+T pools have large energy errors; allowing repeats improves the restricted S+D+T result to 13.166 m$E_h$, while the generalized rank-1/rank-2 pool with repeats reaches the lowest error, 1.493 m$E_h$, with 50 applications and fidelity 0.9826.}
 \begin{tabular}{lrrrr}
 \toprule
 Pool & Applications & Error (m$E_h$) & Fidelity & Residual ($E_h$)\\
@@ -984,6 +994,7 @@ The corresponding noncommuting-factor trend is shown in Fig.~\ref{fig:suzuki_loc
 \includegraphics[width=0.80\linewidth]{figS6_local_suzuki_amplitude_v6.pdf}
 \caption{Isolated Suzuki-2 infidelity versus optimized amplitude magnitude for applications with $c_{\rm comm}>0$. The amplitude is a strong rank predictor within this noncommuting subset; the continuous $c_{\rm comm}$ factor provides only a modest additional change in the rank correlations reported in the text.}
 \label{fig:suzuki_local}
+\aipalt{Log-log scatter plot of optimized amplitude magnitude versus isolated Suzuki-2 infidelity for noncommuting factors in the Cu 18-qubit, Cu 24-qubit, and NO ansatzes. Infidelity generally increases strongly with amplitude magnitude, with the largest 18-qubit amplitude also producing the largest isolated error.}
 \end{figure}
 
 \subsection{Selective-refinement search and Qiskit confirmation}
@@ -1062,6 +1073,7 @@ The resulting shot estimates are listed in Table~\ref{tab:shots}.
 \small
 \caption{Idealized final-energy shot estimates for the chosen greedy QWC grouping.}
 \label{tab:shots}
+\aipalt{Idealized variance-optimally allocated final-energy shot counts for 18- and 24-qubit Cu Hamiltonians at target statistical uncertainties of 1.6, 1.0, and 0.5 m$E_h$. Tighter uncertainty requires rapidly increasing shot counts, and the 24-qubit case is more expensive at every target.}
 \begin{tabular}{lrrr}
 \toprule
 & 1.6 m$E_h$ & 1.0 m$E_h$ & 0.5 m$E_h$\\
@@ -1080,6 +1092,7 @@ Their dependence on target statistical uncertainty is shown in Fig.~\ref{fig:si_
 \includegraphics[width=0.80\linewidth]{figS7_measurement_shots.pdf}
 \caption{Idealized final-energy shot estimates for the chosen greedy QWC groupings. The calculation excludes state-preparation error, device noise, calibration overhead, adaptive-gradient measurements, repeated optimizer evaluations, and alternative measurement strategies.}
 \label{fig:si_measurement}
+\aipalt{Semi-log line plot of target statistical uncertainty versus optimally allocated final-energy shots. Shot counts rise steeply as the requested uncertainty decreases from 1.6 to 0.5 m$E_h$, with the 24-qubit curve consistently above the 18-qubit curve.}
 \end{figure}
 
 \section{One-particle diagnostics}
@@ -1099,6 +1112,7 @@ The orbital-resolved occupation-number errors are shown in Fig.~\ref{fig:natorb}
 \includegraphics[width=0.80\linewidth]{figS1_natural_occupation_errors.pdf}
 \caption{Absolute natural-orbital occupation errors of the optimized Cu physical states relative to the exact target doublets.}
 \label{fig:natorb}
+\aipalt{Log-scale plot of absolute natural-orbital occupation-number errors versus orbital index for the 18- and 24-qubit Cu states. Errors range from roughly one part per million to a few parts in one thousand, with the largest deviations occurring among the higher-index active orbitals.}
 \end{figure}
 
 The full-state residuals remain 0.0480 $E_h$ and 0.0585 $E_h$, so the compact states should not be interpreted as exact wavefunctions despite their model-space energy accuracy.
@@ -1115,6 +1129,7 @@ The individual perturbed-start outcomes are shown in Fig.~\ref{fig:multistart}.
 \includegraphics[width=0.80\linewidth]{figS2_multistart.pdf}
 \caption{Energy errors after reoptimization from perturbed parameter vectors.}
 \label{fig:multistart}
+\aipalt{Scatter plot of final energy error for perturbed-start reoptimizations of the compact Cu ansatzes. The 18-qubit results cluster tightly near 1.493 m$E_h$ and the 24-qubit results near 1.181 m$E_h$, both below the dashed 1.6 m$E_h$ benchmark line.}
 \end{figure}
 \FloatBarrier
 

@@ -2,7 +2,7 @@ name: Package final JCP submission
 
 on:
   push:
-    branches: [ main, final-jcp-submission-v23-copyedit ]
+    branches: [ main, final-jcp-submission-v24-copyedit ]
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ROOT="JCP_ADAPT_VQE_submission_v23"
+          ROOT="JCP_ADAPT_VQE_submission_v24"
           mkdir -p "$ROOT"
           cp -R paper "$ROOT/"
           cp -R docs "$ROOT/"
@@ -59,16 +59,16 @@ jobs:
           cp src/*.py "$ROOT/src/" 2>/dev/null || true
           cp README.md REPRODUCIBILITY.md requirements.txt "$ROOT/"
           printf '%s\n' \
-            'Final JCP ADAPT-VQE submission bundle (v23).' \
+            'Final JCP ADAPT-VQE submission bundle (v24).' \
             'Canonical sources: paper/manuscript.tex and paper/supporting_information.tex.' \
             'Mirrored JCP submission sources: paper/jcp_submission/.' \
             'Figures were regenerated from committed source data before packaging.' \
             'Static source audit: PASS.' \
             > "$ROOT/PACKAGE_README.txt"
-          zip -r JCP_ADAPT_VQE_submission_v23.zip "$ROOT"
+          zip -r JCP_ADAPT_VQE_submission_v24.zip "$ROOT"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: JCP_ADAPT_VQE_submission_v23
-          path: JCP_ADAPT_VQE_submission_v23.zip
+          name: JCP_ADAPT_VQE_submission_v24
+          path: JCP_ADAPT_VQE_submission_v24.zip
           if-no-files-found: error
