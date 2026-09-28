@@ -56,12 +56,23 @@ required_phrases = {
     "full Lucia affiliation": "Modelos Inteligencia Artificial S.L., Cl. Tajinaste 54, 386 20 San Miguel de Abona, Santa Cruz de Tenerife, Spain",
     "Lucia Euro-Q-Exa acknowledgement": "Euro-Q-Exa",
     "final M_S-preserving wording": "For the $M_S$-preserving generators considered here",
+    "main CAS definition": "complete active space, CAS(15e,9o), comprising 15 active electrons in 9 active spatial orbitals",
+    "main ROHF definition": "restricted open-shell Hartree--Fock (ROHF)",
+    "main AVAS definition": "atomic-valence active-space (AVAS)",
+    "main CASSCF definition": "complete-active-space self-consistent-field (CASSCF)",
 }
 for label, phrase in required_phrases.items():
     if phrase not in main:
         errors.append("missing required content: " + label)
 if "production physical pool uses $M_S$-preserving excitation patterns" not in si:
     errors.append("missing required content: SI M_S-preserving wording")
+for label, phrase in {
+    "SI ROHF definition": "restricted open-shell Hartree--Fock (ROHF)",
+    "SI CAS definition": "primary complete active space, CAS(15e,9o), contains 15 active electrons in 9 active spatial orbitals",
+    "SI AVAS definition": "atomic-valence active-space (AVAS)",
+}.items():
+    if phrase not in si:
+        errors.append("missing required content: " + label)
 
 if errors:
     print("SUBMISSION_AUDIT=FAIL")
