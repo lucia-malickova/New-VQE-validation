@@ -837,7 +837,8 @@ With $r$ repetitions, $S_2(t/r)^r$ is used.
 The stored validation environment uses Qiskit 2.2.3, Qiskit Aer 0.17.2, and Qiskit Nature 0.7.2.
 Circuits are transpiled at optimization level 1 to the abstract basis
 $\{R_z,\sqrt X,X,\mathrm{CX}\}$ without a device coupling map.
-The stored campaign did not pin \texttt{seed\_transpiler}; the reported CX/depth values should therefore be read as the archived realization for Qiskit 2.2.3 rather than as seed-independent compiler invariants.
+The original uniform-repetition campaign did not pin \texttt{seed\_transpiler}; those CX/depth values should therefore be read as archived Qiskit-2.2.3 realizations rather than seed-independent compiler invariants.
+The selective-refinement confirmation reported below was subsequently re-transpiled with the same Qiskit version and basis using the fixed value \texttt{seed\_transpiler}=9272026.
 
 The strict circuit-equivalence gate is
 \begin{align}
@@ -889,10 +890,10 @@ The corresponding noncommuting-factor trend is shown in Fig.~\ref{fig:suzuki_loc
 \label{fig:suzuki_local}
 \end{figure}
 
-\subsection{Selective-refinement emulator test}
+\subsection{Selective-refinement search and Qiskit confirmation}
 
-Because the 18q error is concentrated in a few factors, a determinant-equivalent Suzuki emulator was used to search a restricted nonuniform repetition grid.
-The six variables were the applications 9, 19, 21, 25, 33, and 34, chosen from the largest isolated-application errors; every other application was fixed at $r=1$.
+Because the 18q error is concentrated in a few factors, a determinant-equivalent Suzuki emulator was first used to search a restricted nonuniform repetition grid.
+The six variables were applications 9, 19, 21, 25, 33, and 34, chosen from the largest isolated-application errors; every other application was fixed at $r=1$.
 The tested repetition sets were
 $r_9\in\{1,2,4,8,16\}$,
 $r_{25}\in\{1,2,4,8\}$, and
@@ -904,7 +905,7 @@ The lowest component-exponential proxy among this explicitly tested grid refines
 r_9=4,\qquad r_{21}=r_{25}=r_{34}=2,
 \end{equation}
 with all other applications at $r=1$.
-The resulting emulator gives
+The determinant-equivalent emulator gives
 \begin{align}
 |\delta E_{\rm synth}|&=0.09502~{\rm m}E_h,\\
 F_{\rm circ,fermionic}&=0.9995825,\\
@@ -912,8 +913,26 @@ F_{\rm circ,fermionic}&=0.9995825,\\
 p_D&=0.999759.
 \end{align}
 Its component-exponential proxy is 1600, compared with 1334 for uniform $r=1$ and 5336 for uniform $r=4$.
-This result demonstrates concentration of the product-formula difficulty but is \emph{not} reported as a CX/depth reduction:
-the selective schedule has not been re-transpiled through Qiskit in the present environment, and transpiler cancellations need not scale linearly with this proxy.
+
+We then re-transpiled \emph{exactly this nonuniform schedule} with Qiskit 2.2.3, Qiskit Aer 0.17.2, and Qiskit Nature 0.7.2, using optimization level 1, the abstract basis
+$\{R_z,\sqrt X,X,\mathrm{CX}\}$, and \texttt{seed\_transpiler}=9272026.
+The actual transpiled state gives
+\begin{align}
+|\delta E_{\rm synth}|&=0.0950207827~{\rm m}E_h,\\
+F_{\rm circ,fermionic}&=0.9995824567,\\
+\langle S^2\rangle&=0.7507241840,\\
+p(M_S\text{ target})&=0.9999999999994,\\
+p_D&=0.9997586053.
+\end{align}
+Thus all four predeclared circuit-equivalence criteria are satisfied.
+The corresponding abstract-gate-set circuit contains 19,660 CX gates at depth 23,016.
+For comparison, uniform $r=4$ contains 61,482 CX gates at depth 71,636 while giving
+$|\delta E_{\rm synth}|=0.135462$ m$E_h$ and therefore failing the strict energy gate.
+The selective compilation reduces the reported CX count by 68.0\% and depth by 67.9\% relative to that uniform-$r=4$ realization while also passing the state-level gate.
+
+The close agreement with the determinant-equivalent emulator validates the restricted schedule search for this stored ansatz; it does not establish that the schedule is globally resource-optimal.
+The counts remain abstract-basis compilation results without a device coupling map and are not hardware-resource claims.
+The exact input hashes, fixed compiler seed, and revision-specific validation record are archived with the repository.
 
 Recent exact and closed-form spin-adapted factorizations \cite{magoulas2025closedform,jain2026factorization} remain important alternatives.
 We have not established a one-to-one compiled comparison for the particular numerical linear-combination generators used here.
