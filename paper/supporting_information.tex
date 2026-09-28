@@ -1057,9 +1057,20 @@ The independent benchmark FCIDUMP hashes used in this revision are:
 \noindent OH CAS(7e,5o):\\
 {\small\texttt{bc9c14bce3d63cda90273cd4c2e3a0ad8138a0be809c635fcb182f7117e5f1e1}}
 
+For the 18q representation-faithful positive control, the archived full 50-application checkpoint has SHA256
+\begin{center}
+{\small\texttt{594214e506c7e2411e1b3e35d9419ad52bf95cc8d60a0ca4e08292f0ba04e4db}.}
+\end{center}
+The fixed-seed selective-Qiskit validation record is retained under
+\texttt{results/revision\_v12/selective\_suzuki\_qiskit/}.
+The transpiled QPY artifact returned by the independent rerun has SHA256
+\begin{center}
+{\small\texttt{ab917b9c9b91413a366707b7d33043655e50591166c8d47b90da222fd8a61c76}.}
+\end{center}
+
 The public repository is
 \url{https://github.com/lucia-malickova/New-VQE-validation}.
-The submission-v8 repository state includes the regenerated 121-operator checkpoint and prefix audit, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the normalization-controlled null-space-basis audit, the Hubbard stress-test source data, the exhaustive selective-Suzuki search record, the Suzuki diagnostic comparison, and the source data used for the revised figures.
+The submission-v12 repository state includes the regenerated 121-operator checkpoint and representation audit, the canonical 18q FCIDUMP and both compact and fully serialized best-50 positive-control checkpoints, the NO and OH benchmark FCIDUMPs and metadata, the state-specific certificate and tangent-accessibility scripts and outputs, the normalization-controlled null-space-basis audit, the Hubbard stress-test source data, the exhaustive selective-Suzuki emulator search record, the fixed-seed Qiskit confirmation, the Suzuki diagnostic comparison, and the source data used for the revised figures.
 The archived legacy geometry and Hamiltonian-generation scripts are retained for the canonical 18q model; the missing dedicated 24q active-space selection driver is explicitly documented above rather than reconstructed from inference.
 
 \bibliography{references}
