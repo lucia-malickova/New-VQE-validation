@@ -37,8 +37,9 @@ Projected-doublet ADAPT reaches 1.5719 m$E_h$ with 121 operators, whereas the sa
 Reoptimizing the same 121 parent generators in the same order under the hard constraint $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$, showing that the catastrophic same-angle failure is primarily a representation/parameter-transfer failure but is not completely repaired by full-space reoptimization of the fixed sequence.
 An independent 12-qubit NO benchmark exhibits the same mechanism more mildly.
 A spin-preserving generalized full-space construction removes the representation ambiguity and reaches 1.493 and 1.181 m$E_h$ at 18 and 24 qubits.
-Circuit synthesis and final-energy measurement then constitute separate validation layers.
-The contribution is therefore a validation framework, not a new spin-adapted ADAPT algorithm.
+For the 18-qubit positive control, selectively refining only four Suzuki-2 factors and re-transpiling with a fixed compiler seed passes the predeclared circuit-equivalence gate at 19,660 CX gates and depth 23,016.
+Circuit synthesis and final-energy measurement therefore constitute separate validation layers.
+The contribution is a validation framework, not a new spin-adapted ADAPT algorithm.
 \end{abstract}
 
 \maketitle
@@ -259,10 +260,18 @@ No basis-independent minimality claim is made for the compact sequences.
 \subsection{Circuit and measurement validation}
 
 Second-order Suzuki synthesis introduces a separate approximation.
-For the 18q Cu state, four uniform repetitions give 0.135 m$E_h$ synthesis error and circuit-to-fermionic fidelity 0.999484 at 61,482 CX gates and abstract-gate-set depth 71,636.
+For the 18q Cu state, four uniform repetitions give 0.135 m$E_h$ synthesis error and circuit-to-fermionic fidelity 0.999484 at 61,482 CX gates and abstract-gate-set depth 71,636, so this uniform circuit narrowly fails the predeclared $0.1$ m$E_h$ synthesis-error gate.
+The factorization error is highly nonuniform, however.
+A restricted emulator search identifies the schedule $r_9=4$, $r_{21}=r_{25}=r_{34}=2$, with all other applications at $r=1$.
+Re-transpiling exactly this schedule with Qiskit 2.2.3, optimization level 1, the abstract basis $\{R_z,\sqrt X,X,\mathrm{CX}\}$, and fixed \texttt{seed\_transpiler}=9272026 gives
+$|\delta E_{\rm synth}|=0.095021$ m$E_h$,
+$F_{\rm circuit,fermionic}=0.9995825$,
+$\langle S^2\rangle=0.750724$,
+and target-$M_S$ weight $0.9999999999994$.
+It therefore passes all four predeclared state-level gates at 19,660 CX gates and depth 23,016, reductions of about 68.0\% and 67.9\%, respectively, relative to uniform $r=4$.
 For 24q, one repetition gives 0.0906 m$E_h$ and fidelity 0.999694 at 22,574 CX gates and depth 26,409; for NO, one repetition gives 0.00293 m$E_h$ and fidelity 0.9999939.
-These are archived Qiskit-2.2.3 realizations without a device coupling map and are not optimal-circuit bounds.
-The supplementary material shows that the large 18q error is concentrated in a few large-amplitude noncommuting factors and that selective refinement can satisfy the strict state-level synthesis gate in a determinant-equivalent emulator, but no CX reduction is claimed without re-transpilation.
+All reported resources are abstract-gate-set compilations without a device coupling map and are not optimal-circuit or hardware-resource bounds.
+Further schedule and provenance details are given in the supplementary material.
 
 Final-energy measurement is likewise protocol dependent.
 For the chosen greedy QWC groupings and ideal state preparation, variance-optimal allocation requires approximately $1.43\times10^8$ shots (18q) and $5.46\times10^8$ shots (24q) for a 1.6 m$E_h$ statistical uncertainty.
@@ -291,7 +300,8 @@ The catastrophic failure is therefore not evidence that the parent sequence is i
 The remaining energy and fidelity gaps show that the fixed-order full-space construction does not completely recover the projected construction in the tested searches, without establishing a global impossibility result.
 
 An independent NO benchmark reproduces the mechanism more mildly, while representation-faithful spin-preserving Cu and NO ans\"atze provide positive controls.
-Circuit synthesis and measurement then constitute separate approximations and resource layers.
+For the 18q Cu positive control, a selectively refined Suzuki-2 schedule also passes the predeclared circuit-equivalence gate after an actual Qiskit re-transpilation, with 19,660 CX gates and depth 23,016 in the abstract basis.
+Circuit synthesis and measurement therefore remain separate approximations and resource layers rather than consequences of fermionic-level accuracy.
 
 The practical recommendation is correspondingly narrow:
 when a projected or otherwise reduced-space adaptive optimization is connected to a full-space implementation, the optimized state, the parent fermionic sequence, the compiled circuit, and the measurement protocol should be validated as distinct objects.
