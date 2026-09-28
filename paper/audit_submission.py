@@ -13,6 +13,9 @@ bib = (HERE / "references.bib").read_text(encoding="utf-8")
 bib_jcp = (HERE / "jcp_submission" / "references.bib").read_text(encoding="utf-8")
 
 errors = []
+for name, src in [("main", main), ("SI", si)]:
+    if "\\toprule" in src and "\\usepackage{booktabs}" not in src:
+        errors.append(f"{name} uses booktabs commands without loading booktabs")
 if main != main_jcp:
     errors.append("main manuscript mirror differs")
 if si != si_jcp:
@@ -96,6 +99,13 @@ for label, phrase in {
 
 if "A_d" in main:
     errors.append("stale reduced-generator notation A_d remains in main manuscript")
+
+cover_txt = HERE / "jcp_submission" / "cover_letter_JCP_final.txt"
+cover_tex = HERE / "jcp_submission" / "cover_letter_JCP_final.tex"
+if not cover_txt.exists():
+    errors.append("missing final cover-letter text")
+if not cover_tex.exists():
+    errors.append("missing final cover-letter source")
 
 if errors:
     print("SUBMISSION_AUDIT=FAIL")
