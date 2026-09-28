@@ -117,7 +117,7 @@ gates. Its log is retained under `results/excluded/`, but it is not used for a
 geometry-dependent scientific claim.
 
 
-## Submission-v6 referee checks
+## Additional referee checks
 
 Canonical Cu geometry and the archived 18q generation protocol are stored in:
 
@@ -145,7 +145,7 @@ The exact projector used in the representation audit is a classical small-system
 oracle, not a proposed scalable circuit primitive.
 
 
-## Submission-v8 normalization-controlled basis audit
+## Normalization-controlled basis audit
 
 The v6 raw O(2)-mixing probe is retained for provenance but is superseded for
 scientific interpretation because the canonical two-dimensional null-space
