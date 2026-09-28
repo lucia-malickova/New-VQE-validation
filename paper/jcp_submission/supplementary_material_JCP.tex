@@ -9,6 +9,7 @@
 \usepackage{dcolumn}
 \usepackage{bm}
 \usepackage{hyperref}
+\usepackage{placeins}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
@@ -225,7 +226,7 @@ For the representation audits, a bare generator is classified as numerically non
 
 The regenerated canonical Cu projected-ADAPT negative control uses the Hartree--Fock-origin rank-1/rank-2/rank-3 pool without repeated selection.
 At each iteration the unused operator with the largest absolute energy derivative is chosen; ties follow the deterministic first-index behavior of \texttt{numpy.argmax}.
-All selected amplitudes are globally reoptimized after every addition with L-BFGS-B using \texttt{gtol}$=10^{-8}$, \texttt{ftol}$=10^{-12}$, at most 1000 iterations, and at most 50 line-search steps.
+All selected amplitudes are globally reoptimized after every addition with the limited-memory Broyden--Fletcher--Goldfarb--Shanno algorithm with box constraints (L-BFGS-B), using \texttt{gtol}$=10^{-8}$, \texttt{ftol}$=10^{-12}$, at most 1000 iterations, and at most 50 line-search steps.
 The run terminates when the projected target-doublet error first reaches 1.6 m$E_h$, which occurs at 121 applications.
 
 For the Cu generalized physical ADAPT searches, repeated selection is allowed.
@@ -685,7 +686,7 @@ w_{\rm lowest\ doublet\ manifold}&=0.998967.
 \end{align}
 The maximum selected representation leakage is below $4.4\times10^{-16}$.
 
-The corresponding 12-qubit Suzuki-2 $r=1$ Qiskit circuit has 7,328 CX gates, depth 9,869, synthesis-energy error 0.002927 m$E_h$, and circuit-to-fermionic fidelity 0.999993871.
+The corresponding 12-qubit Suzuki-2 $r=1$ Qiskit circuit has 7,328 controlled-X (CX) gates, depth 9,869, synthesis-energy error 0.002927 m$E_h$, and circuit-to-fermionic fidelity 0.999993871.
 It therefore passes the same strict circuit-equivalence criteria used for the Cu circuits.
 
 \section{Auxiliary OH stress test}
@@ -1034,7 +1035,7 @@ We have not established a one-to-one compiled comparison for the particular nume
 \section{Measurement grouping and shot allocation}
 
 The Cu 18q and 24q Jordan--Wigner Hamiltonians contain 9,316 and 29,737 Pauli terms.
-Greedy QWC grouping gives 1,909 and 6,233 groups.
+Greedy qubit-wise commuting (QWC) grouping gives 1,909 and 6,233 groups.
 For
 \begin{equation}
 \hat H=\sum_g\hat H_g,\qquad
@@ -1082,7 +1083,7 @@ Their dependence on target statistical uncertainty is shown in Fig.~\ref{fig:si_
 
 \section{One-particle diagnostics}
 
-The spin-orbital 1-RDM is
+The spin-orbital one-particle reduced density matrix (1-RDM) is
 \begin{equation}
 \gamma_{pq}
 =
@@ -1114,6 +1115,7 @@ The individual perturbed-start outcomes are shown in Fig.~\ref{fig:multistart}.
 \caption{Energy errors after reoptimization from perturbed parameter vectors.}
 \label{fig:multistart}
 \end{figure}
+\FloatBarrier
 
 \section{Implementation regression tests}
 
@@ -1157,7 +1159,7 @@ For the 18q representation-faithful positive control, the archived full 50-appli
 \end{center}
 The fixed-seed selective-Qiskit validation record is retained under
 \texttt{results/revision\_v12/selective\_suzuki\_qiskit/}.
-The transpiled QPY artifact returned by the independent rerun has SHA256
+The transpiled circuit artifact returned by the independent rerun, stored in Qiskit's QPY serialization format, has SHA256
 \begin{center}
 {\small\texttt{ab917b9c9b91413a366707b7d33043655e50591166c8d47b90da222fd8a61c76}.}
 \end{center}
