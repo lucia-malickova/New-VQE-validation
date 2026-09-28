@@ -1,6 +1,11 @@
 {
   "main": [
     {
+      "kind": "figure",
+      "label": "fig:validation_ladder",
+      "refs": 1
+    },
+    {
       "kind": "table",
       "label": "tab:parent_reopt",
       "refs": 1

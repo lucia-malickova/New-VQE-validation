@@ -21,6 +21,14 @@ Conflict of Interest and CRediT statements are inserted. Both authors must appro
 
 A graphical abstract is not required for initial JCP submission; AIP recommends a highlight image at revision.
 
+## Referee-hardening revision v12
+
+This revision sharpens the JCP submission and closes the previously open 18q circuit-validation item. It (i) distinguishes the representation-equivalence audit from spin projection, symmetry-preserving/spin-adapted pool design, contextual-subspace VQE, and exact spin-adapted factorization; (ii) adds a four-layer validation schematic to the main manuscript; (iii) states explicitly that the generalized spin-preserving pool is a positive control rather than a claimed new scalable algorithm; (iv) adds targeted symmetry-projection and symmetry-preserving-circuit references; and (v) records a fixed-seed Qiskit re-transpilation of the selectively refined 18q Suzuki-2 schedule.
+
+The confirmed 18q selective schedule uses $r_9=4$, $r_{21}=r_{25}=r_{34}=2$, and $r=1$ elsewhere. With Qiskit 2.2.3, optimization level 1, basis `{rz,sx,x,cx}`, and `seed_transpiler=9272026`, it passes all four predeclared circuit-equivalence gates: synthesis error 0.0950208 mEh, circuit-to-fermionic fidelity 0.99958246, $S^2=0.75072418$, and target-$M_S$ weight 0.9999999999994. The abstract compiled resources are 19,660 CX gates and depth 23,016.
+
+During this rerun, two repository provenance/interface defects were exposed and repaired: the committed 18q FCIDUMP was not the canonical validated file, and the standalone helper incorrectly assumed that the intentionally compact best-50 checkpoint already contained serialized generators. Revision v12 restores the canonical FCIDUMP, adds the archived full serialized best-50 checkpoint, lets the selective validator accept either checkpoint form, and restores Python-3.9 compatibility.
+
 ## Scientific scope
 
 The work does **not** claim a new spin-adapted ADAPT algorithm.
