@@ -83,8 +83,8 @@ No chemically converged prediction for blue-copper proteins, NO, or OH is claime
 
 \section{Model and Validation Strategy}
 
-The canonical Cu Hamiltonian is CAS(15e,9o), mapped to 18 qubits.
-Its STO-3G orbitals were generated from ROHF, AVAS targeting Cu $3d$ and the short Cu--S donor $3p$ manifold, and spin-constrained CASSCF; the exact geometry and numerical settings are given in the supplementary material \cite{sun2018pyscf,sayfutyarova2017avas}.
+The canonical Cu Hamiltonian is defined in a complete active space, CAS(15e,9o), comprising 15 active electrons in 9 active spatial orbitals and mapped to 18 qubits.
+Its STO-3G orbitals were generated from restricted open-shell Hartree--Fock (ROHF), followed by atomic-valence active-space (AVAS) selection targeting the Cu $3d$ and short Cu--S donor $3p$ manifolds and a spin-constrained complete-active-space self-consistent-field (CASSCF) calculation; the exact geometry and numerical settings are given in the supplementary material \cite{sun2018pyscf,sayfutyarova2017avas}.
 An archived CAS(21e,12o) FCIDUMP is used only as a fixed 24-qubit algorithmic benchmark because its dedicated 12-orbital selection driver was not preserved.
 The independent NO test uses ROHF/STO-3G CAS(7e,6o) at $R_{\rm NO}=1.1508$~\AA{}.
 
