@@ -61,6 +61,9 @@ required_phrases = {
     "main AVAS definition": "atomic-valence active-space (AVAS)",
     "main CASSCF definition": "complete-active-space self-consistent-field (CASSCF)",
     "main SLSQP definition": "Sequential Least Squares Programming (SLSQP)",
+    "main reduced-generator notation": "A_D=U^\\dagger A U",
+    "main CX definition": "controlled-X (CX) gates",
+    "main QWC definition": "qubit-wise commuting (QWC) groupings",
 }
 for label, phrase in required_phrases.items():
     if phrase not in main:
@@ -81,9 +84,18 @@ for label, phrase in {
     "SI CAS definition": "primary complete active space, CAS(15e,9o), contains 15 active electrons in 9 active spatial orbitals",
     "SI AVAS definition": "atomic-valence active-space (AVAS)",
     "SI SLSQP definition": "Sequential Least Squares Programming (SLSQP)",
+    "SI L-BFGS-B definition": "limited-memory Broyden--Fletcher--Goldfarb--Shanno algorithm with box constraints (L-BFGS-B)",
+    "SI CX definition": "controlled-X (CX) gates",
+    "SI QWC definition": "qubit-wise commuting (QWC) grouping",
+    "SI 1-RDM definition": "one-particle reduced density matrix (1-RDM)",
+    "SI QPY clarification": "Qiskit's QPY serialization format",
+    "SI float barrier": "\\FloatBarrier",
 }.items():
     if phrase not in si:
         errors.append("missing required content: " + label)
+
+if "A_d" in main:
+    errors.append("stale reduced-generator notation A_d remains in main manuscript")
 
 if errors:
     print("SUBMISSION_AUDIT=FAIL")
