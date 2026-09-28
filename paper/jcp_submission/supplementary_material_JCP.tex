@@ -23,7 +23,7 @@ From Projected Subspaces to Full-Space Implementations:
 Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
 
 \author{Lucia Mal\'{\i}\v{c}kov\'a}
-\affiliation{Modelos Inteligencia Artificial, Cl. Tajinaste, San Miguel de Abona, Santa Cruz de Tenerife, Spain}
+\affiliation{Modelos Inteligencia Artificial S.L., Cl. Tajinaste 54, 386 20 San Miguel de Abona, Santa Cruz de Tenerife, Spain}
 
 \author{Petr Klenovsk\'y}
 \affiliation{Department of Condensed Matter Physics, Faculty of Science, Masaryk University, Kotl\'a\v{r}sk\'a 267/2, 611 37 Brno, Czech Republic}
@@ -173,7 +173,7 @@ For a normalized state in the $M_S=1/2$ sector,
 
 The explicit matrix $U$ and projector $P=UU^\dagger$ are classical-oracle objects used because the present benchmark sectors are small enough to resolve exactly.
 They are not proposed as scalable quantum-circuit primitives.
-For spin, the production physical pool instead imposes the generator-level condition $[B,\hat S^2]\simeq0$ and verifies the exact-projector leakage only as a classical benchmark.
+For spin, the production physical pool uses $M_S$-preserving excitation patterns and imposes the generator-level condition $[B,\hat S^2]\simeq0$; together these conditions preserve the target spin sector, while the exact-projector leakage is verified only as a classical benchmark.
 For an arbitrary projected subspace lacking a compact symmetry generator, a scalable surrogate for $QAP=0$ is necessarily problem dependent.
 
 \section{Numerical conventions, tolerances, and optimization settings}
@@ -228,6 +228,9 @@ PAQAP
 -(QAP)^\dagger(QAP),
 \end{equation}
 which vanishes only if $QAP=0$.
+
+This necessity statement concerns equality of the generator-level reduced and compressed full-space evolutions for arbitrary amplitudes.
+For a particular finite product at one isolated parameter vector, accidental agreement or cancellation between non-invariant factors is not excluded; such a coincidence would not constitute an amplitude-independent representation guarantee.
 
 The short-amplitude expansions are
 \begin{align}
@@ -840,7 +843,10 @@ $\{R_z,\sqrt X,X,\mathrm{CX}\}$ without a device coupling map.
 The original uniform-repetition campaign did not pin \texttt{seed\_transpiler}; those CX/depth values should therefore be read as archived Qiskit-2.2.3 realizations rather than seed-independent compiler invariants.
 The selective-refinement confirmation reported below was subsequently re-transpiled with the same Qiskit version and basis using the fixed value \texttt{seed\_transpiler}=9272026.
 
-The strict circuit-equivalence gate is
+The strict circuit-equivalence gate is defined after fixing the synthesis-energy tolerance at
+0.1 m$E_h$, i.e. 6.25\% of the 1.6 m$E_h$ model-space benchmark, so that product-formula error
+remains a subdominant contribution to the target energy scale. This threshold was fixed
+before the selective-refinement schedule search.
 \begin{align}
 F_{\rm circuit,fermionic}&\ge0.999,\\
 |\delta E_{\rm synth}|&\le0.1~{\rm m}E_h,\\

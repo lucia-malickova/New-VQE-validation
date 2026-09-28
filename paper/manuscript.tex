@@ -19,7 +19,7 @@ Representation-Equivalence Audits for Open-Shell ADAPT-VQE}
 
 \author{Lucia Mal\'{\i}\v{c}kov\'a}
 \email{lucy@thesafehaven.ai}
-\affiliation{Modelos Inteligencia Artificial, Cl. Tajinaste, San Miguel de Abona, Santa Cruz de Tenerife, Spain}
+\affiliation{Modelos Inteligencia Artificial S.L., Cl. Tajinaste 54, 386 20 San Miguel de Abona, Santa Cruz de Tenerife, Spain}
 
 \author{Petr Klenovsk\'y}
 \email{klenovsky@physics.muni.cz}
@@ -65,25 +65,15 @@ The reduced calculation never explores the complementary $Q$ sector, so a low re
 Figure~\ref{fig:validation_ladder} summarizes the resulting validation ladder.
 The underlying invariant-subspace algebra is elementary; the practical question is how large the mismatch can become in an adaptive workflow and how to detect it before reduced-space optimization, full-space evolution, circuit synthesis, and measurement are conflated.
 
+The practical significance is therefore deliberately narrower than a criticism of projected or symmetry-adapted methods themselves.
+A reduced-space optimization certifies the variational object defined in that reduced representation.
+Associating it with a particular parent full-space fermionic sequence, compiled circuit, or resource estimate is an additional statement that requires its own representation-equivalence check.
+We do not assume that prior projected-space studies make this identification; rather, we isolate the condition that must be verified whenever such a connection is made.
+
 \begin{figure*}[htbp]
 \centering
-\setlength{\fboxsep}{6pt}
-\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
-Reduced-space\\optimization\\
-$\{U^\dagger A_kU,\theta_k\}$}}
-\hspace{0.01\textwidth}$\Longrightarrow$\hspace{0.01\textwidth}
-\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
-Parent full-space\\sequence\\
-$\prod_k e^{\theta_kA_k}$}}
-\hspace{0.01\textwidth}$\Longrightarrow$\hspace{0.01\textwidth}
-\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
-Synthesized\\qubit circuit\\
-product formula}}
-\hspace{0.01\textwidth}$\Longrightarrow$\hspace{0.01\textwidth}
-\fbox{\parbox[c][1.45cm][c]{0.19\textwidth}{\centering\small
-Measurement\\protocol\\
-energy estimator}}
-\caption{Validation layers that should not be identified without an explicit check.  The first arrow is exact for all amplitudes only when each implemented parent generator preserves the target subspace, $QA_kP=0$.  Subsequent arrows add independent circuit-synthesis and measurement approximations.}
+\includegraphics[width=0.98\textwidth]{fig1_validation_ladder.pdf}
+\caption{Validation layers that should not be identified without an explicit check. The first arrow is exact for all amplitudes only when each implemented parent generator preserves the target subspace, $QA_kP=0$. Subsequent arrows add independent circuit-synthesis and measurement approximations.}
 \label{fig:validation_ladder}
 \end{figure*}
 
@@ -130,7 +120,7 @@ Pe^{\theta A}P-e^{\theta PAP}P
 -\frac{\theta^2}{2}(QAP)^\dagger(QAP)+\mathcal O(\theta^3).
 \end{align}
 The supplementary material gives the proof, finite-amplitude bounds, and a state-specific telescoping certificate.
-The exact projector is used only as a classical validation oracle for these small benchmarks; for total-spin symmetry, $[A,\hat S^2]=0$ is a projector-free sufficient condition for preserving every total-spin eigenspace.
+The exact projector is used only as a classical validation oracle for these small benchmarks. For the $M_S$-preserving generators considered here, $[A,\hat S^2]=0$ is a projector-free sufficient condition for preserving the target total-spin sector.
 
 The corrected ansatz uses full-space anti-Hermitian generators $B_k$ whose target-space leakage and normalized $S^2$ commutator defect vanish to numerical precision,
 \begin{equation}
@@ -260,6 +250,7 @@ No basis-independent minimality claim is made for the compact sequences.
 \subsection{Circuit and measurement validation}
 
 Second-order Suzuki synthesis introduces a separate approximation.
+The 0.1 m$E_h$ synthesis-error threshold was fixed before the selective-refinement search so that circuit-synthesis error would contribute at most 6.25\% of the 1.6 m$E_h$ model-space accuracy benchmark, leaving the ansatz error as the dominant contribution.
 For the 18q Cu state, four uniform repetitions give 0.135 m$E_h$ synthesis error and circuit-to-fermionic fidelity 0.999484 at 61,482 CX gates and abstract-gate-set depth 71,636, so this uniform circuit narrowly fails the predeclared $0.1$ m$E_h$ synthesis-error gate.
 The factorization error is highly nonuniform, however.
 A restricted emulator search identifies the schedule $r_9=4$, $r_{21}=r_{25}=r_{34}=2$, with all other applications at $r=1$.
@@ -292,7 +283,8 @@ The reported compact ADAPT sequences are search-history dependent; no global min
 
 \section{Conclusions}
 
-A projected adaptive ansatz and the corresponding parent full-space sequence are the same variational construction only when the relevant target space is invariant under every implemented generator.
+A projected adaptive ansatz and the corresponding parent full-space sequence are guaranteed to define the same generator-by-generator variational construction for arbitrary amplitudes when every implemented parent generator preserves the target space.
+The converse necessity applies to this amplitude-independent representation guarantee; accidental agreement at isolated parameter values or cancellations within one particular finite sequence are not excluded.
 The canonical Cu example shows how severely this identification can fail: 1.5719 m$E_h$ in projected space becomes 464.730 m$E_h$ when the same amplitudes are applied to the parent sequence.
 Full-space energy reoptimization of that fixed sequence under $p_D\ge0.999$ reduces the best converged error to 8.482 m$E_h$ and raises the projected-state fidelity to 0.97989.
 Direct fidelity maximization under the same purity constraint reaches 0.98742 but still does not reproduce the projected state.
@@ -311,6 +303,8 @@ A low reduced-space energy alone does not establish that a quoted full-space cir
 See the supplementary material for the complete Hamiltonian-generation protocol; proofs and finite-amplitude bounds; numerical tolerances; state-specific certificates; fixed-parent energy and fidelity reoptimization; Cu prefix and pool audits; tangent-space accessibility; normalization-controlled basis-sensitivity tests; NO, OH, and Hubbard benchmarks; spin-preserving pool construction; circuit and Suzuki diagnostics; measurement grouping; one-particle diagnostics; optimizer robustness; provenance; and excluded calculations.
 
 \begin{acknowledgments}
+L.M. gratefully acknowledges the use of the quantum system Euro-Q-Exa, co-funded by the EuroHPC JU, BMFTR, and the Bavarian State Ministry of Science and the Arts, operated by the Leibniz Supercomputing Centre (LRZ) in Garching, Germany, for providing the computational resources for this work. Access to the Euro-Q-Exa infrastructure was awarded under the EuroHPC project proposal No.~EHPC-QCP-2026Q01-017.
+
 P.K. acknowledges support from the European Innovation Council Pathfinder programme under Grant Agreement No.~101185617 (QCEED); the Institutional Subsidy for the Long-Term Conceptual Development of a Research Organization granted to the Czech Metrology Institute by the Ministry of Industry and Trade of the Czech Republic; and the project \emph{Quantum Materials for Applications in Sustainable Technologies}, CZ.02.01.01/00/22\_008/0004572.
 \end{acknowledgments}
 
