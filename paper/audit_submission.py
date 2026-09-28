@@ -60,6 +60,7 @@ required_phrases = {
     "main ROHF definition": "restricted open-shell Hartree--Fock (ROHF)",
     "main AVAS definition": "atomic-valence active-space (AVAS)",
     "main CASSCF definition": "complete-active-space self-consistent-field (CASSCF)",
+    "main SLSQP definition": "Sequential Least Squares Programming (SLSQP)",
 }
 for label, phrase in required_phrases.items():
     if phrase not in main:
@@ -70,6 +71,7 @@ for label, phrase in {
     "SI ROHF definition": "restricted open-shell Hartree--Fock (ROHF)",
     "SI CAS definition": "primary complete active space, CAS(15e,9o), contains 15 active electrons in 9 active spatial orbitals",
     "SI AVAS definition": "atomic-valence active-space (AVAS)",
+    "SI SLSQP definition": "Sequential Least Squares Programming (SLSQP)",
 }.items():
     if phrase not in si:
         errors.append("missing required content: " + label)
