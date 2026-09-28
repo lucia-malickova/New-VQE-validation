@@ -102,6 +102,9 @@ for label, phrase in {
 if "A_d" in main:
     errors.append("stale reduced-generator notation A_d remains in main manuscript")
 
+if "QCEED" in main or "101185617" in main:
+    errors.append("non-applicable QCEED funding attribution remains in main manuscript")
+
 cover_txt = HERE / "jcp_submission" / "cover_letter_JCP_final.txt"
 cover_tex = HERE / "jcp_submission" / "cover_letter_JCP_final.tex"
 if not cover_txt.exists():
