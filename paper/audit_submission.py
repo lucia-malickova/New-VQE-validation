@@ -68,6 +68,15 @@ for label, phrase in required_phrases.items():
 if "production physical pool uses $M_S$-preserving excitation patterns" not in si:
     errors.append("missing required content: SI M_S-preserving wording")
 for label, phrase in {
+    "SI range definition": "The notation $\\operatorname{Ran}(P)$ means the range (image) of $P$",
+    "SI projector geometry": "$\\operatorname{Ran}(P)=\\mathcal H_D$",
+    "SI leakage definition": "\\ell_F(A)",
+    "SI reduced-generator definition": "A_D=U^\\dagger A U",
+    "SI operator-norm definition": "$\\|\\cdot\\|_2$ the spectral (operator) norm",
+}.items():
+    if phrase not in si:
+        errors.append("missing required content: " + label)
+for label, phrase in {
     "SI ROHF definition": "restricted open-shell Hartree--Fock (ROHF)",
     "SI CAS definition": "primary complete active space, CAS(15e,9o), contains 15 active electrons in 9 active spatial orbitals",
     "SI AVAS definition": "atomic-valence active-space (AVAS)",
