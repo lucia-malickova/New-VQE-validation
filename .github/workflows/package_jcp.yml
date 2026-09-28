@@ -2,7 +2,7 @@ name: Package final JCP submission
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, final-jcp-submission-v17 ]
   workflow_dispatch:
 
 jobs:
