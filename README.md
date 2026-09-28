@@ -16,7 +16,7 @@ Canonical sources:
 - `paper/references.bib`;
 - `paper/jcp_submission/` — mirrored self-contained submission-support source set.
 
-The current pre-submission state is **v17**. Main/JCP mirrors and SI/JCP mirrors are identical. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
+The current pre-submission state is **v18**. Main/JCP mirrors and SI/JCP mirrors are identical. CAS, ROHF, AVAS, and CASSCF are now defined explicitly at first use in the main manuscript; the standalone Supplement independently defines ROHF, AVAS, and CAS. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
 
 ## Key validated results
 
