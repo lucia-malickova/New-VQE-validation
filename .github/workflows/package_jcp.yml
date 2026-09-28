@@ -29,17 +29,17 @@ jobs:
           mkdir -p "$ROOT/src/revision_v12"
           cp src/revision_v12/run_selective_18q_qiskit.py "$ROOT/src/revision_v12/"
           cp src/circuit_validate_physical.py "$ROOT/src/"
-          cat > "$ROOT/PACKAGE_README.txt" <<'EOF'
-Latest JCP ADAPT-VQE submission bundle (revision v12).
-Canonical manuscript sources:
-  paper/manuscript.tex
-  paper/supporting_information.tex
-  paper/references.bib
-JCP mirrored submission sources and cover/checklist are in:
-  paper/jcp_submission/
-The confirmed selective 18q Qiskit PASS and provenance are in:
-  results/revision_v12/selective_suzuki_qiskit/
-EOF
+          printf '%s\n' \
+            'Latest JCP ADAPT-VQE submission bundle (revision v12).' \
+            'Canonical manuscript sources:' \
+            '  paper/manuscript.tex' \
+            '  paper/supporting_information.tex' \
+            '  paper/references.bib' \
+            'JCP mirrored submission sources and cover/checklist are in:' \
+            '  paper/jcp_submission/' \
+            'The confirmed selective 18q Qiskit PASS and provenance are in:' \
+            '  results/revision_v12/selective_suzuki_qiskit/' \
+            > "$ROOT/PACKAGE_README.txt"
           zip -r JCP_ADAPT_VQE_submission_v12.zip "$ROOT"
       - uses: actions/upload-artifact@v4
         with:
