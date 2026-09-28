@@ -69,7 +69,7 @@ if "production physical pool uses $M_S$-preserving excitation patterns" not in s
     errors.append("missing required content: SI M_S-preserving wording")
 for label, phrase in {
     "SI range definition": "The notation $\\operatorname{Ran}(P)$ means the range (image) of $P$",
-    "SI projector geometry": "$\\operatorname{Ran}(P)=\\mathcal H_D$",
+    "SI projector geometry": "\\operatorname{Ran}(P)=\\mathcal H_D",
     "SI leakage definition": "\\ell_F(A)",
     "SI reduced-generator definition": "A_D=U^\\dagger A U",
     "SI operator-norm definition": "$\\|\\cdot\\|_2$ the spectral (operator) norm",
