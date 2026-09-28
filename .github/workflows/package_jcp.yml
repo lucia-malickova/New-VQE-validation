@@ -1,0 +1,48 @@
+name: Package JCP submission
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build submission bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="JCP_ADAPT_VQE_submission_v12"
+          mkdir -p "$ROOT"
+          cp -R paper "$ROOT/"
+          cp -R docs "$ROOT/"
+          cp README.md REPRODUCIBILITY.md "$ROOT/"
+          mkdir -p "$ROOT/results/revision_v12"
+          cp -R results/revision_v12/selective_suzuki_qiskit "$ROOT/results/revision_v12/"
+          mkdir -p "$ROOT/data/18q"
+          cp data/18q/README.md "$ROOT/data/18q/"
+          cp data/18q/best50_compact.json "$ROOT/data/18q/"
+          cp data/18q/best50_generalized_spin_adapted.json "$ROOT/data/18q/"
+          cp data/18q/active.FCIDUMP "$ROOT/data/18q/"
+          mkdir -p "$ROOT/src/revision_v12"
+          cp src/revision_v12/run_selective_18q_qiskit.py "$ROOT/src/revision_v12/"
+          cp src/circuit_validate_physical.py "$ROOT/src/"
+          cat > "$ROOT/PACKAGE_README.txt" <<'EOF'
+Latest JCP ADAPT-VQE submission bundle (revision v12).
+Canonical manuscript sources:
+  paper/manuscript.tex
+  paper/supporting_information.tex
+  paper/references.bib
+JCP mirrored submission sources and cover/checklist are in:
+  paper/jcp_submission/
+The confirmed selective 18q Qiskit PASS and provenance are in:
+  results/revision_v12/selective_suzuki_qiskit/
+EOF
+          zip -r JCP_ADAPT_VQE_submission_v12.zip "$ROOT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: JCP_ADAPT_VQE_submission_v12
+          path: JCP_ADAPT_VQE_submission_v12.zip
+          if-no-files-found: error
