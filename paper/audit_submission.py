@@ -73,8 +73,9 @@ for label, phrase in required_phrases.items():
         errors.append("missing required content: " + label)
 if "production physical pool uses $M_S$-preserving excitation patterns" not in si:
     errors.append("missing required content: SI M_S-preserving wording")
-if si.count("\\aipalt{") != 14:
-    errors.append(f"SI alt-text count is {si.count('\\\\aipalt{')}, expected 14")
+si_alt_count = si.count("\\aipalt{")
+if si_alt_count != 14:
+    errors.append(f"SI alt-text count is {si_alt_count}, expected 14")
 for label, phrase in {
     "SI range definition": "The notation $\\operatorname{Ran}(P)$ means the range (image) of $P$",
     "SI projector geometry": "\\operatorname{Ran}(P)=\\mathcal H_D",
@@ -101,6 +102,9 @@ for label, phrase in {
 
 if "A_d" in main:
     errors.append("stale reduced-generator notation A_d remains in main manuscript")
+
+if "QCEED" in main or "101185617" in main:
+    errors.append("non-applicable QCEED funding attribution remains in main manuscript")
 
 cover_txt = HERE / "jcp_submission" / "cover_letter_JCP_final.txt"
 cover_tex = HERE / "jcp_submission" / "cover_letter_JCP_final.tex"

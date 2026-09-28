@@ -1,4 +1,4 @@
-# JCP final submission checklist — v24
+# JCP final submission checklist — v25
 
 ## Completed
 
@@ -7,6 +7,7 @@
 - Separate main and supplementary compilations.
 - Full author affiliations restored, including Lucia Malíčková's street number and postal code.
 - Lucia Malíčková Euro-Q-Exa acknowledgement restored.
+- Non-applicable QCEED funding attribution removed; remaining funding acknowledgements retained.
 - Conflict of Interest inserted.
 - CRediT Author Contributions inserted.
 - Main: 4/4 figure/table objects labeled and explicitly cited.
@@ -31,4 +32,4 @@
 - both approve individual CRediT roles;
 - corresponding author completes AIP Conflict-of-Interest disclosure;
 - corresponding author verifies names, affiliations, e-mails, funding/acknowledgements, and exclusive-submission status in the portal;
-- upload the exact v24 source/PDF set corresponding to this repository state.
+- upload the exact v25 source/PDF set corresponding to this repository state.
