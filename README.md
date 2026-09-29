@@ -1,22 +1,22 @@
 # Representation-Equivalence Audits for Open-Shell ADAPT-VQE
 
-This repository contains the code, fixed Hamiltonians, validation data, and final pre-submission sources for
+This repository contains the code, fixed Hamiltonians, validation data, and manuscript sources for
 
 **From Projected Subspaces to Full-Space Implementations: Representation-Equivalence Audits for Open-Shell ADAPT-VQE**
 
 by Lucia Malíčková and Petr Klenovský.
 
-## Current submission state
+## Manuscript
 
-Prepared for initial submission to **The Journal of Chemical Physics (JCP)** as a regular Article.
+Submitted to **The Journal of Chemical Physics (JCP)** as a regular Article.
 
 Canonical sources:
 - `paper/manuscript.tex` — AIP/JCP REVTeX main manuscript;
-- `paper/supporting_information.tex` — separate JCP supplementary material;
+- `paper/supporting_information.tex` — separate supplementary material;
 - `paper/references.bib`;
-- `paper/jcp_submission/` — mirrored self-contained submission-support source set.
+- `paper/jcp_submission/` — self-contained submission-support source set.
 
-The current pre-submission state is **v25**. Main/JCP mirrors and SI/JCP mirrors are identical. CAS, ROHF, AVAS, CASSCF, and SLSQP are now defined explicitly at first use in the main manuscript; the standalone Supplement independently defines ROHF, AVAS, CAS, and SLSQP. Every figure/table is explicitly called out and labeled. The final technical wording makes clear that the projector-free total-spin sufficiency statement is used for the $M_S$-preserving generators considered in this work.
+The manuscript and Supplement in this repository correspond to the current submitted version.
 
 ## Key validated results
 
@@ -39,11 +39,10 @@ src/                       implementation and validation scripts
 data/18q/                  canonical CAS(15e,9o) Hamiltonian and 18q checkpoints
 data/24q/                  fixed CAS(21e,12o) algorithmic benchmark
 benchmarks/                geometry/protocol and independent NO/OH benchmarks
-results/                   validated outputs and revision-specific audits
+results/                   validated outputs and audit records
 paper/                     canonical JCP sources, figure source data, figure generator
-paper/jcp_submission/      mirrored JCP submission-support materials
-docs/                      final submission/validation/data-audit notes
-legacy/                    superseded workflow retained only for provenance
+paper/jcp_submission/      self-contained submission-support materials
+docs/                      validation and data-audit notes
 ```
 
 See `REPRODUCIBILITY.md` for exact rerun commands.
@@ -55,21 +54,3 @@ Canonical 18q FCIDUMP SHA256:
 ```
 
 The 24q Hamiltonian is retained as a fixed FCIDUMP benchmark because the dedicated 12-orbital selection driver was not preserved.
-
-
-Revision v20 condenses the main-text scope section so that it states the positive scope of the claims rather than repeating detailed exclusions already documented elsewhere.
-
-
-Revision v21 clarifies the Supplement's operator notation and geometry: it defines $\operatorname{Ran}(P)$, the complementary projectors $P$ and $Q$, the reduced generator, leakage block, matrix norms, and the distinction between uniform and state-specific representation-error bounds.
-
-
-Revision v22 is a final copyedit: reduced-generator notation is harmonized to $A_D$, QWC/CX/L-BFGS-B/1-RDM/QPY terminology is clarified at first use, and a float barrier prevents the multistart figure from interrupting the following SI paragraph.
-
-
-Revision v23 adds the final JCP cover letter and the missing `booktabs` dependency required for standalone compilation of the manuscript and Supplement. The scientific content is unchanged.
-
-
-Revision v24 adds visible AIP accessibility alt text below every supplementary figure and table caption and updates the final cover letter to the coauthor-reviewed wording. Scientific results are unchanged.
-
-
-Revision v25 corrects funding attribution by removing the QCEED acknowledgement because this manuscript is outside the scope of that project. No scientific content, results, figures, or conclusions are changed.
