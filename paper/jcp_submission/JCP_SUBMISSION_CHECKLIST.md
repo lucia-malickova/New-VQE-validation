@@ -1,4 +1,4 @@
-# JCP final submission checklist — v25
+# JCP submission checklist
 
 ## Completed
 
@@ -26,10 +26,10 @@
 - CAS, ROHF, AVAS, CASSCF, and SLSQP defined explicitly at first use in the main manuscript; ROHF, AVAS, CAS, and SLSQP independently defined in the standalone Supplement.
 - Graphical abstract not required for initial JCP submission.
 
-## Before pressing Submit
+## Submission checks
 
 - both authors approve the final manuscript PDF and Supplement PDF;
 - both approve individual CRediT roles;
 - corresponding author completes AIP Conflict-of-Interest disclosure;
 - corresponding author verifies names, affiliations, e-mails, funding/acknowledgements, and exclusive-submission status in the portal;
-- upload the exact v25 source/PDF set corresponding to this repository state.
+- the submitted source/PDF set corresponds to the current repository state.
