@@ -1,20 +1,17 @@
-# Final JCP submission-support materials — v17
+# Archived JCP submission materials
 
-Canonical sources are `paper/manuscript.tex` and `paper/supporting_information.tex`; exact mirrored copies are retained in this directory as `manuscript_JCP.tex` and `supplementary_material_JCP.tex`.
+This directory preserves the earlier *Journal of Chemical Physics* submission package for provenance and reproducibility of the manuscript history.
 
-REVTeX mode: AIP/JCP preprint.
+The JCP submission was desk-rejected and these files are **not the current manuscript**. The current work is framed as:
 
-Formal audit:
-- main manuscript: 4/4 figure/table objects explicitly cited;
-- supplementary material: 14/14 figure/table objects explicitly cited;
-- bibliography keys resolved;
-- no duplicate labels or unresolved `\\ref`/`\\eqref` targets;
-- figure PDFs are generated deterministically by `paper/make_figures.py` and included in the submission bundle;
-- main/JCP and SI/JCP mirrors are identical.
+**Representation Inequivalence in Open-Shell ADAPT-VQE: Projected Optimization versus Full-Space Implementation**
 
-Scientific/reproducibility status:
-- canonical 18q FCIDUMP provenance repaired and documented;
-- fixed-seed selective 18q Qiskit validation PASS;
-- final $M_S$-preserving/$[A,S^2]$ technical wording synchronized between main and SI.
+with the revised representation-consistency analysis, Cu fixed-parent reoptimization, NO/OH/Hubbard controls, clarified final-angle prefix provenance, and updated circuit-validation interpretation.
 
-Conflict of Interest and CRediT statements are inserted. Both authors must approve the final manuscript and individual CRediT roles before upload.
+For the current scientific state, use:
+- the repository root `README.md`;
+- `paper/CURRENT_MANUSCRIPT.md`;
+- `REPRODUCIBILITY.md`;
+- the current committed source-data/audit files under `paper/` and `results/`.
+
+The historical TeX, cover letters, checklists, and alt-text drafts in this directory are retained only as an archive.

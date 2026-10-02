@@ -55,61 +55,64 @@ def save(fig, name):
 
 
 def fig1():
-    fig, ax = plt.subplots(figsize=(11.0, 2.9))
+    fig, ax = plt.subplots(figsize=(11.0, 3.25))
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
 
     boxes = [
-        (0.02, 0.24, 0.19, 0.50, PALETTE['lightblue'], PALETTE['blue'],
-         'Reduced-space\noptimization', r'$\{U^\dagger A_kU,\,\theta_k\}$'),
-        (0.28, 0.24, 0.19, 0.50, PALETTE['lightred'], PALETTE['orange'],
-         'Parent full-space\nsequence', r'$\prod_k e^{\theta_k A_k}$'),
-        (0.54, 0.24, 0.19, 0.50, PALETTE['lightgreen'], PALETTE['green'],
-         'Synthesized\nqubit circuit', 'Suzuki / transpilation'),
-        (0.80, 0.24, 0.18, 0.50, PALETTE['lightpurple'], PALETTE['purple'],
-         'Measurement\nprotocol', 'Energy estimator'),
+        (0.02, 0.28, 0.205, 0.50, PALETTE['lightblue'], PALETTE['blue'],
+         'Projected / reduced-space\noptimization', r'$\{U^\dagger A_kU,\,\theta_k\}$'),
+        (0.285, 0.28, 0.205, 0.50, PALETTE['lightred'], PALETTE['orange'],
+         'Parent full-space\nfermionic ansatz', r'$\prod_k e^{\theta_k A_k}$'),
+        (0.55, 0.28, 0.18, 0.50, PALETTE['lightgreen'], PALETTE['green'],
+         'Synthesized\nqubit circuit', 'Suzuki / factorization'),
+        (0.79, 0.28, 0.19, 0.50, PALETTE['lightpurple'], PALETTE['purple'],
+         'Measurement /\nestimator', 'Sampling / statistics'),
     ]
-
     for x, y, w, h, fc, ec, title, subtitle in boxes:
         patch = FancyBboxPatch((x, y), w, h,
                                boxstyle='round,pad=0.012,rounding_size=0.03',
                                linewidth=1.5, edgecolor=ec, facecolor=fc)
         ax.add_patch(patch)
-        ax.text(x + w/2, y + h*0.64, title, ha='center', va='center', fontsize=11, weight='bold')
-        ax.text(x + w/2, y + h*0.29, subtitle, ha='center', va='center', fontsize=10)
+        ax.text(x + w/2, y + h*0.65, title, ha='center', va='center',
+                fontsize=10.8, weight='bold')
+        ax.text(x + w/2, y + h*0.28, subtitle, ha='center', va='center', fontsize=9.8)
 
-    arrows = [
-        ((0.215, 0.49), (0.275, 0.49), PALETTE['blue'], r'Exact iff $QA_kP=0$'),
-        ((0.475, 0.49), (0.535, 0.49), PALETTE['gray'], 'Circuit-synthesis layer'),
-        ((0.735, 0.49), (0.795, 0.49), PALETTE['gray'], 'Measurement layer'),
+    links = [
+        ((0.228, 0.53), (0.282, 0.53), PALETTE['orange'],
+         r'Representation check\n$QA_kP=0$'),
+        ((0.493, 0.53), (0.547, 0.53), PALETTE['gray'],
+         'Synthesis check'),
+        ((0.733, 0.53), (0.787, 0.53), PALETTE['gray'],
+         'Estimation layer'),
     ]
-    for (x1, y1), (x2, y2), c, label in arrows:
-        arr = FancyArrowPatch((x1, y1), (x2, y2), arrowstyle='-|>', mutation_scale=14,
-                              lw=1.7, color=c, shrinkA=0, shrinkB=0)
-        ax.add_patch(arr)
-        ax.text((x1+x2)/2, 0.81, label, ha='center', va='bottom', fontsize=9.2, color=c)
+    for (x1, y1), (x2, y2), c, label in links:
+        ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle='-|>',
+                                    mutation_scale=14, lw=1.7, color=c))
+        ax.text((x1+x2)/2, 0.84, label, ha='center', va='bottom',
+                fontsize=9.1, color=c)
 
-    ax.text(0.5, 0.05,
-            'Validation ladder: a low reduced-space energy does not by itself certify the parent sequence, compiled circuit, or measurement protocol.',
-            ha='center', va='center', fontsize=9.2, color='#333333')
-    save(fig, 'fig1_validation_ladder.pdf')
+    ax.text(0.39, 0.08,
+            'If the representation check fails, a faithful downstream circuit can implement a different variational state from the projected optimum.',
+            ha='center', va='center', fontsize=9.2, color='#333333', wrap=True)
+    save(fig, 'fig1_validation_hierarchy.pdf')
 
 
 def fig2():
     d = pd.read_csv(HERE / 'source_data_projected_negative_control_prefix_v5.csv')
     fig, ax = plt.subplots(figsize=(8.2, 5.3))
-    ax.plot(d.ops, d.projected_error_mEh, label='Projected ADAPT', color=PALETTE['blue'], lw=LW)
-    ax.plot(d.ops, d.bare_error_vs_doublet_mEh, label='Same amplitudes, full-space parent sequence', color=PALETTE['orange'], lw=LW)
-    ax.plot(d.ops, d.postprojected_doublet_error_mEh, label='Full-space state projected back to doublet', color=PALETTE['green'], lw=LW)
+    ax.plot(d.ops, d.projected_error_mEh, label='Projected final-angle prefix', color=PALETTE['blue'], lw=LW)
+    ax.plot(d.ops, d.bare_error_vs_doublet_mEh, label='Parent full-space final-angle prefix', color=PALETTE['orange'], lw=LW)
+    ax.plot(d.ops, d.postprojected_doublet_error_mEh, label='Post-projected parent prefix', color=PALETTE['green'], lw=LW)
     ax.axhline(1.6, linestyle='--', linewidth=1.4, color=PALETTE['gray'], label='1.6 mEh model-space benchmark')
     ax.set_yscale('log')
-    ax.set_xlabel('Number of selected operator applications')
+    ax.set_xlabel('Final-sequence prefix length')
     ax.set_ylabel('Energy error relative to exact target doublet (mEh)')
     ax.set_xlim(d.ops.min(), d.ops.max())
     stylize(ax)
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.01), ncol=2, frameon=False)
-    save(fig, 'fig2_projected_prefix_divergence.pdf')
+    save(fig, 'fig3_projected_prefix_divergence.pdf')
 
 
 def figS1():
@@ -124,22 +127,30 @@ def figS1():
     ax.set_title('One-particle occupations remain close to exact doublet values')
     stylize(ax)
     ax.legend(frameon=False)
-    save(fig, 'figS1_natural_occupation_errors.pdf')
+    save(fig, 'figS5_natural_occupation_errors.pdf')
 
 
 def figS2():
     d = pd.read_csv(HERE / 'source_data_multistart_v5.csv')
     fig, ax = plt.subplots(figsize=(7.5, 5.2))
-    for case, marker, color in [('18q', 'o', PALETTE['blue']), ('24q', 's', PALETTE['orange'])]:
-        x = d[d.case == case]
-        ax.scatter(np.arange(1, len(x)+1), x.dev_mEh, marker=marker, s=32, color=color, label=case.replace('q', ' qubits'))
-    ax.axhline(1.6, linestyle='--', linewidth=1.3, color=PALETTE['gray'], label='1.6 mEh model-space benchmark')
+    styles = [('18q', 'o', PALETTE['blue']), ('24q', 's', PALETTE['orange'])]
+    for case, marker, color in styles:
+        x = d[d.case == case].reset_index(drop=True)
+        xpos = np.arange(1, len(x) + 1)
+        ok = x.success.astype(str).str.lower().eq('true')
+        ax.scatter(xpos[ok], x.loc[ok, 'dev_mEh'], marker=marker, s=38,
+                   color=color, label=case.replace('q', ' qubits') + ' (converged)')
+        ax.scatter(xpos[~ok], x.loc[~ok, 'dev_mEh'], marker=marker, s=38,
+                   facecolors='none', edgecolors=color, linewidths=1.4,
+                   label=case.replace('q', ' qubits') + ' (iteration cap)')
+    ax.axhline(1.6, linestyle='--', linewidth=1.3, color=PALETTE['gray'],
+               label='1.6 mEh model-space benchmark')
     ax.set_xlabel('Perturbed-start reoptimization')
     ax.set_ylabel('Final energy error (mEh)')
     ax.set_title('Compact ansatz solutions are locally robust')
     stylize(ax)
-    ax.legend(frameon=False)
-    save(fig, 'figS2_multistart.pdf')
+    ax.legend(frameon=False, fontsize=9)
+    save(fig, 'figS6_multistart_robustness.pdf')
 
 
 def figS3():
@@ -154,7 +165,7 @@ def figS3():
     ax.set_title('Single-generator representation mismatch in the Cu active space')
     stylize(ax)
     ax.legend(frameon=False, fontsize=9)
-    save(fig, 'figS3_representation_scaling.pdf')
+    save(fig, 'fig2_single_generator_scaling.pdf')
 
 
 def figS4():
@@ -163,13 +174,13 @@ def figS4():
     ax.plot(d.ops, d.full_fidelity, lw=LW, color=PALETTE['blue'], label='Fidelity: projected vs bare')
     ax.plot(d.ops, d.doublet_weight, lw=LW, color=PALETTE['orange'], label='Bare-state doublet weight')
     ax.plot(d.ops, d.postprojected_doublet_fidelity, lw=LW, color=PALETTE['green'], label='Fidelity after post-projection')
-    ax.set_xlabel('Number of selected operator applications')
+    ax.set_xlabel('Final-sequence prefix length')
     ax.set_ylabel('State overlap / weight')
     ax.set_ylim(0, 1.03)
-    ax.set_title('State diagnostics along the canonical projected-ADAPT negative control')
+    ax.set_title('State diagnostics for final-angle prefixes of the Cu negative control')
     stylize(ax)
     ax.legend(frameon=False)
-    save(fig, 'figS4_projected_prefix_state_diagnostics.pdf')
+    save(fig, 'figS1_prefix_state_diagnostics.pdf')
 
 
 def figS5():
@@ -182,7 +193,7 @@ def figS5():
     ax.set_title('Independent Hubbard-model stress test of representation equivalence')
     stylize(ax)
     ax.legend(frameon=False)
-    save(fig, 'figS5_hubbard_representation_audit.pdf')
+    save(fig, 'figS2_hubbard_representation_audit.pdf')
 
 
 def figS6():
@@ -196,7 +207,7 @@ def figS6():
     ax.set_title('Among noncommuting factors, amplitude dominates local Suzuki difficulty')
     stylize(ax)
     ax.legend(frameon=False)
-    save(fig, 'figS6_local_suzuki_amplitude_v6.pdf')
+    save(fig, 'figS3_local_suzuki_amplitude.pdf')
 
 
 def figS7():
@@ -211,7 +222,7 @@ def figS7():
     ax.set_title('Measurement burden at the mEh scale')
     stylize(ax)
     ax.legend(frameon=False)
-    save(fig, 'figS7_measurement_shots.pdf')
+    save(fig, 'figS4_measurement_shots.pdf')
 
 
 if __name__ == '__main__':

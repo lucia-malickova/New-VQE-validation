@@ -12,55 +12,84 @@ pip install -r requirements.txt
 export PYTHONPATH="$PWD/src"
 ```
 
-On Windows PowerShell use `$env:PYTHONPATH="$PWD\\src"`.
-The colleague's stored environment record reports Python 3.9.6.
+On Windows PowerShell use `$env:PYTHONPATH="$PWD\src"`.
 
-## Materialize the deterministic physical checkpoints
+The archived circuit-validation campaign reports Python 3.9.6, Qiskit 2.2.3, Qiskit Aer 0.17.2, Qiskit Nature 0.7.2, NumPy 2.0.2, and SciPy 1.13.1.
 
-The repository stores compact checkpoints as pool indices plus optimized angles.
-Materialize the exact serialized physical generators first:
+## Canonical Hamiltonians
+
+18q:
+```text
+data/18q/active.FCIDUMP
+SHA256 4fe2f74860c4a7b1af7e677f62f4d59a1571c2758ff427ba8627607dcd8c8536
+```
+
+24q:
+```text
+data/24q/active.FCIDUMP
+```
+
+The 24q file is a fixed algorithmic benchmark. Its dedicated geometry-to-12-orbital selection driver was not preserved.
+
+## Materialize deterministic physical checkpoints
 
 ```bash
 python src/materialize_checkpoint.py data/18q/best50_compact.json --fcidump data/18q/active.FCIDUMP --output best50_full.json
 python src/materialize_checkpoint.py data/24q/best61_compact.json --fcidump data/24q/active.FCIDUMP --output best61_full.json
 ```
 
-The pool construction is deterministic. It was checked against the original
-serialized campaign checkpoints: all selected generator specifications and
-coefficients are reproduced exactly for both 18q and 24q.
-
-## Exact physical ansatz validation
+## Exact positive-control validation
 
 ```bash
 python src/validate_physical_ansatz.py best50_full.json --fcidump data/18q/active.FCIDUMP --output reproduced_18q_exact.json
 python src/validate_physical_ansatz.py best61_full.json --fcidump data/24q/active.FCIDUMP --output reproduced_24q_exact.json
 ```
 
-Expected errors are approximately 1.492674 mEh and 1.181293 mEh, respectively,
-with <S^2>=0.75 and unit doublet weight to numerical precision.
+Expected energy errors are approximately 1.492674 mEh and 1.181293 mEh, respectively, with `<S^2>=0.75` and unit doublet weight to numerical precision.
+
+## Projected-to-parent representation audit
+
+The canonical 121-factor Cu checkpoint is under:
+
+```text
+results/revision_v6/cu/canonical_projected_121_checkpoint_compact.json
+results/revision_v6/cu/canonical_projected_121_audit_summary.json
+```
+
+Regenerate the state-specific certificate with:
+
+```bash
+PYTHONPATH="$PWD/src" python src/revision_v6/audit_state_specific_representation.py \
+  results/revision_v6/cu/canonical_projected_121_checkpoint_compact.json \
+  data/18q/active.FCIDUMP \
+  --output reproduced_state_specific_representation_certificate.json
+```
+
+The committed source data for the final-angle prefix reconstruction are:
+
+```text
+paper/source_data_projected_negative_control_prefix_v5.csv
+paper/source_data_state_specific_certificate_v5.csv
+```
+
+Important: manuscript prefix plots are **not ADAPT optimization-history curves**. Prefix `k` uses the first `k` factors and first `k` entries of the final globally optimized 121-parameter vector.
 
 ## Qiskit circuit validation
 
-18q smoke test:
-
-```bash
-python src/circuit_validate_physical.py best50_full.json --fcidump data/18q/active.FCIDUMP --prefix 5 --method suzuki2 --reps 1 --strict --output reproduced_18q_prefix5.json
-```
-
-18q full synthesis scan:
+18q uniform Suzuki-2 scan:
 
 ```bash
 for reps in 1 2 4; do
-  python src/circuit_validate_physical.py best50_full.json --fcidump data/18q/active.FCIDUMP --method suzuki2 --reps "$reps" --output "reproduced_18q_full_r${reps}.json"
+  python src/circuit_validate_physical.py best50_full.json \
+    --fcidump data/18q/active.FCIDUMP \
+    --method suzuki2 --reps "$reps" \
+    --output "reproduced_18q_full_r$reps.json"
 done
 ```
 
-The r=4 result has fidelity 0.999484 and 0.135 mEh synthesis error, but it does
-not pass the deliberately strict 0.1 mEh synthesis-error criterion.
+None of the tested uniform 18q schedules `r=1,2,4` passes all four strict validation criteria. The `r=4` result is the closest tested uniform comparator: fidelity 0.999484 and 0.135 mEh synthesis error, narrowly above the 0.1 mEh synthesis-error threshold.
 
-The submission-v12 selective 18q circuit can be reproduced directly from the
-compact checkpoint; the validator materializes its generators deterministically
-when `selected_generators` are absent:
+Fixed-seed selective 18q validation:
 
 ```bash
 python src/revision_v12/run_selective_18q_qiskit.py \
@@ -74,92 +103,40 @@ python src/revision_v12/run_selective_18q_qiskit.py \
   --output reproduced_18q_selective.json
 ```
 
-The archived reference run used Qiskit 2.2.3, Qiskit Aer 0.17.2, Qiskit Nature
-0.7.2, NumPy 2.0.2, SciPy 1.13.1, and Python 3.9.6. It gives 19,660 CX gates,
-depth 23,016, 0.0950208 mEh synthesis error, fidelity 0.99958246,
-$\langle S^2\rangle=0.75072418$, and target-$M_S$ weight
-0.9999999999994. The result passes all four predeclared circuit-equivalence
-gates. The full serialized checkpoint is also retained at
-`data/18q/best50_generalized_spin_adapted.json`.
-
-The canonical 18q FCIDUMP must have SHA256
-`4fe2f74860c4a7b1af7e677f62f4d59a1571c2758ff427ba8627607dcd8c8536`.
-The revision-v12 validator checks this hash by default. Its Python-popcount path
-uses `bin(i).count("1")`, so the recorded Python 3.9.6 environment is supported.
-
-24q full strict validation:
-
-```bash
-python src/circuit_validate_physical.py best61_full.json --fcidump data/24q/active.FCIDUMP --method suzuki2 --reps 1 --strict --output reproduced_24q_full_r1.json
-```
-
-The stored reference run passes the strict circuit-equivalence gate.
-
-Resource-only scans can use:
-
-```bash
-python src/circuit_resource_physical.py best61_full.json --fcidump data/24q/active.FCIDUMP --method suzuki2 --reps 2 --output reproduced_24q_resources_r2.json
-```
-
-These are abstract-basis resources unless transpilation is replaced by an actual
-device backend and coupling map.
+Archived reference result:
+- 19,660 CX gates;
+- depth 23,016;
+- synthesis error 0.0950208 mEh;
+- circuit-to-fermionic fidelity 0.99958246;
+- `<S^2>=0.75072418`;
+- target-`M_S` weight 0.9999999999994.
 
 ## Figures
+
+The figure source data are committed under `paper/source_data_*.csv`. Run:
 
 ```bash
 python paper/make_figures.py
 ```
 
-## Excluded extension
-
-The preliminary Cu-S scan failed its own CASSCF-convergence and orbital-continuity
-gates. Its log is retained under `results/excluded/`, but it is not used for a
-geometry-dependent scientific claim.
-
-
-## Additional referee checks
-
-Canonical Cu geometry and the archived 18q generation protocol are stored in:
-
+The current generator writes:
 ```text
-benchmarks/cu18/T1_model_geometry.xyz
-benchmarks/cu18/T1_18q_electronic_structure_protocol.md
+paper/fig1_validation_hierarchy.pdf
+paper/fig2_single_generator_scaling.pdf
+paper/fig3_projected_prefix_divergence.pdf
+paper/figS1_prefix_state_diagnostics.pdf
+paper/figS2_hubbard_representation_audit.pdf
+paper/figS3_local_suzuki_amplitude.pdf
+paper/figS4_measurement_shots.pdf
+paper/figS5_natural_occupation_errors.pdf
+paper/figS6_multistart_robustness.pdf
 ```
 
-The generalized-pool basis-sensitivity test can be rerun with:
+## Independent benchmarks and additional audits
 
-```bash
-PYTHONPATH="$PWD/src" python src/revision_v6/test_pool_basis_sensitivity_v6.py   --fcidump data/18q/active.FCIDUMP --seeds 1 2 3   --output reproduced_pool_basis_sensitivity_v6.json
-```
+- NO and OH FCIDUMPs/metadata: `benchmarks/no/`, `benchmarks/oh/`.
+- Pool-basis normalization/sensitivity data: `paper/source_data_pool_basis_*_v8.csv`.
+- Fixed-parent energy/fidelity reoptimization data: `paper/source_data_fixed_parent_*.`
+- Selective-Qiskit result: `paper/source_data_selective_suzuki_qiskit_v12.csv`.
 
-The Suzuki diagnostic baseline can be regenerated with:
-
-```bash
-python src/revision_v6/compare_suzuki_diagnostics_v6.py   paper/source_data_local_suzuki_predictor_v5.csv   --output reproduced_suzuki_diagnostic_v6.csv
-```
-
-The independent NO and OH FCIDUMPs and metadata used in the manuscript are under
-`benchmarks/no/` and `benchmarks/oh/`.
-
-The exact projector used in the representation audit is a classical small-system
-oracle, not a proposed scalable circuit primitive.
-
-
-## Normalization-controlled basis audit
-
-The v6 raw O(2)-mixing probe is retained for provenance but is superseded for
-scientific interpretation because the canonical two-dimensional null-space
-basis vectors are individually normalized but not mutually orthogonal.
-
-Use the normalization-controlled audit instead:
-
-```bash
-PYTHONPATH="$PWD/src" python src/revision_v8/audit_normalized_pool_basis_sensitivity_v8.py \
-  --fcidump data/18q/active.FCIDUMP \
-  --checkpoint data/18q/best50_compact.json \
-  --n-random 100 \
-  --output-prefix reproduced_pool_basis_normalized_v8
-```
-
-The committed summary data are under paper/source_data_pool_basis_*_v8.csv
-and results/revision_v8/cu/.
+The exact-projector machinery is a small-system classical validation oracle, not a proposed scalable circuit primitive.
